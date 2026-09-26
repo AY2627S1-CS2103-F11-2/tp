@@ -11,12 +11,9 @@ import seedu.address.model.Model;
  */
 public class RemarkCommand extends Command {
 
-    public static final String MESSAGE_ARGUMENTS = "Index: %1$d, Remark: %2$s";
-
-    private final Index index;
-    private final String remark;
-
     public static final String COMMAND_WORD = "remark";
+
+    public static final String MESSAGE_ARGUMENTS = "Index: %1$d, Remark: %2$s";
 
     public static final String MESSAGE_USAGE = COMMAND_WORD
             + ": Edits the remark of the person identified "
@@ -26,6 +23,9 @@ public class RemarkCommand extends Command {
             + "r/ [REMARK]\n"
             + "Example: " + COMMAND_WORD + " 1 "
             + "r/ Likes to swim.";
+
+    private final Index index;
+    private final String remark;
 
     /**
      * @param index of the person in the filtered person list to edit the remark
