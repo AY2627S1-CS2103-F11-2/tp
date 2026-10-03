@@ -21,7 +21,7 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 
 ### Dai Koi Yim
 
-<img src="images/johnDai88.png" width="200px">
+<img src="images/john-dai-88.png" width="200px">
 
 [[github](https://github.com/John-Dai-88)]
 
