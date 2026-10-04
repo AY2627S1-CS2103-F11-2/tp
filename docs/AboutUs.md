@@ -11,7 +11,7 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 
 ### Jiang RongTang
 
-<img src="images/jackyjiangcs.png.png" width="200px">
+<img src="images/jackyjiangcs.png" width="200px">
 
 [[github](https://github.com/JackyJiangCS)]
 
