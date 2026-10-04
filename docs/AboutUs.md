@@ -26,14 +26,14 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 * Role: Developer
 * Responsibilities: The development of Searching Clients & Adding Appointments
 
-### Johnny Doe
+### Daniel Guan
 
-<img src="images/johndoe.png" width="200px">
+<img src="images/itsdanielguan.png" width="200px">
 
-[[github](http://github.com/johndoe)] [[portfolio](team/johndoe.md)]
+[[github](https://github.com/itsDanielGuan)]
 
 * Role: Developer
-* Responsibilities: Data
+* Responsibilities: Adding, listing, and deleting appointments
 
 ### Jean Doe
 
