@@ -10,4 +10,6 @@ command, and client data is never lost.
 
 PropTrack is a desktop application (GUI plus CLI) written in Java. This project is based on
 [AddressBook-Level3](https://github.com/se-edu/addressbook-level3), created by the
-[SE-EDU initiative](https://se-education.org). See [docs/AboutUs.md](docs/AboutUs.md) for our team.
+[SE-EDU initiative](https://se-education.org). We thank the SE-EDU team and AddressBook-Level3
+contributors for sharing the code, documentation, and project structure that made PropTrack possible.
+See [docs/AboutUs.md](docs/AboutUs.md) for our team.
