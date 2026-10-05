@@ -274,16 +274,39 @@ _{Explain here how the data archiving feature will be implemented}_
 
 Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unlikely to have) - `*`
 
-| Priority | As a …​                                    | I want to …​                     | So that I can…​                                                        |
-| -------- | ------------------------------------------ | ------------------------------ | ---------------------------------------------------------------------- |
-| `* * *`  | new user                                   | see usage instructions         | refer to instructions when I forget how to use the App                 |
-| `* * *`  | user                                       | add a new person               |                                                                        |
-| `* * *`  | user                                       | delete a person                | remove entries that I no longer need                                   |
-| `* * *`  | user                                       | find a person by name          | locate details of persons without having to go through the entire list |
-| `* *`    | user                                       | hide private contact details   | minimize chance of someone else seeing them by accident                |
-| `*`      | user with many persons in the address book | sort persons by name           | locate a person easily                                                 |
-
-*{More to be added}*
+| Priority | As a …​                                                  | I want to …​                                                                          | So that I can…​                                                          |
+| -------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `* * *`  | user                                                     | add a client with phone, email, address and tags                                       | keep all my contacts in one place                                          |
+| `* * *`  | agent on a call with 200+ clients stored                 | find a client by typing part of their name                                             | get their details in seconds                                               |
+| `* *`    | user who cannot recall the exact command or spelling     | still reach the right client                                                           | keep going when a typo happens mid-call                                    |
+| `* *`    | user                                                     | edit a client's details                                                                | correct mistakes I made when adding them                                   |
+| `* * *`  | user                                                     | delete a client I no longer track                                                      | keep my list current                                                       |
+| `* * *`  | user who made a wrong change                             | undo my last change                                                                    | stop one wrong command from destroying my data                             |
+| `* *`    | user who deleted a client by mistake                     | get that client back                                                                   | stop one slip from costing me a client                                     |
+| `* *`    | user                                                     | tag a client                                                                           | group clients that share a location, a budget or a source                  |
+| `* *`    | user                                                     | find all clients that carry a given tag                                                | work one group at a time                                                   |
+| `* * *`  | agent tracking deals                                     | label each client with their deal stage and pull up everyone in one stage               | see at a glance who is a lead, viewing, offer or closed                    |
+| `* * *`  | user                                                     | record notes about my interactions with a client                                        | recall previous discussions before following up                            |
+| `* * *`  | forgetful agent                                          | see which clients I still owe a follow-up                                               | stop a lead going cold                                                     |
+| `* *`    | user                                                     | associate an appointment with a client's record                                         | reach their details while preparing for it                                 |
+| `* * *`  | user                                                     | see all my appointments in chronological order                                          | plan my schedule                                                           |
+| `* *`    | user                                                     | add an appointment and be warned when it clashes with an existing one                   | avoid scheduling conflicts                                                 |
+| `* *`    | user                                                     | find a specific appointment                                                            | change or remove its contents                                              |
+| `* *`    | user                                                     | mark an appointment as completed                                                        | tell past meetings from ones that still need attention                     |
+| `* *`    | user                                                     | see the appointments and follow-ups coming up when I open the app                       | not forget something that is already scheduled                             |
+| `* * *`  | user                                                     | retain my contacts and appointments when I close and reopen the program                 | continue without re-entering data                                          |
+| `* * *`  | user                                                     | rely on my changes being saved as I work                                                | know that closing the app never loses an entry                             |
+| `* * *`  | cautious user                                            | back up my client data and restore it when the data file breaks                          | never lose months of contacts                                              |
+| `* *`    | user comfortable with text files                         | hand-edit the saved data file                                                           | fix or bulk-edit data without the app                                      |
+| `* * *`  | new user                                                 | view a guided introduction to the available functions                                    | learn the app without prior command-line experience                        |
+| `* * *`  | user                                                     | get a clear explanation of invalid input and how to correct it                          | resolve mistakes without guessing                                          |
+| `* *`    | user who mistyped a command                              | be pointed at the closest valid command                                                 | recover without reading the whole help page                                |
+| `* * *`  | potential user exploring the app                         | see it populated with sample data                                                        | see how it will look in real use                                           |
+| `* * *`  | user ready to start for real                             | purge all sample data                                                                   | clear the experimental entries                                             |
+| `* *`    | expert user                                              | shorten the commands I run all day                                                      | save time on frequently performed tasks                                    |
+| `*`      | long-time user                                           | archive clients I no longer track                                                        | stop closed deals cluttering my list                                       |
+| `*`      | user                                                     | import my existing contacts in bulk                                                     | avoid entering each client manually                                        |
+| `*`      | user coming back after months away                       | pick up where I left off                                                                | avoid relearning the app                                                   |
 
 ### Use cases
 
