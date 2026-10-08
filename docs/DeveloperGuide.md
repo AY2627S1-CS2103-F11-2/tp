@@ -326,6 +326,18 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 ### Glossary
 
+* **Client**: A person whose contact details the property agent manages in PropTrack. A client may be a buyer, seller, landlord, or tenant.
+* **Client type**: The client's role in a property transaction: buyer, seller, landlord, or tenant.
+* **Client ID**: A unique identifier assigned to a client, written as `C` followed by a positive integer (for example, `C1`). It remains associated with that client when the displayed list changes.
+* **Displayed index**: The one-based position of a client or appointment in the list currently shown on screen. It can change when records are added, removed, sorted, or filtered, so it is distinct from a stable ID.
+* **Filtered list**: The subset of clients or appointments currently shown after a search or filter is applied.
+* **Appointment**: A scheduled meeting associated with a client, with a name, location, and date and time.
+* **Appointment ID**: A unique identifier assigned to an appointment, written as `A` followed by a positive integer (for example, `A2`).
+* **Schedule clash**: An overlap between the time of a proposed appointment and an existing appointment.
+* **Data file**: The local file in which PropTrack stores client and appointment records between runs.
+* **Backup**: A separate copy of the saved data that can be used to recover records.
+* **Restore**: Replace the current records with those in a valid backup file.
+* **Undo and redo**: Reverse the latest data-changing command, or reapply a change that was undone, respectively.
 * **Mainstream OS**: Windows, Linux, Unix, or macOS
 * **Private contact detail**: A contact detail that is not meant to be shared with others
 
