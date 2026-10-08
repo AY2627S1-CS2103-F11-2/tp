@@ -261,13 +261,15 @@ _{Explain here how the data archiving feature will be implemented}_
 
 **Target user profile**:
 
-* has a need to manage a significant number of contacts
-* prefers desktop apps over other types of applications
-* can type fast
-* prefers typing to mouse interactions
-* is reasonably comfortable using CLI apps
+* is an insurance or property agent managing a large, frequently changing list of clients
+* needs to add, find and update client contact details regularly
+* prefers a desktop application for managing client records
+* can type quickly and prefers typing to mouse interactions
+* is reasonably comfortable using a command-line interface
 
-**Value proposition**: Manage contacts faster than with a typical mouse-driven GUI application.
+**Value proposition**: PropTrack helps insurance and property agents manage client contacts efficiently.
+Its command-based desktop interface lets agents add, find and update client details quickly,
+reducing time spent on contact administration.
 
 
 ### User stories
