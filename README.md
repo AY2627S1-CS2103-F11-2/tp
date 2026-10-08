@@ -12,3 +12,9 @@ PropTrack is a desktop application (GUI plus CLI) written in Java, evolved from
 [AddressBook Level 3](https://se-education.org/addressbook-level3) by
 [se-education.org](https://se-education.org). Reused AB3 code and docs are credited to their
 original authors; see [docs/AboutUs.md](docs/AboutUs.md) for our team.
+
+## Useful links
+
+- [User Guide](docs/UserGuide.md)
+- [Developer Guide](docs/DeveloperGuide.md)
+- [About Us](docs/AboutUs.md)
