@@ -2,10 +2,13 @@ package seedu.address.logic.parser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static seedu.address.logic.parser.ParserUtil.MESSAGE_EMPTY_DATE;
+import static seedu.address.logic.parser.ParserUtil.MESSAGE_INVALID_DATE;
 import static seedu.address.logic.parser.ParserUtil.MESSAGE_INVALID_INDEX;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
@@ -52,6 +55,54 @@ public class ParserUtilTest {
 
         // Leading and trailing whitespaces
         assertEquals(INDEX_FIRST_PERSON, ParserUtil.parseIndex("  1  "));
+    }
+
+    @Test
+    public void parseDate_null_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> ParserUtil.parseDate(null));
+    }
+
+    @Test
+    public void parseDate_empty_throwsParseException() {
+        assertThrows(ParseException.class, MESSAGE_EMPTY_DATE, () -> ParserUtil.parseDate(""));
+        assertThrows(ParseException.class, MESSAGE_EMPTY_DATE, () -> ParserUtil.parseDate(WHITESPACE));
+    }
+
+    @Test
+    public void parseDate_invalidFormat_throwsParseException() {
+        assertThrows(ParseException.class, MESSAGE_INVALID_DATE, () -> ParserUtil.parseDate("15-10-2026"));
+        assertThrows(ParseException.class, MESSAGE_INVALID_DATE, () -> ParserUtil.parseDate("2026/10/15"));
+        assertThrows(ParseException.class, MESSAGE_INVALID_DATE, () -> ParserUtil.parseDate("tomorrow"));
+        assertThrows(ParseException.class, MESSAGE_INVALID_DATE, () -> ParserUtil.parseDate("1510202"));
+        assertThrows(ParseException.class, MESSAGE_INVALID_DATE, () -> ParserUtil.parseDate("151020260"));
+        assertThrows(ParseException.class, MESSAGE_INVALID_DATE, () -> ParserUtil.parseDate("1510 2026"));
+    }
+
+    @Test
+    public void parseDate_impossibleDate_throwsParseException() {
+        // 30 February
+        assertThrows(ParseException.class, MESSAGE_INVALID_DATE, () -> ParserUtil.parseDate("30022026"));
+        // 29 February in a non-leap year
+        assertThrows(ParseException.class, MESSAGE_INVALID_DATE, () -> ParserUtil.parseDate("29022026"));
+        // month 13
+        assertThrows(ParseException.class, MESSAGE_INVALID_DATE, () -> ParserUtil.parseDate("01132026"));
+        // day 0
+        assertThrows(ParseException.class, MESSAGE_INVALID_DATE, () -> ParserUtil.parseDate("00102026"));
+    }
+
+    @Test
+    public void parseDate_validDate_success() throws Exception {
+        LocalDate expected = LocalDate.of(2026, 10, 15);
+
+        // No whitespaces
+        assertEquals(expected, ParserUtil.parseDate("15102026"));
+
+        // Leading and trailing whitespaces
+        assertEquals(expected, ParserUtil.parseDate(WHITESPACE + "15102026" + WHITESPACE));
+
+        // Past date and leap day
+        assertEquals(LocalDate.of(2025, 6, 20), ParserUtil.parseDate("20062025"));
+        assertEquals(LocalDate.of(2028, 2, 29), ParserUtil.parseDate("29022028"));
     }
 
     @Test
