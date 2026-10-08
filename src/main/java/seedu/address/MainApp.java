@@ -10,6 +10,7 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 import seedu.address.commons.core.LogsCenter;
 import seedu.address.commons.exceptions.DataLoadingException;
+import seedu.address.commons.util.FileUtil;
 import seedu.address.commons.util.StringUtil;
 import seedu.address.logic.Logic;
 import seedu.address.logic.LogicManager;
@@ -80,10 +81,25 @@ public class MainApp extends Application {
         } catch (DataLoadingException e) {
             logger.warning("Data file at " + storage.getAddressBookFilePath() + " could not be loaded."
                     + " Will be starting with an empty AddressBook.");
+            preserveUnreadableDataFile();
             initialData = new AddressBook();
         }
 
         return new ModelManager(initialData, userPrefs);
+    }
+
+    /**
+     * Moves a data file that could not be read aside, so that starting the app and then saving cannot
+     * overwrite data that is still recoverable by hand.
+     */
+    private void preserveUnreadableDataFile() {
+        Path dataFilePath = storage.getAddressBookFilePath();
+        try {
+            Path quarantinedFilePath = FileUtil.quarantineCorruptFile(dataFilePath);
+            logger.warning("Renamed the unreadable data file to " + quarantinedFilePath);
+        } catch (IOException e) {
+            logger.warning("Could not rename the unreadable data file at " + dataFilePath + ": " + e.getMessage());
+        }
     }
 
     /**
