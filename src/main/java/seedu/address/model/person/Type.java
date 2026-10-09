@@ -29,7 +29,7 @@ public class Type {
      * @param type, User inputted type
      * @return True if user inputted type is valid, false if not
      */
-    private Boolean isValidType(String type) {
+    public static Boolean isValidType(String type) {
         return type.matches(VALIDATION_REGEX);
     }
 
