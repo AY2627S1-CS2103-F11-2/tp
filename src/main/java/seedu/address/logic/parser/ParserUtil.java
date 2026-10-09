@@ -105,7 +105,7 @@ public class ParserUtil {
     public static Type parseType(String type) throws ParseException {
         requireNonNull(type);
         String trimmedType = type.trim();
-        if(!Type.isValidType(trimmedType)) {
+        if (!Type.isValidType(trimmedType)) {
             throw new ParseException(Type.MESSAGE_CONSTRAINTS);
         }
         return new Type(trimmedType);

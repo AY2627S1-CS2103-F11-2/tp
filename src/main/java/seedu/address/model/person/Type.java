@@ -19,10 +19,10 @@ public class Type {
      * @param type, A valid type (ie: 'buyer', 'seller', 'landlord' or 'seller')
      */
     public Type(String type) {
-    requireNonNull(type);
-    checkArgument(isValidType(type), MESSAGE_CONSTRAINTS);
-    clientType = type;
-}
+        requireNonNull(type);
+        checkArgument(isValidType(type), MESSAGE_CONSTRAINTS);
+        clientType = type;
+    }
 
     /**
      * Returns true if the given string is a valid type

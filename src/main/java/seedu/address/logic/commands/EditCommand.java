@@ -198,9 +198,13 @@ public class EditCommand extends Command {
             return Optional.ofNullable(address);
         }
 
-        public void setType(Type type) {this.type = type;}
+        public void setType(Type type) {
+            this.type = type;
+        }
 
-        public Optional<Type> getType() {return Optional.ofNullable(type);}
+        public Optional<Type> getType() {
+            return Optional.ofNullable(type);
+        }
 
         /**
          * Sets {@code tags} to this object's {@code tags}.

@@ -55,7 +55,9 @@ public class Person {
         return address;
     }
 
-    public Type getType() {return type;}
+    public Type getType() {
+        return type;
+    }
 
     /**
      * Returns an immutable tag set, which throws {@code UnsupportedOperationException}
@@ -114,7 +116,7 @@ public class Person {
                 .add("phone", phone)
                 .add("email", email)
                 .add("address", address)
-                .add("type",type)
+                .add("type", type)
                 .add("tags", tags)
                 .toString();
     }
