@@ -45,11 +45,11 @@ public class Type {
         }
 
         // instanceof handles nulls
-        if (!(other instanceof Phone otherPhone)) {
+        if (!(other instanceof Type otherType)) {
             return false;
         }
 
-        return clientType.equals(otherPhone.value);
+        return clientType.equals(otherType.clientType);
     }
 
     @Override
