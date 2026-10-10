@@ -46,12 +46,12 @@ public class DeleteCommandTest {
         Index outOfBoundIndex = Index.fromOneBased(model.getFilteredPersonList().size() + 1);
         DeleteCommand deleteCommand = new DeleteCommand(outOfBoundIndex);
 
-        assertCommandFailure(deleteCommand, model, Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+        assertCommandFailure(deleteCommand, model, DeleteCommand.MESSAGE_INVALID_CLIENT_DISPLAYED_INDEX);
     }
 
     @Test
     public void execute_validIndexFilteredList_success() {
-        showPersonAtIndex(model, INDEX_FIRST_PERSON);
+        showPersonAtIndex(model, INDEX_SECOND_PERSON);
 
         Person personToDelete = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
         DeleteCommand deleteCommand = new DeleteCommand(INDEX_FIRST_PERSON);
@@ -76,7 +76,31 @@ public class DeleteCommandTest {
 
         DeleteCommand deleteCommand = new DeleteCommand(outOfBoundIndex);
 
-        assertCommandFailure(deleteCommand, model, Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+        assertCommandFailure(deleteCommand, model, DeleteCommand.MESSAGE_INVALID_CLIENT_DISPLAYED_INDEX);
+    }
+
+    @Test
+    public void execute_sameIndexTwice_deletesSuccessiveClients() {
+        Person firstClient = model.getFilteredPersonList().get(0);
+        Person secondClient = model.getFilteredPersonList().get(1);
+        DeleteCommand deleteCommand = new DeleteCommand(INDEX_FIRST_PERSON);
+        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+
+        expectedModel.deletePerson(firstClient);
+        assertCommandSuccess(deleteCommand, model,
+                "Deleted Client: " + Messages.format(firstClient), expectedModel);
+        assertEquals(secondClient, model.getFilteredPersonList().get(0));
+
+        expectedModel.deletePerson(secondClient);
+        assertCommandSuccess(deleteCommand, model,
+                "Deleted Client: " + Messages.format(secondClient), expectedModel);
+    }
+
+    @Test
+    public void execute_emptyList_throwsCommandException() {
+        Model emptyModel = new ModelManager();
+        assertCommandFailure(new DeleteCommand(INDEX_FIRST_PERSON), emptyModel,
+                DeleteCommand.MESSAGE_INVALID_CLIENT_DISPLAYED_INDEX);
     }
 
     @Test
