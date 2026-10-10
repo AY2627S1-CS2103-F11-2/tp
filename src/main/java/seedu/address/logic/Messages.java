@@ -45,6 +45,8 @@ public class Messages {
                 .append(person.getAddress())
                 .append("; Type: ")
                 .append(person.getType())
+                .append("; Remark: ")
+                .append(person.getRemark())
                 .append("; Tags: ");
         person.getTags().forEach(builder::append);
         return builder.toString();
