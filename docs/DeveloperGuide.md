@@ -312,32 +312,165 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 ### Use cases
 
-(For all use cases below, the **System** is the `AddressBook` and the **Actor** is the `user`, unless specified otherwise)
+(For all use cases below, the **System** is `PropTrack` and the **Actor** is the `real estate agent`, unless specified otherwise.)
 
-**Use case: Delete a person**
+**Use case: UC01 - Register a new client and schedule a viewing**
 
 **MSS**
 
-1.  User requests to list persons
-2.  AddressBook shows a list of persons
-3.  User requests to delete a specific person in the list
-4.  AddressBook deletes the person
+1. Agent requests to add a new client, providing the client's name, phone number, client type, and optionally email address.
+2. PropTrack adds the client and displays the client's assigned ID and details.
+3. Agent requests to create a viewing appointment for that client, providing the appointment name, location, start date and time, and end date and time.
+4. PropTrack creates the appointment and displays its details, including the associated client.
 
-    Use case ends.
+   Use case ends.
 
 **Extensions**
 
-* 2a. The list is empty.
+* 1a. The client details are invalid or required information is missing.
+
+    * 1a1. PropTrack explains the problem and the accepted values. No client is added.
+
+      Use case resumes at step 1.
+
+* 1b. The supplied name matches an existing client.
+
+    * 1b1. PropTrack identifies the existing client and reports that no client was added.
+
+      Use case ends.
+
+* 3a. The appointment details are invalid or incomplete.
+
+    * 3a1. PropTrack explains the problem. No appointment is created.
+
+      Use case resumes at step 3.
+
+* 3b. The requested appointment overlaps an existing appointment.
+
+    * 3b1. PropTrack reports the scheduling conflict and identifies the conflicting appointment or appointments. No appointment is created.
+
+      Use case resumes at step 3.
+
+**Use case: UC02 - Update a client's contact details**
+
+**MSS**
+
+1. Agent requests to search for a client using the client's name, phone number, or client type.
+2. PropTrack displays the matching clients.
+3. Agent identifies the intended client and requests to update the client's phone number, email address, or both.
+4. PropTrack updates the supplied contact details and displays the updated client record, retaining the client's ID and linked appointments.
+
+   Use case ends.
+
+**Extensions**
+
+* 1a. The search criteria are invalid or empty.
+
+    * 1a1. PropTrack explains the accepted search criteria.
+
+      Use case resumes at step 1.
+
+* 2a. No clients match the search criteria.
 
   Use case ends.
 
-* 3a. The given index is invalid.
+* 3a. The supplied contact details are invalid.
 
-    * 3a1. AddressBook shows an error message.
+    * 3a1. PropTrack explains the problem and leaves the client record unchanged.
 
-      Use case resumes at step 2.
+      Use case resumes at step 3.
 
-*{More to be added}*
+* 3b. The supplied contact details are identical to the existing values.
+
+    * 3b1. PropTrack informs the agent that no changes were made.
+
+      Use case ends.
+
+* 3c. The supplied client reference is invalid or does not identify an existing client.
+
+    * 3c1. PropTrack reports the problem. No client record is changed.
+
+      Use case resumes at step 3.
+
+**Use case: UC03 - Change an appointment's meeting location**
+
+**MSS**
+
+1. Agent requests to view appointments for a specified date.
+2. PropTrack displays the matching appointments in chronological order.
+3. Agent identifies the intended appointment and requests to replace its meeting location.
+4. PropTrack updates the appointment and displays the revised details.
+
+   Use case ends.
+
+**Extensions**
+
+* 1a. The supplied date is invalid.
+
+    * 1a1. PropTrack reports the problem with the date.
+
+      Use case resumes at step 1.
+
+* 2a. No appointments match the specified date.
+
+    * 2a1. PropTrack informs the agent that no appointments were found.
+
+      Use case ends.
+
+* 3a. The appointment reference does not identify an appointment in the displayed list.
+
+    * 3a1. PropTrack reports the invalid reference. No appointment is changed.
+
+      Use case resumes at step 3.
+
+* 3b. The supplied location is blank.
+
+    * 3b1. PropTrack informs the agent that the location cannot be blank. No appointment is changed.
+
+      Use case resumes at step 3.
+
+**Use case: UC04 - Remove a cancelled appointment**
+
+**MSS**
+
+1. Agent requests to view appointments for a specified date.
+2. PropTrack displays the matching appointments in chronological order.
+3. Agent identifies the cancelled appointment and requests its deletion, explicitly confirming the deletion.
+4. PropTrack deletes the appointment, confirms its removal, and displays all remaining appointments in chronological order. The associated client remains in the client directory.
+
+   Use case ends.
+
+**Extensions**
+
+* 1a. The supplied date is invalid.
+
+    * 1a1. PropTrack reports the problem with the date.
+
+      Use case resumes at step 1.
+
+* 2a. No appointments match the specified date.
+
+    * 2a1. PropTrack informs the agent that no appointments were found.
+
+      Use case ends.
+
+* 3a. The appointment reference does not identify an appointment in the displayed list.
+
+    * 3a1. PropTrack reports the invalid reference. No appointment is deleted.
+
+      Use case resumes at step 3.
+
+* 3b. Agent omits the required deletion confirmation.
+
+    * 3b1. PropTrack reports that confirmation is required. No appointment is deleted.
+
+      Use case resumes at step 3.
+
+* 4a. No appointments remain after the deletion.
+
+    * 4a1. PropTrack confirms the deletion and informs the agent that no appointments were found.
+
+      Use case ends.
 
 ### Non-Functional Requirements
 
