@@ -30,7 +30,7 @@ AddressBook Level 3 (AB3) is a **desktop application for managing contacts, opti
 
    * `add n/John Doe p/98765432 e/johnd@example.com a/John street, block 123, #01-01` : Adds a contact named `John Doe` to the Address Book.
 
-   * `delete 3` : Deletes the 3rd contact shown in the current list.
+   * `delete C3` : Deletes the 3rd client shown in the current list.
 
    * `clear` : Deletes all contacts.
 
@@ -126,19 +126,25 @@ Examples:
 * `find alex david` returns `Alex Yeoh`, `David Li`<br>
   ![result for 'find alex david'](images/findAlexDavidResult.png)
 
-### Deleting a person: `delete`
+### Deleting a client: `delete`
 
-Deletes the specified person from the address book.
+Deletes the specified client from the address book.
 
-Format: `delete INDEX`
+Format: `delete CLIENT_ID`
 
-* Deletes the person at the specified `INDEX`.
-* The index refers to the index number shown in the displayed person list.
-* The index **must be a positive integer** 1, 2, 3, …​
+* `CLIENT_ID` is uppercase `C` followed directly by a positive integer, e.g. `C1`, `C4`, or `C12`.
+* The number refers to the client's position in the **currently displayed list**, including search results.
+  It is not a permanent unique ID. Client cards display these references as `C1`, `C2`, etc.
+* The selected card disappears and subsequent clients are renumbered. Repeating `delete C1` deletes the
+  new first client, or reports an error if the list is empty.
+* Missing arguments, invalid references (`C0`, `C-2`, `C3.5`, `Cabc`), and extra arguments are rejected.
+  A reference beyond the displayed list size also reports an error without deleting a client.
+* Successful deletion displays `Deleted Client: ` followed by the client's current details.
+* Other commands such as `edit` still use the numeric position without `C` (e.g. `edit 1 n/Alice`).
 
 Examples:
-* `list` followed by `delete 2` deletes the 2nd person in the address book.
-* `find Betsy` followed by `delete 1` deletes the 1st person in the results of the `find` command.
+* `list` followed by `delete C2` deletes the 2nd client in the address book.
+* `find Betsy` followed by `delete C1` deletes the 1st client in the results of the `find` command.
 
 ### Clearing all entries: `clear`
 
@@ -191,7 +197,7 @@ Action | Format, Examples
 --------|------------------
 **Add** | `add n/NAME p/PHONE_NUMBER e/EMAIL a/ADDRESS [t/TAG]…​` <br> e.g., `add n/James Ho p/22224444 e/jamesho@example.com a/123, Clementi Rd, 1234665 t/friend t/colleague`
 **Clear** | `clear`
-**Delete** | `delete INDEX`<br> e.g., `delete 3`
+**Delete** | `delete CLIENT_ID`<br> e.g., `delete C3`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]…​`<br> e.g., `edit 2 n/James Lee e/jameslee@example.com`
 **Find** | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
 **List** | `list`
