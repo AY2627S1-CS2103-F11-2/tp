@@ -13,3 +13,9 @@ PropTrack is a desktop application (GUI plus CLI) written in Java. This project 
 [SE-EDU initiative](https://se-education.org). We thank the SE-EDU team and AddressBook-Level3
 contributors for sharing the code, documentation, and project structure that made PropTrack possible.
 See [docs/AboutUs.md](docs/AboutUs.md) for our team.
+
+## Useful links
+
+- [User Guide](docs/UserGuide.md)
+- [Developer Guide](docs/DeveloperGuide.md)
+- [About Us](docs/AboutUs.md)

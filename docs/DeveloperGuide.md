@@ -261,29 +261,54 @@ _{Explain here how the data archiving feature will be implemented}_
 
 **Target user profile**:
 
-* has a need to manage a significant number of contacts
-* prefers desktop apps over other types of applications
-* can type fast
-* prefers typing to mouse interactions
-* is reasonably comfortable using CLI apps
+* is an insurance or property agent managing a large, frequently changing list of clients
+* needs to add, find and update client contact details regularly
+* prefers a desktop application for managing client records
+* can type quickly and prefers typing to mouse interactions
+* is reasonably comfortable using a command-line interface
 
-**Value proposition**: Manage contacts faster than with a typical mouse-driven GUI application.
+**Value proposition**: PropTrack helps insurance and property agents manage client contacts efficiently.
+Its command-based desktop interface lets agents add, find and update client details quickly,
+reducing time spent on contact administration.
 
 
 ### User stories
 
 Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unlikely to have) - `*`
 
-| Priority | As a …​                                    | I want to …​                     | So that I can…​                                                        |
-| -------- | ------------------------------------------ | ------------------------------ | ---------------------------------------------------------------------- |
-| `* * *`  | new user                                   | see usage instructions         | refer to instructions when I forget how to use the App                 |
-| `* * *`  | user                                       | add a new person               |                                                                        |
-| `* * *`  | user                                       | delete a person                | remove entries that I no longer need                                   |
-| `* * *`  | user                                       | find a person by name          | locate details of persons without having to go through the entire list |
-| `* *`    | user                                       | hide private contact details   | minimize chance of someone else seeing them by accident                |
-| `*`      | user with many persons in the address book | sort persons by name           | locate a person easily                                                 |
-
-*{More to be added}*
+| Priority | As a …​                                                  | I want to …​                                                                          | So that I can…​                                                          |
+| -------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `* * *`  | user                                                     | add a client with phone, email, address and tags                                       | keep all my contacts in one place                                          |
+| `* * *`  | agent on a call with 200+ clients stored                 | find a client by typing part of their name                                             | get their details in seconds                                               |
+| `* *`    | user who cannot recall the exact command or spelling     | still reach the right client                                                           | keep going when a typo happens mid-call                                    |
+| `* *`    | user                                                     | edit a client's details                                                                | correct mistakes I made when adding them                                   |
+| `* * *`  | user                                                     | delete a client I no longer track                                                      | keep my list current                                                       |
+| `* * *`  | user who made a wrong change                             | undo my last change                                                                    | stop one wrong command from destroying my data                             |
+| `* *`    | user who deleted a client by mistake                     | get that client back                                                                   | stop one slip from costing me a client                                     |
+| `* *`    | user                                                     | tag a client                                                                           | group clients that share a location, a budget or a source                  |
+| `* *`    | user                                                     | find all clients that carry a given tag                                                | work one group at a time                                                   |
+| `* * *`  | agent tracking deals                                     | label each client with their deal stage and pull up everyone in one stage               | see at a glance who is a lead, viewing, offer or closed                    |
+| `* * *`  | user                                                     | record notes about my interactions with a client                                        | recall previous discussions before following up                            |
+| `* * *`  | forgetful agent                                          | see which clients I still owe a follow-up                                               | stop a lead going cold                                                     |
+| `* *`    | user                                                     | associate an appointment with a client's record                                         | reach their details while preparing for it                                 |
+| `* * *`  | user                                                     | see all my appointments in chronological order                                          | plan my schedule                                                           |
+| `* *`    | user                                                     | add an appointment and be warned when it clashes with an existing one                   | avoid scheduling conflicts                                                 |
+| `* *`    | user                                                     | find a specific appointment                                                            | change or remove its contents                                              |
+| `* *`    | user                                                     | mark an appointment as completed                                                        | tell past meetings from ones that still need attention                     |
+| `* *`    | user                                                     | see the appointments and follow-ups coming up when I open the app                       | not forget something that is already scheduled                             |
+| `* * *`  | user                                                     | retain my contacts and appointments when I close and reopen the program                 | continue without re-entering data                                          |
+| `* * *`  | user                                                     | rely on my changes being saved as I work                                                | know that closing the app never loses an entry                             |
+| `* * *`  | cautious user                                            | back up my client data and restore it when the data file breaks                          | never lose months of contacts                                              |
+| `* *`    | user comfortable with text files                         | hand-edit the saved data file                                                           | fix or bulk-edit data without the app                                      |
+| `* * *`  | new user                                                 | view a guided introduction to the available functions                                    | learn the app without prior command-line experience                        |
+| `* * *`  | user                                                     | get a clear explanation of invalid input and how to correct it                          | resolve mistakes without guessing                                          |
+| `* *`    | user who mistyped a command                              | be pointed at the closest valid command                                                 | recover without reading the whole help page                                |
+| `* * *`  | potential user exploring the app                         | see it populated with sample data                                                        | see how it will look in real use                                           |
+| `* * *`  | user ready to start for real                             | purge all sample data                                                                   | clear the experimental entries                                             |
+| `* *`    | expert user                                              | shorten the commands I run all day                                                      | save time on frequently performed tasks                                    |
+| `*`      | long-time user                                           | archive clients I no longer track                                                        | stop closed deals cluttering my list                                       |
+| `*`      | user                                                     | import my existing contacts in bulk                                                     | avoid entering each client manually                                        |
+| `*`      | user coming back after months away                       | pick up where I left off                                                                | avoid relearning the app                                                   |
 
 ### Use cases
 
@@ -316,14 +341,75 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 ### Non-Functional Requirements
 
-1.  Should work on any _mainstream OS_ as long as it has Java `25` or above installed.
-2.  Should be able to hold up to 1000 persons without noticeable sluggishness in performance for typical usage.
-3.  A user with above average typing speed for regular English text (i.e. not code, not system admin commands) should be able to accomplish most of the tasks faster using commands than using the mouse.
+Environment NFRs
+1. PropTrack must be able to perform consistently on any _mainstream OS_ as long as it has Java `25` or above installed. 
+2. PropTrack must be able to operate completely offline and will not require any internet connection or connection with external servers to operate normally.
+3. It must support, at minimum, the english language.
+4. PropTrack must be packaged in a Jar executable file that can be run by either double-clicking it or through the terminal.
 
-*{More to be added}*
+Performance NFRs
+1. Should be able to hold up to 1000 Clients without noticeable sluggishness in performance for typical usage.
+2. PropTrack should return the search results within a reasonable time of 1 second(s) for a data size of 100 clients.
+3. PropTrack commands should remain responsive (Do not feel clunky or hang) when executing commands on a very large but supported dataset size.
+4. During the use of PropTrack, it should not cause any excessive or noticeable lag, freezing during normal use.
+5. During auto-saving of data (when a command that modifies the data file is successfully executed), it will not cause any noticeable lag or freezing during the process.
+6. PropTrack should only rely on the CPU and Integrated GPU to run and not need any extra/special hardware to run.
+7. Normal operation of PropTrack should not cause the computer to use a tremendous amount of RAM, CPU, GPU (To the point the cooling fans start to run on a laptop).
+
+Data NFRs
+1. PropTrack is able to locate its data files without depending on the user's current directory to do so.
+2. PropTrack's data must retain its data after user closes or restarts it.
+3. Any command that makes changes in PropTrack's data files will be automatically saved without requiring a user input to manually save any change(s) made.
+4. Only successful commands will be able to modify the contents of the data file, failed commands will not be able to modify the data file at all.
+5. Once a client is assigned a client ID, it will persist throughout all commands and cannot be changed by any commands.
+6. A client's ID remains uniquely to that specific client and will not repeat else where even after deletion.
+7. PropTrack will not replace corrupted/unreadable data with an empty dataset and must inform the user that data content has issues being read.
+8. Client data and appointment must persist and remain correct throughout the use of the application.
+9. No unsuccessful command must cause the data file to become corrupted nor its data rendered unreadable.
+10. User inputting the same operation rapidly/repeatedly will not cause the client ID to duplicate, client data to be lost or produce malformed data.
+11. The background save function must protect and ensure that the data file does not become unusable/corrupted.
+
+Usability NFRs
+1. A user with above average typing speed for regular English text (i.e. not code, not system admin commands) should be able to accomplish most of the tasks faster using commands than using the mouse.
+2. When error messages appear, they must clearly identity what is the issue causing the error and provide a sample command/command format for the user to reference.
+3. Client and appointment ordering and indexing will remain consistent and predictable.
+4. Empty filter results must be distinguishable from application or data-loading failures when displaying search results.
+5. Commands must maintain consistent behaviour regardless of the user's previous filtering or viewing actions.
+6. User input must be standardized according to the command format, any deviation should be considered an error and flagged to the user
+7. PropTrack must be able to process other user's data file so long as they were generated by a PropTrack application.
+8. PropTrack should not crash as a result of malformed user input/data content.
+
+Security NFRs
+1. PropTrack must not transmit any data fields(Client data, appointment data, data file) over any network during normal operations
+2. No personal/identifying information must be displayed in any logs, temporary files or diagnostic output.
+3. Malformed, excessively long or unexpected user inputs should not cause PropTrack to crash or consume a tremendous amount of resources.
+4. Any malformed or unexpected data contents in the data file should not be processed and should be ignored.
+5. No client data will be shared with any third parties.
+
+Maintainability and Scalability NFRs
+1. PropTrack's data file must be portable and supported in all mainstream OSes.
+2. PropTrack must use a standard format for storing client data, appointments in its data file
+3. Modifying/updating a command's validation, format or parsing should not affect an unrelated command in any other way.
+4. JUnit tests should cover all normal, expected user operations, test if the proper error messages are returned for a given error and test for all edge cases that causes the program to crash/not respond properly.
+5. Incompatible or unsupported data file types should not be processed by PropTrack.
+6. The application should be designed such that it can easily handle and process a growing list of clients and their respective appointment data.
+7. The client class and appointment class should be designed such that additional parameters can be added smoothly without causing major code refactoring.
+
 
 ### Glossary
 
+* **Client**: A person whose contact details the property agent manages in PropTrack. A client may be a buyer, seller, landlord, or tenant.
+* **Client type**: The client's role in a property transaction: buyer, seller, landlord, or tenant.
+* **Client ID**: A unique identifier assigned to a client, written as `C` followed by a positive integer (for example, `C1`). It remains associated with that client when the displayed list changes.
+* **Displayed index**: The one-based position of a client or appointment in the list currently shown on screen. It can change when records are added, removed, sorted, or filtered, so it is distinct from a stable ID.
+* **Filtered list**: The subset of clients or appointments currently shown after a search or filter is applied.
+* **Appointment**: A scheduled meeting associated with a client, with a name, location, and date and time.
+* **Appointment ID**: A unique identifier assigned to an appointment, written as `A` followed by a positive integer (for example, `A2`).
+* **Schedule clash**: An overlap between the time of a proposed appointment and an existing appointment.
+* **Data file**: The local file in which PropTrack stores client and appointment records between runs.
+* **Backup**: A separate copy of the saved data that can be used to recover records.
+* **Restore**: Replace the current records with those in a valid backup file.
+* **Undo and redo**: Reverse the latest data-changing command, or reapply a change that was undone, respectively.
 * **Mainstream OS**: Windows, Linux, Unix, or macOS
 * **Private contact detail**: A contact detail that is not meant to be shared with others
 
