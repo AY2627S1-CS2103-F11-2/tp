@@ -26,9 +26,14 @@ import seedu.address.model.tag.Tag;
 public class ParserUtil {
 
     public static final String MESSAGE_INVALID_INDEX = "Index must be a positive integer.";
+    public static final String MESSAGE_INVALID_APPOINTMENT_INDEX =
+            "Appointment index must be A followed by a positive integer, e.g. A1.";
+    public static final String MESSAGE_MISSING_CONFIRMATION = "Deletion requires yes/confirm. Nothing was deleted.";
     public static final String MESSAGE_EMPTY_DATE = "DATE cannot be empty.";
     public static final String MESSAGE_INVALID_DATE = "Enter a valid date in DDMMYYYY format.";
 
+    private static final String APPOINTMENT_INDEX_PREFIX = "A";
+    private static final Set<String> CONFIRMATION_WORDS = Set.of("yes", "confirm");
     private static final DateTimeFormatter DATE_FORMATTER =
             DateTimeFormatter.ofPattern("ddMMuuuu").withResolverStyle(ResolverStyle.STRICT);
 
@@ -43,6 +48,36 @@ public class ParserUtil {
             throw new ParseException(MESSAGE_INVALID_INDEX);
         }
         return Index.fromOneBased(Integer.parseInt(trimmedIndex));
+    }
+
+    /**
+     * Parses {@code appointmentIndex} of the form {@code A<index>} (e.g. {@code A1}) into an {@code Index} and
+     * returns it. Leading and trailing whitespaces will be trimmed.
+     * @throws ParseException if the specified appointment index is invalid.
+     */
+    public static Index parseAppointmentIndex(String appointmentIndex) throws ParseException {
+        requireNonNull(appointmentIndex);
+        String trimmedIndex = appointmentIndex.trim();
+        if (!trimmedIndex.startsWith(APPOINTMENT_INDEX_PREFIX)) {
+            throw new ParseException(MESSAGE_INVALID_APPOINTMENT_INDEX);
+        }
+        String number = trimmedIndex.substring(APPOINTMENT_INDEX_PREFIX.length());
+        if (!StringUtil.isNonZeroUnsignedInteger(number)) {
+            throw new ParseException(MESSAGE_INVALID_APPOINTMENT_INDEX);
+        }
+        return Index.fromOneBased(Integer.parseInt(number));
+    }
+
+    /**
+     * Checks that {@code confirmation} is exactly {@code yes} or {@code confirm}.
+     * Leading and trailing whitespaces will be trimmed.
+     * @throws ParseException if the confirmation word is missing or is not {@code yes} or {@code confirm}.
+     */
+    public static void parseConfirmation(String confirmation) throws ParseException {
+        requireNonNull(confirmation);
+        if (!CONFIRMATION_WORDS.contains(confirmation.trim())) {
+            throw new ParseException(MESSAGE_MISSING_CONFIRMATION);
+        }
     }
 
     /**

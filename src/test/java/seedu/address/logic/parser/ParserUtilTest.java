@@ -3,8 +3,10 @@ package seedu.address.logic.parser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.parser.ParserUtil.MESSAGE_EMPTY_DATE;
+import static seedu.address.logic.parser.ParserUtil.MESSAGE_INVALID_APPOINTMENT_INDEX;
 import static seedu.address.logic.parser.ParserUtil.MESSAGE_INVALID_DATE;
 import static seedu.address.logic.parser.ParserUtil.MESSAGE_INVALID_INDEX;
+import static seedu.address.logic.parser.ParserUtil.MESSAGE_MISSING_CONFIRMATION;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 
@@ -58,6 +60,69 @@ public class ParserUtilTest {
 
         // Leading and trailing whitespaces
         assertEquals(INDEX_FIRST_PERSON, ParserUtil.parseIndex("  1  "));
+    }
+
+    @Test
+    public void parseAppointmentIndex_null_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> ParserUtil.parseAppointmentIndex(null));
+    }
+
+    @Test
+    public void parseAppointmentIndex_invalidInput_throwsParseException() {
+        // missing A prefix
+        assertThrows(ParseException.class, MESSAGE_INVALID_APPOINTMENT_INDEX, ()
+            -> ParserUtil.parseAppointmentIndex("1"));
+        // lowercase prefix
+        assertThrows(ParseException.class, MESSAGE_INVALID_APPOINTMENT_INDEX, ()
+            -> ParserUtil.parseAppointmentIndex("a1"));
+        // missing number
+        assertThrows(ParseException.class, MESSAGE_INVALID_APPOINTMENT_INDEX, ()
+            -> ParserUtil.parseAppointmentIndex("A"));
+        // zero, negative and non-integer
+        assertThrows(ParseException.class, MESSAGE_INVALID_APPOINTMENT_INDEX, ()
+            -> ParserUtil.parseAppointmentIndex("A0"));
+        assertThrows(ParseException.class, MESSAGE_INVALID_APPOINTMENT_INDEX, ()
+            -> ParserUtil.parseAppointmentIndex("A-1"));
+        assertThrows(ParseException.class, MESSAGE_INVALID_APPOINTMENT_INDEX, ()
+            -> ParserUtil.parseAppointmentIndex("A1.5"));
+        assertThrows(ParseException.class, MESSAGE_INVALID_APPOINTMENT_INDEX, ()
+            -> ParserUtil.parseAppointmentIndex("Aabc"));
+        // space between prefix and number
+        assertThrows(ParseException.class, MESSAGE_INVALID_APPOINTMENT_INDEX, ()
+            -> ParserUtil.parseAppointmentIndex("A 1"));
+        // out of integer range
+        assertThrows(ParseException.class, MESSAGE_INVALID_APPOINTMENT_INDEX, ()
+            -> ParserUtil.parseAppointmentIndex("A" + Long.toString(Integer.MAX_VALUE + 1L)));
+    }
+
+    @Test
+    public void parseAppointmentIndex_validInput_success() throws Exception {
+        // No whitespaces
+        assertEquals(INDEX_FIRST_PERSON, ParserUtil.parseAppointmentIndex("A1"));
+
+        // Leading and trailing whitespaces
+        assertEquals(INDEX_FIRST_PERSON, ParserUtil.parseAppointmentIndex("  A1  "));
+    }
+
+    @Test
+    public void parseConfirmation_null_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> ParserUtil.parseConfirmation(null));
+    }
+
+    @Test
+    public void parseConfirmation_invalidInput_throwsParseException() {
+        assertThrows(ParseException.class, MESSAGE_MISSING_CONFIRMATION, () -> ParserUtil.parseConfirmation(""));
+        assertThrows(ParseException.class, MESSAGE_MISSING_CONFIRMATION, () -> ParserUtil.parseConfirmation("y"));
+        assertThrows(ParseException.class, MESSAGE_MISSING_CONFIRMATION, () -> ParserUtil.parseConfirmation("YES"));
+        assertThrows(ParseException.class, MESSAGE_MISSING_CONFIRMATION, ()
+            -> ParserUtil.parseConfirmation("yes confirm"));
+    }
+
+    @Test
+    public void parseConfirmation_validInput_success() throws Exception {
+        ParserUtil.parseConfirmation("yes");
+        ParserUtil.parseConfirmation("confirm");
+        ParserUtil.parseConfirmation("  yes  ");
     }
 
     @Test
