@@ -1,6 +1,6 @@
 # PropTrack
 
-[![CI Status](https://github.com/AY2627S-CS2103-F11-2/tp/workflows/Java%20CI/badge.svg)](https://github.com/AY2627S-CS2103-F11-2/tp/actions)
+[![CI Status](https://github.com/AY2627S1-CS2103-F11-2/tp/actions/workflows/gradle.yml/badge.svg?branch=master)](https://github.com/AY2627S1-CS2103-F11-2/tp/actions/workflows/gradle.yml)
 
 ![Ui](docs/images/Ui.png)
 
