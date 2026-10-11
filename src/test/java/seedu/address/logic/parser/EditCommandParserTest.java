@@ -135,6 +135,13 @@ public class EditCommandParserTest {
     }
 
     @Test
+    public void parse_unicodeNameWithSpaces_success() {
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withName("李 D'Arcy-Smith").build();
+        EditCommand expectedCommand = new EditCommand(INDEX_FIRST_PERSON, descriptor);
+        assertParseSuccess(parser, "1 n/  李   D'Arcy-Smith  ", expectedCommand);
+    }
+
+    @Test
     public void parse_oneFieldSpecified_success() {
         // name
         Index targetIndex = INDEX_THIRD_PERSON;

@@ -17,9 +17,10 @@ import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.Type;
+import seedu.address.testutil.PersonBuilder;
 
 public class JsonAdaptedPersonTest {
-    private static final String INVALID_NAME = "R@chel";
+    private static final String INVALID_NAME = "!!!";
     private static final String INVALID_PHONE = "+651234";
     private static final String INVALID_ADDRESS = " ";
     private static final String INVALID_TYPE = "Investor";
@@ -39,6 +40,23 @@ public class JsonAdaptedPersonTest {
     public void toModelType_validPersonDetails_returnsPerson() throws Exception {
         JsonAdaptedPerson person = new JsonAdaptedPerson(BENSON);
         assertEquals(BENSON, person.toModelType());
+    }
+
+    @Test
+    public void toModelType_unicodeNameWithSpaces_returnsNormalizedPerson() throws Exception {
+        JsonAdaptedPerson person = new JsonAdaptedPerson("  李   D'Arcy-Smith\u00a0", VALID_PHONE, VALID_EMAIL,
+                VALID_ADDRESS, VALID_TYPE, VALID_TAGS);
+        assertEquals(new PersonBuilder(BENSON).withName("李 D'Arcy-Smith").build(), person.toModelType());
+    }
+
+    @Test
+    public void toModelType_nonPrintableOrTooLongName_throwsIllegalValueException() {
+        String[] invalidNames = {"Alex\nTan", "Alex\u200bTan", "A".repeat(101)};
+        for (String invalidName : invalidNames) {
+            JsonAdaptedPerson person = new JsonAdaptedPerson(invalidName, VALID_PHONE, VALID_EMAIL,
+                    VALID_ADDRESS, VALID_TYPE, VALID_TAGS);
+            assertThrows(IllegalValueException.class, Name.MESSAGE_CONSTRAINTS, person::toModelType);
+        }
     }
 
     @Test

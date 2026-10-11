@@ -1,13 +1,19 @@
 package seedu.address.logic.commands;
 
+import static seedu.address.logic.commands.CommandTestUtil.ADDRESS_DESC_BOB;
+import static seedu.address.logic.commands.CommandTestUtil.EMAIL_DESC_BOB;
+import static seedu.address.logic.commands.CommandTestUtil.PHONE_DESC_BOB;
+import static seedu.address.logic.commands.CommandTestUtil.TYPE_DESC_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandFailure;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandSuccess;
+import static seedu.address.testutil.TypicalPersons.BOB;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import seedu.address.logic.Messages;
+import seedu.address.logic.parser.AddCommandParser;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
@@ -43,6 +49,27 @@ public class AddCommandIntegrationTest {
         Person personInList = model.getAddressBook().getPersonList().get(0);
         assertCommandFailure(new AddCommand(personInList), model,
                 AddCommand.MESSAGE_DUPLICATE_PERSON);
+    }
+
+    @Test
+    public void execute_parsedUnicodeNameWithSpaces_addsNormalizedPerson() throws Exception {
+        AddCommand command = new AddCommandParser().parse(" n/  李   D'Arcy-Smith  " + PHONE_DESC_BOB
+                + EMAIL_DESC_BOB + ADDRESS_DESC_BOB + TYPE_DESC_BOB);
+        Person expectedPerson = new PersonBuilder(BOB).withName("李 D'Arcy-Smith").withTags().build();
+        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+        expectedModel.addPerson(expectedPerson);
+
+        assertCommandSuccess(command, model, String.format(AddCommand.MESSAGE_SUCCESS, Messages.format(expectedPerson)),
+                expectedModel);
+    }
+
+    @Test
+    public void execute_duplicateNormalizedNameOutsideFilteredList_doesNotChangeModel() throws Exception {
+        model.updateFilteredPersonList(person -> false);
+        AddCommand command = new AddCommandParser().parse(" n/  Alice   Pauline  " + PHONE_DESC_BOB
+                + EMAIL_DESC_BOB + ADDRESS_DESC_BOB + TYPE_DESC_BOB);
+
+        assertCommandFailure(command, model, AddCommand.MESSAGE_DUPLICATE_PERSON);
     }
 
 }
