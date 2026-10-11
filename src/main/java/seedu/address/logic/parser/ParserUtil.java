@@ -104,7 +104,7 @@ public class ParserUtil {
 
     /**
      * Parses a {@code String name} into a {@code Name}.
-     * Leading and trailing whitespaces will be trimmed.
+     * Leading and trailing whitespaces will be trimmed, and repeated spaces will be collapsed.
      *
      * @throws ParseException if the given {@code name} is invalid.
      */

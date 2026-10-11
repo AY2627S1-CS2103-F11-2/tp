@@ -25,7 +25,7 @@ import seedu.address.model.person.Type;
 import seedu.address.model.tag.Tag;
 
 public class ParserUtilTest {
-    private static final String INVALID_NAME = "R@chel";
+    private static final String INVALID_NAME = "!!!";
     private static final String INVALID_PHONE = "+651234";
     private static final String INVALID_ADDRESS = " ";
     private static final String INVALID_EMAIL = "example.com";
@@ -194,6 +194,19 @@ public class ParserUtilTest {
         String nameWithWhitespace = WHITESPACE + VALID_NAME + WHITESPACE;
         Name expectedName = new Name(VALID_NAME);
         assertEquals(expectedName, ParserUtil.parseName(nameWithWhitespace));
+    }
+
+    @Test
+    public void parseName_unicodeAndPunctuationWithSpaces_returnsNormalizedName() throws Exception {
+        Name expectedName = new Name("李 José D'Arcy");
+        assertEquals(expectedName, ParserUtil.parseName("  李   José\u00a0\u00a0D'Arcy  "));
+    }
+
+    @Test
+    public void parseName_nonPrintableOrTooLong_throwsParseException() {
+        assertThrows(ParseException.class, Name.MESSAGE_CONSTRAINTS, () -> ParserUtil.parseName("Alex\tTan"));
+        assertThrows(ParseException.class, Name.MESSAGE_CONSTRAINTS, () -> ParserUtil.parseName("Alex\u200bTan"));
+        assertThrows(ParseException.class, Name.MESSAGE_CONSTRAINTS, () -> ParserUtil.parseName("A".repeat(101)));
     }
 
     @Test

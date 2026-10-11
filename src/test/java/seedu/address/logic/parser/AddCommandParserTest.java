@@ -73,6 +73,21 @@ public class AddCommandParserTest {
     }
 
     @Test
+    public void parse_unicodeNameWithPunctuationAndSpaces_success() {
+        Person expectedPerson = new PersonBuilder(BOB).withName("李 D'Arcy-Smith").withTags().build();
+        assertParseSuccess(parser, " n/  李   D'Arcy-Smith  " + PHONE_DESC_BOB + EMAIL_DESC_BOB
+                + ADDRESS_DESC_BOB + TYPE_DESC_BOB, new AddCommand(expectedPerson));
+    }
+
+    @Test
+    public void parse_nameOutsideLengthLimitOrNonPrintable_failure() {
+        String remainingFields = PHONE_DESC_BOB + EMAIL_DESC_BOB + ADDRESS_DESC_BOB + TYPE_DESC_BOB;
+        assertParseFailure(parser, " n/" + "A".repeat(101) + remainingFields, Name.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, " n/Alex\tTan" + remainingFields, Name.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, " n/Alex\u200bTan" + remainingFields, Name.MESSAGE_CONSTRAINTS);
+    }
+
+    @Test
     public void parse_repeatedNonTagValue_failure() {
         String validExpectedPersonString = NAME_DESC_BOB + PHONE_DESC_BOB + EMAIL_DESC_BOB
                 + ADDRESS_DESC_BOB + TYPE_DESC_BOB + TAG_DESC_FRIEND;

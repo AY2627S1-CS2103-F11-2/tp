@@ -9,6 +9,7 @@ import static seedu.address.testutil.TypicalPersons.IDA;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.io.TempDir;
 import seedu.address.commons.exceptions.DataLoadingException;
 import seedu.address.model.AddressBook;
 import seedu.address.model.ReadOnlyAddressBook;
+import seedu.address.testutil.PersonBuilder;
 
 public class JsonAddressBookStorageTest {
     private static final Path TEST_DATA_FOLDER = Paths.get("src", "test", "data", "JsonAddressBookStorageTest");
@@ -84,6 +86,31 @@ public class JsonAddressBookStorageTest {
         readBack = jsonAddressBookStorage.readAddressBook().get(); // file path not specified
         assertEquals(original, new AddressBook(readBack));
 
+    }
+
+    @Test
+    public void readAndSaveAddressBook_unicodeNameWithSpaces_normalizesAndPersists() throws Exception {
+        Path filePath = testFolder.resolve("UnicodeAddressBook.json");
+        Files.writeString(filePath, """
+                {
+                  "persons": [{
+                    "name": "  李   D'Arcy-Smith  ",
+                    "phone": "85355255",
+                    "email": "amy@gmail.com",
+                    "address": "123, Jurong West Ave 6, #08-111",
+                    "type": "buyer",
+                    "tags": []
+                  }]
+                }
+                """);
+        AddressBook expected = new AddressBook();
+        expected.addPerson(new PersonBuilder().withName("李 D'Arcy-Smith").build());
+        JsonAddressBookStorage storage = new JsonAddressBookStorage(filePath);
+
+        ReadOnlyAddressBook readBack = storage.readAddressBook().orElseThrow();
+        assertEquals(expected, new AddressBook(readBack));
+        storage.saveAddressBook(readBack);
+        assertEquals(expected, new AddressBook(storage.readAddressBook().orElseThrow()));
     }
 
     @Test
