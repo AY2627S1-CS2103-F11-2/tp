@@ -20,6 +20,12 @@ import seedu.address.testutil.PersonBuilder;
 public class PersonTest {
 
     @Test
+    public void constructor_nullRemark_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> new Person(ALICE.getName(), ALICE.getPhone(), ALICE.getEmail(),
+                ALICE.getAddress(), ALICE.getType(), null, ALICE.getTags()));
+    }
+
+    @Test
     public void asObservableList_modifyList_throwsUnsupportedOperationException() {
         Person person = new PersonBuilder().build();
         assertThrows(UnsupportedOperationException.class, () -> person.getTags().remove(0));
@@ -35,7 +41,12 @@ public class PersonTest {
 
         // same name, all other attributes different -> returns true
         Person editedAlice = new PersonBuilder(ALICE).withPhone(VALID_PHONE_BOB).withEmail(VALID_EMAIL_BOB)
-                .withAddress(VALID_ADDRESS_BOB).withType(VALID_TYPE_BOB).withTags(VALID_TAG_HUSBAND).build();
+                .withAddress(VALID_ADDRESS_BOB).withType(VALID_TYPE_BOB).withRemark("Prefers evening calls")
+                .withTags(VALID_TAG_HUSBAND).build();
+        assertTrue(ALICE.isSamePerson(editedAlice));
+
+        // different remark, all other attributes same -> returns true
+        editedAlice = new PersonBuilder(ALICE).withRemark("Prefers evening calls").build();
         assertTrue(ALICE.isSamePerson(editedAlice));
 
         // different name, all other attributes same -> returns false
@@ -90,9 +101,23 @@ public class PersonTest {
         editedAlice = new PersonBuilder(ALICE).withType(VALID_TYPE_BOB).build();
         assertFalse(ALICE.equals(editedAlice));
 
+        // different remark -> returns false
+        editedAlice = new PersonBuilder(ALICE).withRemark("Prefers evening calls").build();
+        assertFalse(ALICE.equals(editedAlice));
+
         // different tags -> returns false
         editedAlice = new PersonBuilder(ALICE).withTags(VALID_TAG_HUSBAND).build();
         assertFalse(ALICE.equals(editedAlice));
+    }
+
+    @Test
+    public void equalsAndHashCode_sameNonEmptyRemark_returnsSameValues() {
+        Person aliceWithRemark = new PersonBuilder(ALICE).withRemark("Prefers evening calls").build();
+        Person aliceCopy = new PersonBuilder(aliceWithRemark).build();
+
+        assertEquals(new Remark("Prefers evening calls"), aliceCopy.getRemark());
+        assertEquals(aliceWithRemark, aliceCopy);
+        assertEquals(aliceWithRemark.hashCode(), aliceCopy.hashCode());
     }
 
     @Test
@@ -102,6 +127,7 @@ public class PersonTest {
                 + ", email=" + ALICE.getEmail()
                 + ", address=" + ALICE.getAddress()
                 + ", type=" + ALICE.getType()
+                + ", remark=" + ALICE.getRemark()
                 + ", tags=" + ALICE.getTags() + "}";
         assertEquals(expected, ALICE.toString());
     }

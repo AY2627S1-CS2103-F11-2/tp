@@ -109,6 +109,21 @@ Examples:
 *  `edit 1 p/91234567 e/johndoe@example.com` Edits the phone number and email address of the 1st person to be `91234567` and `johndoe@example.com` respectively.
 *  `edit 2 n/Betsy Crower t/` Edits the name of the 2nd person to be `Betsy Crower` and clears all existing tags.
 
+### Adding or changing a remark: `remark`
+
+Adds a remark to a person, or replaces their existing remark.
+
+Format: `remark INDEX r/REMARK`
+
+* `INDEX` is the positive index number shown in the displayed person list.
+* The remark can contain any text. A new remark overwrites the previous one.
+* To clear a remark, enter `remark INDEX r/` with no text after `r/`. Omitting `r/` also clears the remark.
+* If `r/` appears more than once, only the last remark is used.
+
+Examples:
+* `remark 1 r/Call after 6pm` sets the 1st displayed person's remark to `Call after 6pm`.
+* `remark 1 r/` clears the 1st displayed person's remark.
+
 ### Locating persons by name: `find`
 
 Finds persons whose names contain any of the given keywords.
@@ -195,4 +210,11 @@ Action | Format, Examples
 **Edit** | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]…​`<br> e.g., `edit 2 n/James Lee e/jameslee@example.com`
 **Find** | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
 **List** | `list`
+**Remark** | `remark INDEX r/REMARK`<br> e.g., `remark 1 r/Call after 6pm`; `remark 1 r/` clears the remark
 **Help** | `help`
+
+--------------------------------------------------------------------------------------------------------------------
+
+## Acknowledgments
+
+The remark feature follows the [SE-EDU AB3 tutorial: Adding a Command](https://se-education.org/guides/tutorials/ab3AddRemark.html).
