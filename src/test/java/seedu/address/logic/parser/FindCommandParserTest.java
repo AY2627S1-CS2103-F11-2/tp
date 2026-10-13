@@ -25,8 +25,8 @@ import seedu.address.testutil.PersonBuilder;
 public class FindCommandParserTest {
 
     private FindCommandParser parser = new FindCommandParser();
-    Phone validPhone = new Phone("98765432");
-    Type validType = new Type("buyer");
+    private final Phone validPhone = new Phone("98765432");
+    private final Type validType = new Type("buyer");
 
     @Test
     public void parse_emptyArg_throwsParseException() {

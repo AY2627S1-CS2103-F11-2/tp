@@ -51,7 +51,7 @@ public class PhoneMatchesKeywordPredicateTest {
         Phone phone = new Phone("98765432");
         PhoneMatchesKeywordPredicate predicate = new PhoneMatchesKeywordPredicate(phone);
 
-        String expected = PhoneMatchesKeywordPredicate.class.getCanonicalName() + "{phone keywords=" + phone +"}";
+        String expected = PhoneMatchesKeywordPredicate.class.getCanonicalName() + "{phone keywords=" + phone + "}";
         assertEquals(expected, predicate.toString());
     }
 }
