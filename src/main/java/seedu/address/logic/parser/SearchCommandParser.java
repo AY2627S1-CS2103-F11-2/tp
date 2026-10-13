@@ -8,7 +8,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_TYPE;
 import java.util.List;
 import java.util.function.Predicate;
 
-import seedu.address.logic.commands.FindCommand;
+import seedu.address.logic.commands.SearchCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.NameContainsKeywordsPredicate;
@@ -19,22 +19,22 @@ import seedu.address.model.person.Type;
 import seedu.address.model.person.TypeMatchesKeywordPredicate;
 
 /**
- * Parses input arguments and creates a new FindCommand object
+ * Parses input arguments and creates a new SearchCommand object
  */
-public class FindCommandParser implements Parser<FindCommand> {
+public class SearchCommandParser implements Parser<SearchCommand> {
 
     /**
-     * Parses the given {@code String} of arguments in the context of the FindCommand
-     * and returns a FindCommand object for execution.
+     * Parses the given {@code String} of arguments in the context of the SearchCommand
+     * and returns a SearchCommand object for execution.
      * @throws ParseException if the user input does not conform to the expected format
      */
-    public FindCommand parse(String args) throws ParseException {
+    public SearchCommand parse(String args) throws ParseException {
         ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(
                 args, PREFIX_NAME, PREFIX_PHONE, PREFIX_TYPE);
 
         if (!hasMinimumOneParam(argMultimap) || !argMultimap.getPreamble().isEmpty()) {
             throw new ParseException(
-                    String.format(MESSAGE_INVALID_COMMAND_FORMAT, FindCommand.MESSAGE_USAGE));
+                    String.format(MESSAGE_INVALID_COMMAND_FORMAT, SearchCommand.MESSAGE_USAGE));
         }
 
         Predicate<Person> predicate = null;
@@ -67,7 +67,7 @@ public class FindCommandParser implements Parser<FindCommand> {
             }
         }
 
-        return new FindCommand(predicate);
+        return new SearchCommand(predicate);
     }
 
     /**

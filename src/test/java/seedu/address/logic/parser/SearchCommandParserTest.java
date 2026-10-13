@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import seedu.address.logic.commands.FindCommand;
+import seedu.address.logic.commands.SearchCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
@@ -22,32 +22,32 @@ import seedu.address.model.person.Type;
 import seedu.address.model.person.TypeMatchesKeywordPredicate;
 import seedu.address.testutil.PersonBuilder;
 
-public class FindCommandParserTest {
+public class SearchCommandParserTest {
 
-    private FindCommandParser parser = new FindCommandParser();
+    private SearchCommandParser parser = new SearchCommandParser();
     private final Phone validPhone = new Phone("98765432");
     private final Type validType = new Type("buyer");
 
     @Test
     public void parse_emptyArg_throwsParseException() {
-        assertParseFailure(parser, "     ", String.format(MESSAGE_INVALID_COMMAND_FORMAT, FindCommand.MESSAGE_USAGE));
+        assertParseFailure(parser, "     ", String.format(MESSAGE_INVALID_COMMAND_FORMAT, SearchCommand.MESSAGE_USAGE));
     }
 
     // Testing valid single parameters
     @Test
     public void parse_validNameParamOnly_returnsFindCommand() {
         assertParseSuccess(parser, " n/Alice",
-                new FindCommand(new NameContainsKeywordsPredicate(List.of("Alice"))));
+                new SearchCommand(new NameContainsKeywordsPredicate(List.of("Alice"))));
     }
 
     @Test
     public void parse_validPhoneParamOnly_returnsFindCommand() {
-        assertParseSuccess(parser, " p/98765432", new FindCommand(new PhoneMatchesKeywordPredicate(validPhone)));
+        assertParseSuccess(parser, " p/98765432", new SearchCommand(new PhoneMatchesKeywordPredicate(validPhone)));
     }
 
     @Test
     public void parse_validTypeParamOnly_returnsFindCommand() {
-        assertParseSuccess(parser, " y/buyer", new FindCommand(new TypeMatchesKeywordPredicate(validType)));
+        assertParseSuccess(parser, " y/buyer", new SearchCommand(new TypeMatchesKeywordPredicate(validType)));
     }
 
     // Testing all valid combination of Find parameters
@@ -69,7 +69,7 @@ public class FindCommandParserTest {
         model.addPerson(matchingPerson);
         model.addPerson(wrongPhone);
 
-        FindCommand command = parser.parse(" n/Alice Tan p/98765432");
+        SearchCommand command = parser.parse(" n/Alice Tan p/98765432");
         command.execute(model);
 
         assertEquals(List.of(matchingPerson), model.getFilteredPersonList());
@@ -93,7 +93,7 @@ public class FindCommandParserTest {
         model.addPerson(matchingPerson);
         model.addPerson(wrongType);
 
-        FindCommand command = parser.parse(" p/98765432 y/seller");
+        SearchCommand command = parser.parse(" p/98765432 y/seller");
         command.execute(model);
 
         assertEquals(List.of(matchingPerson), model.getFilteredPersonList());
@@ -117,7 +117,7 @@ public class FindCommandParserTest {
         model.addPerson(matchingPerson);
         model.addPerson(wrongType);
 
-        FindCommand command = parser.parse(" y/seller n/Alice");
+        SearchCommand command = parser.parse(" y/seller n/Alice");
         command.execute(model);
 
         assertEquals(List.of(matchingPerson), model.getFilteredPersonList());
@@ -148,7 +148,7 @@ public class FindCommandParserTest {
         model.addPerson(wrongPhone);
         model.addPerson(wrongType);
 
-        FindCommand command = parser.parse(" n/Alice p/98765432 y/seller");
+        SearchCommand command = parser.parse(" n/Alice p/98765432 y/seller");
         command.execute(model);
 
         assertEquals(List.of(matchingPerson), model.getFilteredPersonList());
