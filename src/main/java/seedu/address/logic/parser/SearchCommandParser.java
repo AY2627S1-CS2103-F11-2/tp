@@ -71,9 +71,9 @@ public class SearchCommandParser implements Parser<SearchCommand> {
     }
 
     /**
-     * Returns true if the Find command contains at least one PREFIX in it's input
+     * Returns true if the Search command contains at least one PREFIX in it's input
      * Else returns false if there is no PREFIX specified in it's input
-     * Valid PREFIX for Find command : PREFIX_NAME, PREFIX_PHONE, PREFIX_TYPE
+     * Valid PREFIX for Search command : PREFIX_NAME, PREFIX_PHONE, PREFIX_TYPE
      */
     public static boolean hasMinimumOneParam(ArgumentMultimap argMultimap) {
         boolean hasNameParam = argMultimap.getValue(PREFIX_NAME).isPresent();

@@ -5,7 +5,7 @@ import java.util.function.Predicate;
 import seedu.address.commons.util.ToStringBuilder;
 
 /**
- * Tests that a {@code Person}'s {@code Phone} matches the phone param in Find command.
+ * Tests that a {@code Person}'s {@code Phone} matches the phone param in Search command.
  */
 public class PhoneMatchesKeywordPredicate implements Predicate<Person> {
     private final Phone phone;

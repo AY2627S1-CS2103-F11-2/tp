@@ -50,7 +50,7 @@ public class SearchCommandParserTest {
         assertParseSuccess(parser, " y/buyer", new SearchCommand(new TypeMatchesKeywordPredicate(validType)));
     }
 
-    // Testing all valid combination of Find parameters
+    // Testing all valid combination of Search parameters
     @Test
     public void parse_validNameAndPhoneParam_filtersCorrectPersons() throws ParseException {
         Person matchingPerson = new PersonBuilder()
