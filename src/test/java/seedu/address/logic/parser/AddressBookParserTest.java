@@ -24,6 +24,10 @@ import seedu.address.logic.commands.ListCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.NameContainsKeywordsPredicate;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.Phone;
+import seedu.address.model.person.PhoneMatchesKeywordPredicate;
+import seedu.address.model.person.Type;
+import seedu.address.model.person.TypeMatchesKeywordPredicate;
 import seedu.address.testutil.EditPersonDescriptorBuilder;
 import seedu.address.testutil.PersonBuilder;
 import seedu.address.testutil.PersonUtil;
@@ -68,11 +72,25 @@ public class AddressBookParserTest {
     }
 
     @Test
-    public void parseCommand_find() throws Exception {
+    public void parseCommand_findByName() throws Exception {
         List<String> keywords = List.of("foo", "bar", "baz");
         FindCommand command = (FindCommand) parser.parseCommand(
-                FindCommand.COMMAND_WORD + " " + keywords.stream().collect(Collectors.joining(" ")));
+                FindCommand.COMMAND_WORD + " n/" + keywords.stream().collect(Collectors.joining(" ")));
         assertEquals(new FindCommand(new NameContainsKeywordsPredicate(keywords)), command);
+    }
+
+    @Test
+    public void parseCommand_findByPhone() throws Exception {
+        Phone phone = new Phone("98765432");
+        FindCommand command = (FindCommand) parser.parseCommand(FindCommand.COMMAND_WORD + " p/98765432");
+        assertEquals(new FindCommand(new PhoneMatchesKeywordPredicate(phone)), command);
+    }
+
+    @Test
+    public void parseCommand_findByType() throws Exception {
+        Type type = new Type("seller");
+        FindCommand command = (FindCommand) parser.parseCommand(FindCommand.COMMAND_WORD + " y/seller");
+        assertEquals(new FindCommand(new TypeMatchesKeywordPredicate(type)), command);
     }
 
     @Test
