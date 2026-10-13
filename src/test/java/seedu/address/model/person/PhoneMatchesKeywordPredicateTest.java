@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
+import seedu.address.testutil.PersonBuilder;
+
 public class PhoneMatchesKeywordPredicateTest {
     @Test
     public void equals() {
@@ -34,16 +36,22 @@ public class PhoneMatchesKeywordPredicateTest {
 
     @Test
     public void test_phoneMatchesKeyword_returnsTrue() {
-
+        PhoneMatchesKeywordPredicate predicate = new PhoneMatchesKeywordPredicate(new Phone("12345678"));
+        assertTrue(predicate.test(new PersonBuilder().withPhone("12345678").build()));
     }
 
     @Test
     public void test_phoneDoesNotMatchesKeyword_returnsFalse() {
-
+        PhoneMatchesKeywordPredicate predicate = new PhoneMatchesKeywordPredicate(new Phone("12345678"));
+        assertFalse(predicate.test(new PersonBuilder().withPhone("98765432").build()));
     }
 
     @Test
     public void toStringMethod() {
+        Phone phone = new Phone("98765432");
+        PhoneMatchesKeywordPredicate predicate = new PhoneMatchesKeywordPredicate(phone);
 
+        String expected = PhoneMatchesKeywordPredicate.class.getCanonicalName() + "{phone keywords=" + phone +"}";
+        assertEquals(expected, predicate.toString());
     }
 }
