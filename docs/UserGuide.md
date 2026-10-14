@@ -219,6 +219,6 @@ Action | Format, Examples
 **Clear** | `clear`
 **Delete** | `delete CLIENT_ID`<br> e.g., `delete C3`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]…​`<br> e.g., `edit 2 n/James Lee e/jameslee@example.com`
-**Search** | `search [n/<NAME] [p/<PHONE NUMBER>] [y/<TYPE>]` <br> e.g., `search p/8765432 y/buyer`
+**Search** | `search [n/<NAME] [p/<PHONE NUMBER>] [y/<TYPE>]` <br> e.g., `search p/87654321 y/buyer`
 **List** | `list`
 **Help** | `help`
