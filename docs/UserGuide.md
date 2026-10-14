@@ -121,22 +121,30 @@ Examples:
 *  `edit 1 p/91234567 e/johndoe@example.com` Edits the phone number and email address of the 1st person to be `91234567` and `johndoe@example.com` respectively.
 *  `edit 2 n/Betsy Crower t/` Edits the name of the 2nd person to be `Betsy Crower` and clears all existing tags.
 
-### Locating persons by name: `find`
+### Locating persons by name: `search`
 
 Finds persons whose names contain any of the given keywords.
 
-Format: `find KEYWORD [MORE_KEYWORDS]`
+Format: `search [n/<NAME] [p/<PHONE NUMBER>] [y/<TYPE>]`
 
-* The search is case-insensitive; for example, `hans` matches `Hans`.
-* Keyword order does not matter; for example, `Hans Bo` matches `Bo Hans`.
-* The search considers only names.
-* Only full words match; for example, `Han` does not match `Hans`.
-* Persons matching at least one keyword are returned (an `OR` search); for example, `Hans Bo` returns `Hans Gruber` and `Bo Yang`.
+* `n/` specifies the name to search for. The search is case-insensitive matches full words in the person's name
+* `p/` specifies the phone number to search for. The phone number must match exactly
+* `y/` specifies the client type to search for. Valid types are `buyer`, `seller`, `tenant` and `landlord`, **in lowercase ONLY**
+* Search requires at least one parameter and supports any combination of name, phone number, and client type parameters, including all three
+* The search returns a list of clients who match the specified search criteria
 
 Examples:
-* `find John` returns `john` and `John Doe`
-* `find alex david` returns `Alex Yeoh`, `David Li`<br>
-  ![result for 'find alex david'](images/findAlexDavidResult.png)
+* `search n/John` returns `John` and `John Doe`
+* `search p/98765432` returns clients with the phone number `98765432`
+* `search y/seller` returns a list of clients whose client type is `seller` 
+* `search n/Alice` searches for clients' whose name contains `Alice`. 
+* `search n/John p/98765432 y/seller` searches using the specified name, phone number, and client type criteria.
+
+ Result of `search y/seller`
+ ![result for 'search y/seller'](images/searchSellerTypeResult.png)
+
+ Result of `search y/seller p/99272758`
+ ![result for 'search y/seller p/99272758'](images/searchSellerTypeAndPhoneNumberResult.png)
 
 ### Deleting a client: `delete`
 
@@ -211,6 +219,6 @@ Action | Format, Examples
 **Clear** | `clear`
 **Delete** | `delete CLIENT_ID`<br> e.g., `delete C3`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]…​`<br> e.g., `edit 2 n/James Lee e/jameslee@example.com`
-**Find** | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
+**Search** | `search [n/<NAME] [p/<PHONE NUMBER>] [y/<TYPE>]` <br> e.g., `search p/8765432 y/buyer`
 **List** | `list`
 **Help** | `help`
