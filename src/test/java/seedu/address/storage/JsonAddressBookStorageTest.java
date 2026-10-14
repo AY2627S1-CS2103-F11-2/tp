@@ -2,6 +2,7 @@ package seedu.address.storage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.ALICE;
 import static seedu.address.testutil.TypicalPersons.HOON;
@@ -111,6 +112,59 @@ public class JsonAddressBookStorageTest {
         assertEquals(expected, new AddressBook(readBack));
         storage.saveAddressBook(readBack);
         assertEquals(expected, new AddressBook(storage.readAddressBook().orElseThrow()));
+    }
+
+    @Test
+    public void readAndSaveAddressBook_presentAndAbsentEmails_roundTrip() throws Exception {
+        Path filePath = testFolder.resolve("OptionalEmails.json");
+        AddressBook expected = getTypicalAddressBook();
+        expected.addPerson(new PersonBuilder().withNoEmail().build());
+        JsonAddressBookStorage storage = new JsonAddressBookStorage(filePath);
+
+        storage.saveAddressBook(expected);
+        assertEquals(expected, new AddressBook(storage.readAddressBook().orElseThrow()));
+        assertTrue(Files.readString(filePath).matches("(?s).*\"email\"\\s*:\\s*\"\".*"));
+        assertFalse(Files.readString(filePath).contains("Not provided"));
+    }
+
+    @Test
+    public void readAddressBook_missingNullOrEmptyEmail_loadsAbsentEmail() throws Exception {
+        AddressBook expected = new AddressBook();
+        expected.addPerson(new PersonBuilder().withNoEmail().build());
+        String[] emailFields = {"", "\"email\": null,", "\"email\": \"\","};
+        Path filePath = testFolder.resolve("LegacyOptionalEmail.json");
+        JsonAddressBookStorage storage = new JsonAddressBookStorage(filePath);
+        for (String emailField : emailFields) {
+            Files.writeString(filePath, """
+                    {
+                      "persons": [{
+                        "name": "Amy Bee",
+                        "phone": "85355255",
+                        %s
+                        "address": "123, Jurong West Ave 6, #08-111",
+                        "type": "buyer",
+                        "tags": []
+                      }]
+                    }
+                    """.formatted(emailField));
+            assertEquals(expected, new AddressBook(storage.readAddressBook().orElseThrow()));
+            storage.saveAddressBook(expected);
+            assertEquals(expected, new AddressBook(storage.readAddressBook().orElseThrow()));
+        }
+    }
+
+    @Test
+    public void readAddressBook_malformedNonemptyEmail_rejectsFile() throws Exception {
+        Path filePath = testFolder.resolve("InvalidOptionalEmail.json");
+        JsonAddressBookStorage storage = new JsonAddressBookStorage(filePath);
+        AddressBook addressBook = new AddressBook();
+        addressBook.addPerson(new PersonBuilder().build());
+        storage.saveAddressBook(addressBook);
+        String validData = Files.readString(filePath);
+        for (String invalidEmail : new String[] {"not-an-email", "   "}) {
+            Files.writeString(filePath, validData.replace(PersonBuilder.DEFAULT_EMAIL, invalidEmail));
+            assertThrows(DataLoadingException.class, () -> storage.readAddressBook());
+        }
     }
 
     @Test

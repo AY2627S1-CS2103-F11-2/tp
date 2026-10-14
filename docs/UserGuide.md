@@ -28,7 +28,7 @@ AddressBook Level 3 (AB3) is a **desktop application for managing contacts, opti
 
    * `list` : Lists all contacts.
 
-   * `add n/John Doe p/98765432 e/johnd@example.com a/John street, block 123, #01-01 y/buyer` : Adds a client named `John Doe`.
+   * `add n/John Doe p/98765432 a/John street, block 123, #01-01 y/buyer` : Adds a client named `John Doe` without an email address.
 
    * `delete C3` : Deletes the 3rd client shown in the current list.
 
@@ -77,7 +77,7 @@ Format: `help`
 
 Adds a client to PropTrack.
 
-Format: `add n/NAME p/PHONE_NUMBER e/EMAIL a/ADDRESS y/TYPE [t/TAG]…​`
+Format: `add n/NAME p/PHONE_NUMBER a/ADDRESS y/TYPE [e/EMAIL] [t/TAG]…​`
 
 * `NAME` must contain 1–100 printable characters and at least one Unicode letter or digit.
   Punctuation is allowed, including apostrophes and hyphens.
@@ -88,6 +88,10 @@ Format: `add n/NAME p/PHONE_NUMBER e/EMAIL a/ADDRESS y/TYPE [t/TAG]…​`
 * Blank, punctuation-only, non-printable and overlong names are rejected with
   `Name must contain 1-100 characters and at least one letter or digit.` No client is added.
 * `TYPE` must be `buyer`, `seller`, `landlord` or `tenant`, in lowercase.
+* Email is optional. Omit the entire `e/EMAIL` field if the client's email is unknown.
+  The client card and command feedback show `Not provided`, and the email remains absent after saving and reopening the app.
+* If `e/` is supplied when adding a client, it must contain a valid email address. A bare `e/`,
+  whitespace-only email or malformed address is rejected. Repeating `e/` is also rejected.
 
 <div markdown="span" class="alert alert-primary">:bulb: **Tip:**
 A client can have any number of tags, including zero.
@@ -95,6 +99,7 @@ A client can have any number of tags, including zero.
 
 Examples:
 * `add n/John Doe p/98765432 e/johnd@example.com a/John street, block 123, #01-01 y/buyer`
+* `add n/Alex Tan p/91234567 a/123 Clementi Road y/buyer` adds a client whose email is not yet known.
 * `add n/Anne-Marie O'Connor p/91234567 e/anne@example.com a/123 Clementi Road y/seller`
 * `add n/张伟 p/92345678 e/zhang@example.com a/456 Tampines Road y/tenant t/friend`
 
@@ -114,12 +119,15 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [t/TAG]…​`
 * At least one of the optional fields must be provided.
 * Existing values will be updated to the input values.
 * Edited names follow the same validation and space normalization rules as [adding a client](#adding-a-client-add).
+* Omit `e/EMAIL` to retain the client's current email. To clear an existing email, supply a bare `e/`;
+  the client card and command feedback then show `Not provided`.
 * When editing tags, all of the person's existing tags are removed; adding tags is not cumulative.
 * To remove all of a person's tags, enter `t/` without a tag after it.
 
 Examples:
 *  `edit 1 p/91234567 e/johndoe@example.com` Edits the phone number and email address of the 1st person to be `91234567` and `johndoe@example.com` respectively.
 *  `edit 2 n/Betsy Crower t/` Edits the name of the 2nd person to be `Betsy Crower` and clears all existing tags.
+*  `edit 1 e/` Clears the email address of the 1st person.
 
 ### Locating persons by name: `find`
 
@@ -207,7 +215,7 @@ _Details coming soon ..._
 
 Action | Format, Examples
 --------|------------------
-**Add** | `add n/NAME p/PHONE_NUMBER e/EMAIL a/ADDRESS y/TYPE [t/TAG]…​` <br> e.g., `add n/James Ho p/22224444 e/jamesho@example.com a/123, Clementi Rd, 1234665 y/buyer t/friend t/colleague`
+**Add** | `add n/NAME p/PHONE_NUMBER a/ADDRESS y/TYPE [e/EMAIL] [t/TAG]…​` <br> e.g., `add n/James Ho p/22224444 a/123, Clementi Rd, 1234665 y/buyer t/friend t/colleague`
 **Clear** | `clear`
 **Delete** | `delete CLIENT_ID`<br> e.g., `delete C3`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]…​`<br> e.g., `edit 2 n/James Lee e/jameslee@example.com`
