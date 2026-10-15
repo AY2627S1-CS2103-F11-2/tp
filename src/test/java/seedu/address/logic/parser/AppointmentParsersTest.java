@@ -13,6 +13,9 @@ import seedu.address.logic.commands.AddAppointmentCommand;
 import seedu.address.logic.commands.AppointmentsCommand;
 import seedu.address.logic.commands.DeleteAppointmentCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.ModelManager;
+import seedu.address.model.UserPrefs;
+import seedu.address.testutil.TypicalAppointments;
 
 public class AppointmentParsersTest {
     private final AppointmentsCommandParser viewParser = new AppointmentsCommandParser();
@@ -55,6 +58,28 @@ public class AppointmentParsersTest {
     }
 
     @Test
+    public void deleteAppointment_usageProvidesAcceptedConfirmation() throws Exception {
+        String example = DeleteAppointmentCommand.MESSAGE_USAGE.replace("A<INDEX>", "A1");
+        assertEquals("deleteappt A1 yes", example);
+        assertEquals(new DeleteAppointmentCommand(Index.fromOneBased(1)),
+                new AddressBookParser().parseCommand(example));
+        assertError(deleteParser, "", "Invalid command format. Use: deleteappt A<INDEX> yes");
+    }
+
+    @Test
+    public void addAppointment_locationUsesSharedParser_preservesPunctuationAndInternalSpaces() throws Exception {
+        for (String location : new String[]{"NUS COM3 #02-01", "NUS  COM3 #02-01", "#02-01"}) {
+            ModelManager model = new ModelManager(TypicalAppointments.getAppointmentAddressBook(), new UserPrefs());
+            addParser.parse(" n/Viewing c/C1 loc/\u2003 " + location
+                    + " \u2003 s/20261017-1000 e/20261017-1100").execute(model);
+            assertEquals(ParserUtil.parseAppointmentLocation("\u2003 " + location + " \u2003"),
+                    model.getFilteredAppointmentList().getLast().getLocation());
+        }
+        assertError(addParser, " n/Viewing c/C1 loc/\u2003 s/20261017-1000 e/20261017-1100",
+                ParserUtil.MESSAGE_EMPTY_APPOINTMENT_LOCATION);
+    }
+
+    @Test
     public void deleteAppointment_missingExtraOrInvalidArguments_rejects() {
         for (String args : new String[]{"", " A1 yes extra", " A1 A2 yes"}) {
             assertError(deleteParser, args, DeleteAppointmentCommandParser.MESSAGE_FORMAT);
@@ -73,7 +98,7 @@ public class AppointmentParsersTest {
         String valid = " n/Viewing c/C1 loc/NUS s/20261015-1000 e/20261015-1100";
         for (String args : new String[]{"", valid + " n/Viewing", valid + " x/extra",
             valid.replace("n/Viewing", "n/"), valid.replace("n/Viewing", "n/Viewing1"),
-            valid.replace("loc/NUS", "loc/"), valid.replace("loc/NUS", "loc/NUS#1"),
+            valid.replace("loc/NUS", "loc/"),
             valid.replace("c/C1", "c/C0"), valid.replace("s/20261015-1000", "s/20260230-1000"),
             valid.replace("s/20261015-1000", "s/20261015-2400"),
             valid.replace("e/20261015-1100", "e/20261015-1000"),

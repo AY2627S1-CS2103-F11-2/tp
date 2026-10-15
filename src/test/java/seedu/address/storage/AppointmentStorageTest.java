@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import seedu.address.commons.exceptions.DataLoadingException;
 import seedu.address.commons.util.JsonUtil;
 import seedu.address.model.AddressBook;
+import seedu.address.model.appointment.Appointment;
 import seedu.address.model.person.Person;
 import seedu.address.testutil.PersonBuilder;
 
@@ -59,6 +60,19 @@ public class AppointmentStorageTest {
     }
 
     @Test
+    public void saveAndReload_locationWithUnitNumberAndUnicodePadding_preservesNormalizedLocation() throws Exception {
+        AddressBook book = new AddressBook();
+        book.addPerson(ALICE);
+        book.addAppointment(new Appointment("Viewing", ALICE,
+                "\u2003 NUS  COM3 #02-01 \u2003", VIEWING.getStart(), VIEWING.getEnd(), ""));
+        JsonAddressBookStorage storage = new JsonAddressBookStorage(directory.resolve("unit-number.json"));
+        storage.saveAddressBook(book);
+        AddressBook loaded = new AddressBook(storage.readAddressBook().orElseThrow());
+        assertEquals(book, loaded);
+        assertEquals("NUS  COM3 #02-01", loaded.getAppointmentList().getFirst().getLocation());
+    }
+
+    @Test
     public void invalidAppointment_rejectsWholeFileWithoutChangingIt() throws Exception {
         Path file = directory.resolve("invalid.json");
         JsonAddressBookStorage storage = new JsonAddressBookStorage(file);
@@ -74,6 +88,7 @@ public class AppointmentStorageTest {
         }
         for (String fragment : new String[]{"{\"clientIndex\":0}", "{\"clientIndex\":3}",
             "{\"clientIndex\":1.5}", "{\"clientIndex\":2147483648}", "{\"name\":\"\"}",
+            "{\"location\":\"\"}", "{\"location\":\"\\u2003\"}",
             "{\"start\":\"2026-02-30T10:00\"}", "{\"end\":\"2000-01-01T10:00\"}"}) {
             ObjectNode root = JsonUtil.fromJsonString(valid, ObjectNode.class);
             ObjectNode appointment = (ObjectNode) root.get("appointments").get(0);

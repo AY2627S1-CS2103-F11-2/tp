@@ -13,8 +13,7 @@ import seedu.address.model.person.Person;
 public final class Appointment {
     public static final String MESSAGE_INVALID_NAME =
             "Appointment name must contain only letters and spaces, with 1-80 characters.";
-    public static final String MESSAGE_INVALID_LOCATION =
-            "Appointment location must contain only letters, digits and spaces, and cannot be blank.";
+    public static final String MESSAGE_INVALID_LOCATION = "Appointment location cannot be empty.";
     public static final String MESSAGE_INVALID_PERIOD = "Appointment end must be after its start.";
     public static final Comparator<Appointment> CHRONOLOGICAL_ORDER = Comparator
             .comparing(Appointment::getStart).thenComparing(Appointment::getEnd)
@@ -32,11 +31,11 @@ public final class Appointment {
             LocalDateTime end, String remarks) {
         requireAllNonNull(name, client, location, start, end, remarks);
         checkArgument(isValidName(name.trim()), MESSAGE_INVALID_NAME);
-        checkArgument(isValidLocation(location.trim()), MESSAGE_INVALID_LOCATION);
+        checkArgument(isValidLocation(location), MESSAGE_INVALID_LOCATION);
         checkArgument(end.isAfter(start), MESSAGE_INVALID_PERIOD);
         this.name = name.trim();
         this.client = client;
-        this.location = location.trim();
+        this.location = location.strip();
         this.start = start;
         this.end = end;
         this.remarks = remarks;
@@ -47,7 +46,7 @@ public final class Appointment {
     }
 
     public static boolean isValidLocation(String location) {
-        return location.matches("[A-Za-z0-9 ]*") && location.matches(".*[A-Za-z0-9].*");
+        return !location.strip().isEmpty();
     }
 
     public String getName() {

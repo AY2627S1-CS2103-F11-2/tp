@@ -30,12 +30,21 @@ public class AppointmentTest {
             assertThrows(IllegalArgumentException.class, () -> new Appointment(name, ALICE, "NUS",
                     VIEWING.getStart(), VIEWING.getEnd(), ""));
         }
-        for (String location : new String[]{"", " ", "NUS#1", "NUS\n123"}) {
+        for (String location : new String[]{"", " ", "\t\n", "\u2003"}) {
             assertThrows(IllegalArgumentException.class, () -> new Appointment("Viewing", ALICE, location,
                     VIEWING.getStart(), VIEWING.getEnd(), ""));
         }
         assertTrue(Appointment.isValidName("a".repeat(80)));
         assertThrows(NullPointerException.class, () -> VIEWING.withClient(null));
+    }
+
+    @Test
+    public void constructor_nonblankLocations_preservesPunctuationAndInternalWhitespace() {
+        for (String location : new String[]{"NUS COM3 #02-01", "NUS  COM3 #02-01", "NUS\n123", "#02-01"}) {
+            Appointment appointment = new Appointment("Viewing", ALICE, "\u2003 " + location + " \u2003",
+                    VIEWING.getStart(), VIEWING.getEnd(), "");
+            assertEquals(location, appointment.getLocation());
+        }
     }
 
     @Test

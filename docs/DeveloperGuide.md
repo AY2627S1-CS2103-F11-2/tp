@@ -159,6 +159,8 @@ This section describes some noteworthy details on how certain features are imple
 
 `Appointment` is immutable and stores a linked `Person`, name, location, Singapore local start/end
 date-times, and remarks. Its constructor validates the name, location and positive duration.
+Creation uses `ParserUtil.parseAppointmentLocation` for the shared nonblank location rule and
+Unicode whitespace trimming. The model enforces the same rule when loading stored appointments.
 `AddressBook` owns the appointment list alongside clients and exposes an unmodifiable observable view.
 Replacing a client updates its appointment links. Removing a client removes its appointments.
 Resetting the address book, including `clear`, replaces both collections.

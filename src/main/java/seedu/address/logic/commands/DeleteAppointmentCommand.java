@@ -10,7 +10,7 @@ import seedu.address.model.appointment.Appointment;
 /** Deletes one appointment from the displayed list after the parser has checked confirmation. */
 public class DeleteAppointmentCommand extends Command {
     public static final String COMMAND_WORD = "deleteappt";
-    public static final String MESSAGE_USAGE = "deleteappt A<INDEX> yes/confirm";
+    public static final String MESSAGE_USAGE = "deleteappt A<INDEX> yes";
     public static final String MESSAGE_INVALID_INDEX =
             "No appointment exists at this index in the displayed appointment list.";
 

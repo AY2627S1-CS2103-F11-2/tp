@@ -178,8 +178,9 @@ Format: `appointment n/NAME c/CLIENT_INDEX loc/LOCATION s/YYYYMMDD-HHMM e/YYYYMM
 
 * Every field is required and may appear only once. Fields may be supplied in any order.
 * `CLIENT_INDEX` is a displayed client reference such as `C1`; it is not a permanent ID.
-* The name contains letters and spaces, with 1-80 characters. The location contains letters,
-  digits and spaces and cannot be blank. Leading and trailing spaces are removed.
+* The name contains letters and spaces, with 1-80 characters. The location cannot be blank;
+  punctuation such as `#` and `-` is accepted, for example `NUS COM3 #02-01`.
+  Leading and trailing whitespace is removed, while internal spacing is preserved.
 * Start and end must be real calendar date-times in 24-hour Singapore local time.
   The end must be strictly after the start. Appointments may cross midnight.
 * An appointment that overlaps any stored appointment is rejected, including appointments hidden by a filter.

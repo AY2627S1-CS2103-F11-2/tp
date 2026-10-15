@@ -43,13 +43,10 @@ public class AddAppointmentCommandParser implements Parser<AddAppointmentCommand
             }
         }
         String name = fields.getValue(NAME).orElseThrow();
-        String location = fields.getValue(LOCATION).orElseThrow();
         if (!Appointment.isValidName(name)) {
             throw new ParseException(Appointment.MESSAGE_INVALID_NAME);
         }
-        if (!Appointment.isValidLocation(location)) {
-            throw new ParseException(Appointment.MESSAGE_INVALID_LOCATION);
-        }
+        String location = ParserUtil.parseAppointmentLocation(fields.getValue(LOCATION).orElseThrow());
         Index client = AppointmentsCommandParser.parseClientIndex(fields.getValue(CLIENT).orElseThrow());
         LocalDateTime start = parseDateTime(fields.getValue(START).orElseThrow());
         LocalDateTime end = parseDateTime(fields.getValue(END).orElseThrow());
