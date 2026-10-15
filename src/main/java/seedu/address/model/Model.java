@@ -17,6 +17,15 @@ public interface Model {
     /** {@code Predicate} that always evaluates to true */
     Predicate<Person> PREDICATE_SHOW_ALL_PERSONS = unused -> true;
 
+    /** Opaque, in-memory state belonging to one model, used to recover from a failed save. */
+    interface Checkpoint {}
+
+    /** Captures current data, history and displayed filters before command execution. */
+    Checkpoint createCheckpoint();
+
+    /** Restores this model's checkpoint without recording a new change. */
+    void restoreCheckpoint(Checkpoint checkpoint);
+
     /**
      * Returns the user prefs.
      */
@@ -106,6 +115,13 @@ public interface Model {
     /** Adds an appointment linked to an existing client. */
     void addAppointment(Appointment appointment);
 
-    /** Deletes an existing appointment and shows all remaining appointments. */
+    /**
+     * Atomically replaces an existing appointment and records one undo step if data changes.
+     * Invalid replacements leave data, filters and history unchanged. Future editappt commands should
+     * construct the complete replacement and call this operation once.
+     */
+    void setAppointment(Appointment target, Appointment editedAppointment);
+
+    /** Deletes an existing appointment, clears undo/redo history and shows all remaining appointments. */
     void deleteAppointment(Appointment appointment);
 }

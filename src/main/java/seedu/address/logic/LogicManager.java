@@ -48,6 +48,7 @@ public class LogicManager implements Logic {
 
         CommandResult commandResult;
         Command command = addressBookParser.parseCommand(commandText);
+        Model.Checkpoint checkpoint = model.createCheckpoint();
         commandResult = command.execute(model);
 
         if (command instanceof AppointmentsCommand) {
@@ -57,8 +58,10 @@ public class LogicManager implements Logic {
         try {
             storage.saveAddressBook(model.getAddressBook());
         } catch (AccessDeniedException e) {
+            model.restoreCheckpoint(checkpoint);
             throw new CommandException(String.format(FILE_OPS_PERMISSION_ERROR_FORMAT, e.getMessage()), e);
         } catch (IOException ioe) {
+            model.restoreCheckpoint(checkpoint);
             throw new CommandException(String.format(FILE_OPS_ERROR_FORMAT, ioe.getMessage()), ioe);
         }
 

@@ -56,6 +56,30 @@ appointments crossing midnight. Automated tests also cover empty lists, both fil
 out-of-range indexes, duplicate/unknown fields, overflow, clashes with hidden appointments, client deletion,
 `clear`, read-only viewing, invalid JSON entries and legacy client-only files.
 
+## Undo and redo smoke test
+
+Use a fresh temporary data folder for this sequence.
+
+1. Run `edit 1 n/Updated Client`, then create Viewing using step 2 above. Run `undo` once:
+   Viewing disappears and Updated Client remains. A second `undo` restores the original client.
+   Two `redo` commands restore each change separately.
+2. Run `undo`, then create an appointment at a different time. Run `redo`: expect `Nothing to redo.`
+   and confirm that the newly created appointment remains, including after restarting later.
+3. Filter both lists using `search n/Updated` and `appointments c/C1`, then run `undo` and `redo`.
+   Both full lists should appear after each successful history operation, with correct client links.
+4. Run `deleteappt A1 yes`. Both `undo` and `redo` should now report that nothing is available.
+   Edit a client, then `undo`: that edit is reversed, while the deleted appointment stays absent.
+5. Restart the JAR. Check saved clients and appointments; neither undo nor redo should be available.
+
+`AppointmentHistoryIntegrationTest` checks parsed commands against real JSON persistence.
+`AppointmentHistorySaveFailureTest` injects I/O and permission errors before writing and verifies
+data, filters and both history directions are recovered, followed by a successful retry.
+`AppointmentEditHistoryTest` covers the future `editappt` model operation, including changes to every
+field, clashes, adjacent times, no-op edits, branching and client lifecycle changes.
+`AppointmentHistorySequenceTest` checks 1,000 mixed operations against an independent expected timeline
+using four fixed seeds, making any failure reproducible. `ModelCheckpointTest` also covers checkpoint
+ownership and restoring a truncated or cleared timeline more than once.
+
 ## Types of tests
 
 This project has three types of tests:
