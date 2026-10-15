@@ -1,5 +1,6 @@
 package seedu.address.model.person;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.Assert.assertThrows;
@@ -17,6 +18,25 @@ public class EmailTest {
     public void constructor_invalidEmail_throwsIllegalArgumentException() {
         String invalidEmail = "";
         assertThrows(IllegalArgumentException.class, () -> new Email(invalidEmail));
+    }
+
+    @Test
+    public void empty_hasNoAddressAndDisplaysNotProvided() {
+        Email email = Email.empty();
+        assertTrue(email.isEmpty());
+        assertEquals("", email.value);
+        assertEquals("Not provided", email.getDisplayValue());
+        assertEquals(Email.empty(), email);
+        assertEquals(Email.empty().hashCode(), email.hashCode());
+        assertFalse(email.equals(new Email("valid@example.com")));
+        assertFalse(email.equals(null));
+    }
+
+    @Test
+    public void present_displaysAddress() {
+        Email email = new Email("valid@example.com");
+        assertFalse(email.isEmpty());
+        assertEquals("valid@example.com", email.getDisplayValue());
     }
 
     @Test

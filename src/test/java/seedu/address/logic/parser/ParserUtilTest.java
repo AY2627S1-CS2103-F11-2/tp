@@ -2,6 +2,7 @@ package seedu.address.logic.parser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static seedu.address.logic.parser.ParserUtil.MESSAGE_EMPTY_APPOINTMENT_LOCATION;
 import static seedu.address.logic.parser.ParserUtil.MESSAGE_EMPTY_DATE;
 import static seedu.address.logic.parser.ParserUtil.MESSAGE_INVALID_APPOINTMENT_INDEX;
 import static seedu.address.logic.parser.ParserUtil.MESSAGE_INVALID_DATE;
@@ -102,6 +103,27 @@ public class ParserUtilTest {
 
         // Leading and trailing whitespaces
         assertEquals(INDEX_FIRST_PERSON, ParserUtil.parseAppointmentIndex("  A1  "));
+    }
+
+    @Test
+    public void parseAppointmentLocation_null_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> ParserUtil.parseAppointmentLocation(null));
+    }
+
+    @Test
+    public void parseAppointmentLocation_emptyOrWhitespace_throwsParseException() {
+        for (String location : List.of("", "   ", WHITESPACE, "\u2003")) {
+            assertThrows(ParseException.class, MESSAGE_EMPTY_APPOINTMENT_LOCATION, ()
+                -> ParserUtil.parseAppointmentLocation(location));
+        }
+    }
+
+    @Test
+    public void parseAppointmentLocation_validInput_success() throws Exception {
+        assertEquals("NUS COM3", ParserUtil.parseAppointmentLocation("NUS COM3"));
+        assertEquals("NUS COM3", ParserUtil.parseAppointmentLocation(WHITESPACE + "NUS COM3" + WHITESPACE));
+        assertEquals("NUS COM3", ParserUtil.parseAppointmentLocation("\u2003NUS COM3\u2003"));
+        assertEquals("NUS  COM3 #02-01", ParserUtil.parseAppointmentLocation("  NUS  COM3 #02-01  "));
     }
 
     @Test
@@ -286,6 +308,12 @@ public class ParserUtilTest {
     @Test
     public void parseEmail_invalidValue_throwsParseException() {
         assertThrows(ParseException.class, () -> ParserUtil.parseEmail(INVALID_EMAIL));
+    }
+
+    @Test
+    public void parseEmail_emptyOrBlankValue_throwsParseException() {
+        assertThrows(ParseException.class, Email.MESSAGE_CONSTRAINTS, () -> ParserUtil.parseEmail(""));
+        assertThrows(ParseException.class, Email.MESSAGE_CONSTRAINTS, () -> ParserUtil.parseEmail("   "));
     }
 
     @Test

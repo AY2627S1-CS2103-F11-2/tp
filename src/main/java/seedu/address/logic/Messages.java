@@ -40,7 +40,7 @@ public class Messages {
                 .append("; Phone: ")
                 .append(person.getPhone())
                 .append("; Email: ")
-                .append(person.getEmail())
+                .append(person.getEmail().getDisplayValue())
                 .append("; Address: ")
                 .append(person.getAddress())
                 .append("; Type: ")
