@@ -641,4 +641,4 @@ testers are expected to do more *exploratory* testing.
 
    1. _{Explain how to simulate missing or corrupted data files and state the expected behavior.}_
 
-1. _{ more test cases …​ }_
+1. _{ more test cases …​ }_ A state change is what puts a command into the history, so commands that change no data, such as `list` and `search`, leave nothing to undo. Both `undo` and `redo` re-show the full client list, so a filter applied after the change that is being reversed is cleared and the restored state is visible.
