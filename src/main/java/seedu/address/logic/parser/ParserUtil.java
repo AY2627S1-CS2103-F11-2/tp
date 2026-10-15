@@ -30,6 +30,7 @@ public class ParserUtil {
             "Appointment index must be A followed by a positive integer, e.g. A1.";
     public static final String MESSAGE_MISSING_CONFIRMATION = "Deletion requires yes/confirm. Nothing was deleted.";
     public static final String MESSAGE_EMPTY_DATE = "DATE cannot be empty.";
+    public static final String MESSAGE_EMPTY_APPOINTMENT_LOCATION = "Appointment location cannot be empty.";
     public static final String MESSAGE_INVALID_DATE = "Enter a valid date in DDMMYYYY format.";
 
     private static final String APPOINTMENT_INDEX_PREFIX = "A";
@@ -66,6 +67,21 @@ public class ParserUtil {
             throw new ParseException(MESSAGE_INVALID_APPOINTMENT_INDEX);
         }
         return Index.fromOneBased(Integer.parseInt(number));
+    }
+
+    /**
+     * Parses an appointment location, trimming leading and trailing whitespace while preserving internal spaces.
+     *
+     * @throws NullPointerException if {@code location} is null.
+     * @throws ParseException if {@code location} is empty or contains only whitespace.
+     */
+    public static String parseAppointmentLocation(String location) throws ParseException {
+        requireNonNull(location);
+        String trimmedLocation = location.strip();
+        if (trimmedLocation.isEmpty()) {
+            throw new ParseException(MESSAGE_EMPTY_APPOINTMENT_LOCATION);
+        }
+        return trimmedLocation;
     }
 
     /**

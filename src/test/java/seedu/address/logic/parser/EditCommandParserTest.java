@@ -142,6 +142,23 @@ public class EditCommandParserTest {
     }
 
     @Test
+    public void parse_emptyEmail_clearsEmail() {
+        EditPersonDescriptor descriptor = new EditPersonDescriptor();
+        descriptor.setEmail(Email.empty());
+        EditCommand expectedCommand = new EditCommand(INDEX_FIRST_PERSON, descriptor);
+        assertParseSuccess(parser, "1 e/", expectedCommand);
+        assertParseSuccess(parser, "1 e/   ", expectedCommand);
+    }
+
+    @Test
+    public void parse_repeatedEmailIncludingEmpty_failure() {
+        String duplicateMessage = Messages.getErrorMessageForDuplicatePrefixes(PREFIX_EMAIL);
+        assertParseFailure(parser, "1 e/ e/", duplicateMessage);
+        assertParseFailure(parser, "1 e/" + EMAIL_DESC_AMY, duplicateMessage);
+        assertParseFailure(parser, "1" + EMAIL_DESC_AMY + " e/", duplicateMessage);
+    }
+
+    @Test
     public void parse_oneFieldSpecified_success() {
         // name
         Index targetIndex = INDEX_THIRD_PERSON;

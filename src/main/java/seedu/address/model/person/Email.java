@@ -4,11 +4,12 @@ import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.AppUtil.checkArgument;
 
 /**
- * Represents a Person's email in the address book.
- * Guarantees: immutable; is valid as declared in {@link #isValidEmail(String)}
+ * Represents a Person's optional email in the address book.
+ * Guarantees: immutable; either absent or valid as declared in {@link #isValidEmail(String)}
  */
 public class Email {
 
+    private static final String NOT_PROVIDED = "Not provided";
     private static final String SPECIAL_CHARACTERS = "+_.-";
     public static final String MESSAGE_CONSTRAINTS = "Emails should be of the format local-part@domain "
             + "and adhere to the following constraints:\n"
@@ -34,6 +35,13 @@ public class Email {
     public final String value;
 
     /**
+     * Constructs an absent email without treating it as a supplied email address.
+     */
+    private Email() {
+        value = "";
+    }
+
+    /**
      * Constructs an {@code Email}.
      *
      * @param email A valid email address.
@@ -45,7 +53,28 @@ public class Email {
     }
 
     /**
-     * Returns true if a given string is a valid email.
+     * Returns an absent email.
+     */
+    public static Email empty() {
+        return new Email();
+    }
+
+    /**
+     * Returns true if no email address was provided.
+     */
+    public boolean isEmpty() {
+        return value.isEmpty();
+    }
+
+    /**
+     * Returns the email address, or a readable placeholder when it is absent.
+     */
+    public String getDisplayValue() {
+        return isEmpty() ? NOT_PROVIDED : value;
+    }
+
+    /**
+     * Returns true if a given string is a valid supplied email address.
      */
     public static boolean isValidEmail(String test) {
         return test.matches(VALIDATION_REGEX);
