@@ -102,6 +102,14 @@ public class PersonBuilder {
         return this;
     }
 
+    /**
+     * Clears the email of the {@code Person} that we are building.
+     */
+    public PersonBuilder withNoEmail() {
+        this.email = Email.empty();
+        return this;
+    }
+
     public Person build() {
         return new Person(name, phone, email, address, type, tags);
     }

@@ -54,7 +54,7 @@ public class PersonCard extends UiPart<Region> {
         type.setText(person.getType().clientType);
         phone.setText(person.getPhone().value);
         address.setText(person.getAddress().value);
-        email.setText(person.getEmail().value);
+        email.setText(person.getEmail().getDisplayValue());
         person.getTags().stream()
                 .sorted(Comparator.comparing(tag -> tag.tagName))
                 .forEach(tag -> tags.getChildren().add(new Label(tag.tagName)));

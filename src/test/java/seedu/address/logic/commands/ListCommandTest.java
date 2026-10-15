@@ -28,12 +28,18 @@ public class ListCommandTest {
 
     @Test
     public void execute_listIsNotFiltered_showsSameList() {
-        assertCommandSuccess(new ListCommand(), model, ListCommand.MESSAGE_SUCCESS, expectedModel);
+        assertCommandSuccess(new ListCommand(), model, expectedMessageFor(expectedModel), expectedModel);
     }
 
     @Test
     public void execute_listIsFiltered_showsEverything() {
         showPersonAtIndex(model, INDEX_FIRST_PERSON);
-        assertCommandSuccess(new ListCommand(), model, ListCommand.MESSAGE_SUCCESS, expectedModel);
+
+        // the count reports every stored client, not just the filtered ones
+        assertCommandSuccess(new ListCommand(), model, expectedMessageFor(expectedModel), expectedModel);
+    }
+
+    private String expectedMessageFor(Model model) {
+        return String.format(ListCommand.MESSAGE_SUCCESS, model.getFilteredPersonList().size());
     }
 }
