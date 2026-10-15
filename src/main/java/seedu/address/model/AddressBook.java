@@ -112,6 +112,21 @@ public class AddressBook implements ReadOnlyAddressBook {
         appointments.add(appointment);
     }
 
+    /** Replaces an appointment after validating the target, client and uniqueness. */
+    public void setAppointment(Appointment target, Appointment editedAppointment) {
+        requireNonNull(target);
+        requireNonNull(editedAppointment);
+        int index = appointments.indexOf(target);
+        if (index < 0) {
+            throw new IllegalArgumentException("Appointment does not exist.");
+        }
+        if (!getPersonList().contains(editedAppointment.getClient())
+                || (!target.equals(editedAppointment) && appointments.contains(editedAppointment))) {
+            throw new IllegalArgumentException("Invalid appointment client or duplicate appointment.");
+        }
+        appointments.set(index, editedAppointment);
+    }
+
     /** Removes an existing appointment. */
     public void removeAppointment(Appointment appointment) {
         requireNonNull(appointment);

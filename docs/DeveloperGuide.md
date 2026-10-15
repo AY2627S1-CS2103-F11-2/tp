@@ -157,6 +157,21 @@ This section describes some noteworthy details on how certain features are imple
 
 ### Undo/redo feature
 
+### Appointment location editing
+
+`editappt A<INDEX> loc/LOCATION` implements UC03. `EditAppointmentCommandParser` parses the displayed
+reference and reuses `ParserUtil.parseAppointmentLocation`. Missing, repeated or unsupported fields
+are rejected before command execution.
+
+`EditAppointmentCommand` resolves the reference against `Model#getFilteredAppointmentList`, then builds
+an immutable replacement retaining the name, client, time interval and remarks. `Model#setAppointment`
+replaces the existing entry and commits a history snapshot, preserving the active filters. Storage uses
+the existing appointment JSON format. An unchanged location is rejected without recording history.
+
+Only location editing is exposed; changing time, name, client or remarks is outside this command's scope.
+The appointment history and save-failure rollback corrections tracked in #71 remain a prerequisite for
+releasing this command safely across mixed operations (for example, creating then editing an appointment).
+
 ### Appointment viewing and deletion
 
 `Appointment` is immutable and stores a linked `Person`, name, location, Singapore local start/end

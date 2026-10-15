@@ -108,4 +108,7 @@ public interface Model {
 
     /** Deletes an existing appointment and shows all remaining appointments. */
     void deleteAppointment(Appointment appointment);
+
+    /** Replaces an existing appointment, preserving filters and recording one undo step. */
+    void setAppointment(Appointment target, Appointment editedAppointment);
 }

@@ -142,6 +142,13 @@ public class ModelManager implements Model {
         updateFilteredAppointmentList(null, null);
     }
 
+    @Override
+    public void setAppointment(Appointment target, Appointment editedAppointment) {
+        requireAllNonNull(target, editedAppointment);
+        addressBook.setAppointment(target, editedAppointment);
+        addressBook.commit();
+    }
+
     //=========== Filtered Person List Accessors =============================================================
 
     /**
