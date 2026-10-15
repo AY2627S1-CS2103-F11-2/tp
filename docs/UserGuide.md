@@ -133,13 +133,13 @@ Examples:
 *  `edit 2 n/Betsy Crower t/` Edits the name of the 2nd client to be `Betsy Crower` and clears all existing tags.
 *  `edit 1 e/` Clears the email address of the 1st client.
 
-### Locating persons by name: `search`
+### Searching for clients: `search`
 
 Finds clients whose names contain any of the given keywords.
 
-Format: `search [n/<NAME] [p/<PHONE NUMBER>] [y/<TYPE>]`
+Format: `search [n/NAME] [p/PHONE_NUMBER] [y/TYPE]`
 
-* `n/` specifies the name to search for. The search is case-insensitive matches full words in the person's name
+* `n/` specifies the name to search for. The search is case-insensitive and matches full words in the client's name
 * `p/` specifies the phone number to search for. The phone number must match exactly
 * `y/` specifies the client type to search for. Valid types are `buyer`, `seller`, `tenant` and `landlord`, **in lowercase ONLY**
 * Search requires at least one parameter and supports any combination of name, phone number, and client type parameters, including all three
@@ -149,7 +149,7 @@ Examples:
 * `search n/John` returns `John` and `John Doe`
 * `search p/98765432` returns clients with the phone number `98765432`
 * `search y/seller` returns a list of clients whose client type is `seller` 
-* `search n/Alice` searches for clients' whose name contains `Alice`. 
+* `search n/Alice` searches for clients whose name contains `Alice`. 
 * `search n/John p/98765432 y/seller` searches using the specified name, phone number, and client type criteria.
 
  Result of `search y/seller`
@@ -302,7 +302,7 @@ Action | Format, Examples
 **Clear** | `clear`
 **Delete** | `delete CLIENT_ID`<br> e.g., `delete C3`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]…​`<br> e.g., `edit 2 n/James Lee e/jameslee@example.com`
-**Search** | `search [n/<NAME] [p/<PHONE NUMBER>] [y/<TYPE>]` <br> e.g., `search p/87654321 y/buyer`
+**Search** | `search [n/NAME] [p/PHONE_NUMBER] [y/TYPE]` <br> e.g., `search p/87654321 y/buyer`
 **List** | `list`
 **Add appointment** | `appointment n/NAME c/CLIENT_INDEX loc/LOCATION s/YYYYMMDD-HHMM e/YYYYMMDD-HHMM`
 **View appointments** | `appointments [c/CLIENT_INDEX] [d/DDMMYYYY]`
