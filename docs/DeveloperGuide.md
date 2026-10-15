@@ -155,6 +155,46 @@ Classes used by multiple components are in the `seedu.address.commons` package.
 
 This section describes some noteworthy details on how certain features are implemented.
 
+### Appointment viewing and deletion
+
+`Appointment` is immutable and stores a linked `Person`, name, location, Singapore local start/end
+date-times, and remarks. Its constructor validates the name, location and positive duration.
+Creation uses `ParserUtil.parseAppointmentLocation` for the shared nonblank location rule and
+Unicode whitespace trimming. The model enforces the same rule when loading stored appointments.
+`AddressBook` owns the appointment list alongside clients and exposes an unmodifiable observable view.
+Replacing a client updates its appointment links. Removing a client removes its appointments.
+Resetting the address book, including `clear`, replaces both collections.
+
+`ModelManager` applies a `FilteredList` over **all** appointments, followed by a `SortedList` using
+start time, end time, appointment name and client name as deterministic ordering keys. An appointment
+date filter matches the local start date; no conversion using the computer's timezone is performed.
+The optional client filter holds the resolved client, not its displayed position, so later client-list
+filtering cannot retarget it. Editing that client updates the active appointment filter as well.
+
+`AppointmentsCommandParser` validates optional, single-valued `c/` and `d/` fields. The command resolves
+`c/C1` against the displayed client list before replacing the appointment filter. An invalid reference
+therefore leaves existing filters unchanged. Viewing returns through `LogicManager` without saving.
+`DeleteAppointmentCommandParser` checks an `A` reference and a final `yes` or `confirm` before execution.
+The command resolves that position against the sorted, filtered appointment list, removes exactly that
+appointment, and resets the appointment filter to display all remaining appointments. Displayed references
+are recalculated by the panel and are not stored as stable IDs. These commands do not change the client filter.
+
+`appointment` supplies the creation dependency for this iteration: it validates all required fields,
+resolves a displayed client reference and checks for overlaps against the complete stored schedule.
+Intervals that meet at an endpoint do not clash. Appointment editing remains separate work.
+
+JSON stores appointments in the same data file as clients. `JsonAdaptedAppointment.clientIndex` is the
+one-based position in the **saved, unfiltered** client array, resolved only when loading that file.
+This keeps linkage correct after a client is edited or removed and the file is saved again.
+Legacy files without an appointment array load with an empty schedule. Missing required appointment
+fields, invalid calendar values, non-integer or dangling client references and duplicate appointments
+reject the whole file through `DataLoadingException`; partial loading is not performed.
+Existing startup quarantine behavior also applies to unreadable appointment data.
+
+Parser, model, command and disk integration tests cover filtering, displayed deletion references,
+client lifecycle changes, backwards-compatible loading, save/restart behavior and invalid-data rejection.
+See the [appointment smoke test](Testing.md#appointment-smoke-test) for GUI verification.
+
 ### \[Proposed\] Undo/redo feature
 
 #### Proposed Implementation
@@ -537,7 +577,8 @@ Maintainability and Scalability NFRs
 * **Displayed index**: The one-based position of a client or appointment in the list currently shown on screen. It can change when records are added, removed, sorted, or filtered, so it is distinct from a stable ID.
 * **Filtered list**: The subset of clients or appointments currently shown after a search or filter is applied.
 * **Appointment**: A scheduled meeting associated with a client, with a name, location, and date and time.
-* **Appointment ID**: A unique identifier assigned to an appointment, written as `A` followed by a positive integer (for example, `A2`).
+* **Appointment reference**: In v1.3, `A` followed by the appointment's current displayed position
+  (for example, `A2`). It changes when appointments are filtered, added or removed; it is not a stable ID.
 * **Schedule clash**: An overlap between the time of a proposed appointment and an existing appointment.
 * **Data file**: The local file in which PropTrack stores client and appointment records between runs.
 * **Backup**: A separate copy of the saved data that can be used to recover records.

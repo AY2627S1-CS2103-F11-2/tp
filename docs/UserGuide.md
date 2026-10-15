@@ -170,9 +170,80 @@ Examples:
 * `list` followed by `delete C2` deletes the 2nd client in the address book.
 * `find Betsy` followed by `delete C1` deletes the 1st client in the results of the `find` command.
 
+### Adding an appointment: `appointment`
+
+Creates an appointment for a client in the currently displayed client list.
+
+Format: `appointment n/NAME c/CLIENT_INDEX loc/LOCATION s/YYYYMMDD-HHMM e/YYYYMMDD-HHMM`
+
+* Every field is required and may appear only once. Fields may be supplied in any order.
+* `CLIENT_INDEX` is a displayed client reference such as `C1`; it is not a permanent ID.
+* The name contains letters and spaces, with 1-80 characters. The location cannot be blank;
+  punctuation such as `#` and `-` is accepted, for example `NUS COM3 #02-01`.
+  Leading and trailing whitespace is removed, while internal spacing is preserved.
+* Start and end must be real calendar date-times in 24-hour Singapore local time.
+  The end must be strictly after the start. Appointments may cross midnight.
+* An appointment that overlaps any stored appointment is rejected, including appointments hidden by a filter.
+  Adjacent appointments, such as 10:00-11:00 and 11:00-12:00, are allowed.
+* On success, all appointments appear in chronological order and the new appointment's displayed reference
+  is included in the result. The client list stays as it was.
+
+Example: `appointment n/Viewing c/C1 loc/Sentosa Cove 123456 s/20261015-1000 e/20261015-1100`
+
+### Viewing appointments: `appointments`
+
+![Client and appointment panels showing the schedule](images/appointments.png)
+
+Format: `appointments [c/CLIENT_INDEX] [d/DDMMYYYY]`
+
+* With no fields, displays all stored appointments. Each command replaces the previous appointment filter.
+* `c/C1` selects the first client in the **currently displayed client list**, including search results.
+  Viewing appointments does not change that client list.
+* `d/15102026` selects appointments whose **start date** is 15 October 2026 in Singapore local time.
+  Past, present and future dates are accepted. For an appointment that crosses midnight, use its start date.
+* When both fields are supplied, an appointment must match both. Field order does not matter.
+* Results are sorted by start date and time, earliest first, and numbered `A1`, `A2`, etc.
+  Each card shows the appointment name, client name, start, end, location and any remarks.
+* The result is `Showing N appointments.`, or `No appointments found.` with an empty panel.
+  An empty result is successful. Viewing appointments does not write to the data file.
+* Each field may appear only once. Empty values, unknown fields and extra arguments are rejected.
+  `C0`, `c1`, `C01` and client references outside the displayed list are invalid.
+* Invalid or impossible dates such as `30022026` produce `Enter a valid date in DDMMYYYY format.`
+  An empty `d/` produces `DATE cannot be empty.` Invalid commands leave both lists unchanged.
+
+Examples:
+
+* `appointments`
+* `appointments c/C1`
+* `appointments d/15102026`
+* `appointments c/C2 d/15102026`
+
+### Deleting an appointment: `deleteappt`
+
+Format: `deleteappt A<INDEX> yes` or `deleteappt A<INDEX> confirm`
+
+* The reference identifies one appointment in the **currently displayed appointment list**.
+  Use the reference shown on its card, including after filtering. It is not a permanent ID.
+* A final, lowercase `yes` or `confirm` is required. Type one of those words, not `yes/confirm`.
+* Success displays `Deleted appointment A2. This action cannot be undone.` when deleting `A2`.
+  All remaining appointments are then displayed in chronological order and renumbered from `A1`.
+  If none remain, `No appointments found.` is also displayed.
+* The associated client and the client list remain unchanged.
+* Missing references, invalid references, missing confirmation, extra arguments and references outside
+  the displayed appointment list are rejected without deleting anything or changing the filters.
+  A missing confirmation produces `Deletion requires yes/confirm. Nothing was deleted.`
+* Appointment deletion is saved automatically. Undo and redo are not available in this version.
+* Editing a client's details retains their linked appointments. Deleting a client removes all of
+  that client's appointments. `clear` removes both clients and appointments.
+
+Examples:
+
+* `appointments d/15102026` followed by `deleteappt A1 yes` deletes the first appointment in those results.
+* `deleteappt A3 confirm` deletes the third appointment currently shown.
+
 ### Clearing all entries: `clear`
 
-Clears all entries from PropTrack.
+Clears all clients and appointments from the address book.
 
 Format: `clear`
 
@@ -184,15 +255,19 @@ Format: `exit`
 
 ### Saving the data
 
-PropTrack automatically saves data after every command. You do not need to save manually.
+PropTrack automatically saves clients and appointments after changes. You do not need to save manually.
+Existing client-only data files remain readable and start with an empty appointment list.
 
 ### Editing the data file
 
 PropTrack data is saved automatically as a JSON file `[JAR file location]/data/addressbook.json`. Advanced users are welcome to update data directly by editing that data file.
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
-If your changes make the data file unreadable, PropTrack starts with an empty client list at the next run. The file is not overwritten: PropTrack renames it to `addressbook.json.corrupt-<date>-<time>` in the same folder, so you can repair the entries you meant to keep. We still recommend backing up the file before editing it.<br>
-Furthermore, certain edits can cause PropTrack to behave in unexpected ways (e.g., if a value entered is outside of the acceptable range). Therefore, edit the data file only if you are confident that you can update it correctly.
+If the file contains invalid client or appointment data, PropTrack rejects the whole file and starts empty.
+It attempts to preserve the unreadable file under a name ending in `.corrupt-TIMESTAMP`; the log records
+the preserved path or any failure to rename it. Back up the data file before editing it.<br>
+Appointment `clientIndex` fields refer to positions in the saved client array. Reordering that array by hand
+without updating those references can associate appointments with the wrong clients.
 </div>
 
  --------------------------------------------------------------------------------------------------------------------
@@ -221,4 +296,7 @@ Action | Format, Examples
 **Edit** | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [y/TYPE] [t/TAG]…​`<br> e.g., `edit 2 n/James Lee e/jameslee@example.com`
 **Find** | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
 **List** | `list`
+**Add appointment** | `appointment n/NAME c/CLIENT_INDEX loc/LOCATION s/YYYYMMDD-HHMM e/YYYYMMDD-HHMM`
+**View appointments** | `appointments [c/CLIENT_INDEX] [d/DDMMYYYY]`
+**Delete appointment** | `deleteappt A<INDEX> yes` or `deleteappt A<INDEX> confirm`
 **Help** | `help`
