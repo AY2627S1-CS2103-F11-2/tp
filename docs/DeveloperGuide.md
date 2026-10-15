@@ -201,7 +201,7 @@ See the [appointment smoke test](Testing.md#appointment-smoke-test) for GUI veri
 
 #### Implementation
 
-The undo/redo mechanism is facilitated by `VersionedAddressBook`. It extends `AddressBook` with an undo/redo history, stored internally as an `addressBookStateList` and `currentStatePointer`. Additionally, it implements the following operations:
+The undo/redo mechanism is facilitated by `VersionedAddressBook`. It extends `AddressBook` with an undo/redo history, stored internally as an `addressBookStateList` and `currentStatePointer`. Additionally, it implements the following operations: Re-showing the full client list after both commands means a filter applied after the change being reversed is cleared, so the restored state is visible.
 
 * `VersionedAddressBook#commit()` — Saves the current address book state in its history.
 * `VersionedAddressBook#undo()` — Restores the previous address book state from its history.
@@ -641,4 +641,4 @@ testers are expected to do more *exploratory* testing.
 
    1. _{Explain how to simulate missing or corrupted data files and state the expected behavior.}_
 
-1. _{ more test cases …​ }_ A state change is what puts a command into the history, so commands that change no data, such as `list` and `search`, leave nothing to undo. Both `undo` and `redo` re-show the full client list, so a filter applied after the change that is being reversed is cleared and the restored state is visible.
+1. _{ more test cases …​ }_

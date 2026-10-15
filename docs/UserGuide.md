@@ -262,6 +262,7 @@ Restores the client list to how it was before the last change was made to the da
 Format: `undo`
 
 * Only changes to client data can be undone. `list`, `search` and `help` change no data, so there is nothing to undo after them.
+* After an undo or a redo, the full client list is shown again, so a filter from an earlier `search` is cleared.
 * The history is kept in memory only. After you close and reopen PropTrack there is nothing to undo, and the result box says `Nothing to undo.`
 
 ### Reapplying an undone change: `redo`
