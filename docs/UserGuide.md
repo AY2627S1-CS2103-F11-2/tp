@@ -103,11 +103,14 @@ Examples:
 * `add n/Anne-Marie O'Connor p/91234567 e/anne@example.com a/123 Clementi Road y/seller`
 * `add n/张伟 p/92345678 e/zhang@example.com a/456 Tampines Road y/tenant t/friend`
 
-### Listing all persons: `list`
+### Listing all clients: `list`
 
-Shows a list of all persons in the address book.
+Shows every client in PropTrack, renumbered from `C1`, and clears any active filter.
 
 Format: `list`
+
+* The result box reports how many clients are shown, for example `Listed 14 clients`.
+* Anything typed after `list` is ignored, so `list now` behaves the same as `list`.
 
 ### Editing a person: `edit`
 
