@@ -18,12 +18,16 @@ import seedu.address.logic.commands.DeleteCommand;
 import seedu.address.logic.commands.EditCommand;
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
 import seedu.address.logic.commands.ExitCommand;
-import seedu.address.logic.commands.FindCommand;
 import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.ListCommand;
+import seedu.address.logic.commands.SearchCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.NameContainsKeywordsPredicate;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.Phone;
+import seedu.address.model.person.PhoneMatchesKeywordPredicate;
+import seedu.address.model.person.Type;
+import seedu.address.model.person.TypeMatchesKeywordPredicate;
 import seedu.address.testutil.EditPersonDescriptorBuilder;
 import seedu.address.testutil.PersonBuilder;
 import seedu.address.testutil.PersonUtil;
@@ -68,11 +72,25 @@ public class AddressBookParserTest {
     }
 
     @Test
-    public void parseCommand_find() throws Exception {
+    public void parseCommand_findByName() throws Exception {
         List<String> keywords = List.of("foo", "bar", "baz");
-        FindCommand command = (FindCommand) parser.parseCommand(
-                FindCommand.COMMAND_WORD + " " + keywords.stream().collect(Collectors.joining(" ")));
-        assertEquals(new FindCommand(new NameContainsKeywordsPredicate(keywords)), command);
+        SearchCommand command = (SearchCommand) parser.parseCommand(
+                SearchCommand.COMMAND_WORD + " n/" + keywords.stream().collect(Collectors.joining(" ")));
+        assertEquals(new SearchCommand(new NameContainsKeywordsPredicate(keywords)), command);
+    }
+
+    @Test
+    public void parseCommand_findByPhone() throws Exception {
+        Phone phone = new Phone("98765432");
+        SearchCommand command = (SearchCommand) parser.parseCommand(SearchCommand.COMMAND_WORD + " p/98765432");
+        assertEquals(new SearchCommand(new PhoneMatchesKeywordPredicate(phone)), command);
+    }
+
+    @Test
+    public void parseCommand_findByType() throws Exception {
+        Type type = new Type("seller");
+        SearchCommand command = (SearchCommand) parser.parseCommand(SearchCommand.COMMAND_WORD + " y/seller");
+        assertEquals(new SearchCommand(new TypeMatchesKeywordPredicate(type)), command);
     }
 
     @Test
