@@ -255,6 +255,25 @@ Clears all clients and appointments from the address book.
 
 Format: `clear`
 
+### Undoing the last change: `undo`
+
+Restores the client list to how it was before the last change was made to the data.
+
+Format: `undo`
+
+* Only changes to client data can be undone. `list`, `search` and `help` change no data, so there is nothing to undo after them.
+* After an undo or a redo, the full client list is shown again, so a filter from an earlier `search` is cleared.
+* The history is kept in memory only. After you close and reopen PropTrack there is nothing to undo, and the result box says `Nothing to undo.`
+
+### Reapplying an undone change: `redo`
+
+Reapplies the change that was undone most recently.
+
+Format: `redo`
+
+* A new change to client data discards the changes that were undone, so they can no longer be redone.
+* After you close and reopen PropTrack there is nothing to redo, and the result box says `Nothing to redo.`
+
 ### Exiting the program: `exit`
 
 Exits the program.
@@ -304,6 +323,9 @@ Action | Format, Examples
 **Edit** | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]…​`<br> e.g., `edit 2 n/James Lee e/jameslee@example.com`
 **Search** | `search [n/NAME] [p/PHONE_NUMBER] [y/TYPE]` <br> e.g., `search p/87654321 y/buyer`
 **List** | `list`
+**Redo** | `redo`
+**Undo** | `undo`
+
 **Add appointment** | `appointment n/NAME c/CLIENT_INDEX loc/LOCATION s/YYYYMMDD-HHMM e/YYYYMMDD-HHMM`
 **View appointments** | `appointments [c/CLIENT_INDEX] [d/DDMMYYYY]`
 **Delete appointment** | `deleteappt A<INDEX> yes` or `deleteappt A<INDEX> confirm`
