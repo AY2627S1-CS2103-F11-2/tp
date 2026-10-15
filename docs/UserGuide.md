@@ -176,7 +176,7 @@ Format: `delete CLIENT_ID`
 
 Examples:
 * `list` followed by `delete C2` deletes the 2nd client in the address book.
-* `find Betsy` followed by `delete C1` deletes the 1st client in the results of the `find` command.
+* `search n/Betsy` followed by `delete C1` deletes the 1st client in the search results.
 
 ### Clearing all entries: `clear`
 

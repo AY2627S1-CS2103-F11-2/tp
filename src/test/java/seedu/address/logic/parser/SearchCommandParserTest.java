@@ -2,6 +2,8 @@ package seedu.address.logic.parser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
+import static seedu.address.logic.Messages.getErrorMessageForDuplicatePrefixes;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseFailure;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseSuccess;
 
@@ -31,6 +33,17 @@ public class SearchCommandParserTest {
     @Test
     public void parse_emptyArg_throwsParseException() {
         assertParseFailure(parser, "     ", String.format(MESSAGE_INVALID_COMMAND_FORMAT, SearchCommand.MESSAGE_USAGE));
+    }
+
+    @Test
+    public void parse_unsupportedPrefix_throwsParseException() {
+        assertParseFailure(parser, " n/Alex x/foo",
+                String.format(MESSAGE_INVALID_COMMAND_FORMAT, SearchCommand.MESSAGE_USAGE));
+    }
+
+    @Test
+    public void parse_repeatedNameParam_throwsParseException() {
+        assertParseFailure(parser, " n/ n/Alex", getErrorMessageForDuplicatePrefixes(PREFIX_NAME));
     }
 
     // Testing valid single parameters
