@@ -90,6 +90,16 @@ public class AddCommandTest {
      */
     private class ModelStub implements Model {
         @Override
+        public Checkpoint createCheckpoint() {
+            throw new AssertionError("This method should not be called.");
+        }
+
+        @Override
+        public void restoreCheckpoint(Checkpoint checkpoint) {
+            throw new AssertionError("This method should not be called.");
+        }
+
+        @Override
         public void setAppointment(Appointment target, Appointment editedAppointment) {
             throw new AssertionError("This method should not be called.");
         }

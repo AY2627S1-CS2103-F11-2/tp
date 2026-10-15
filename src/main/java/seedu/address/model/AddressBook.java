@@ -103,28 +103,40 @@ public class AddressBook implements ReadOnlyAddressBook {
         appointments.removeIf(appointment -> appointment.getClient().equals(key));
     }
 
-    /** Adds an appointment linked to an existing client, rejecting duplicates. */
+    /** Adds an appointment linked to an existing client, rejecting schedule clashes and duplicates. */
     public void addAppointment(Appointment appointment) {
         requireNonNull(appointment);
-        if (!getPersonList().contains(appointment.getClient()) || appointments.contains(appointment)) {
-            throw new IllegalArgumentException("Invalid appointment client or duplicate appointment.");
-        }
+        validateAppointment(appointment, -1);
         appointments.add(appointment);
     }
 
-    /** Replaces an appointment after validating the target, client and uniqueness. */
+    /**
+     * Replaces one existing appointment after validating the complete replacement.
+     * The linked client must exist, and the appointment must not clash with any other appointment.
+     * Identical replacements do not emit a list change.
+     */
     public void setAppointment(Appointment target, Appointment editedAppointment) {
         requireNonNull(target);
         requireNonNull(editedAppointment);
-        int index = appointments.indexOf(target);
-        if (index < 0) {
+        int targetIndex = appointments.indexOf(target);
+        if (targetIndex < 0) {
             throw new IllegalArgumentException("Appointment does not exist.");
         }
-        if (!getPersonList().contains(editedAppointment.getClient())
-                || (!target.equals(editedAppointment) && appointments.contains(editedAppointment))) {
-            throw new IllegalArgumentException("Invalid appointment client or duplicate appointment.");
+        validateAppointment(editedAppointment, targetIndex);
+        if (!target.equals(editedAppointment)) {
+            appointments.set(targetIndex, editedAppointment);
         }
-        appointments.set(index, editedAppointment);
+    }
+
+    private void validateAppointment(Appointment appointment, int excludedIndex) {
+        if (!getPersonList().contains(appointment.getClient())) {
+            throw new IllegalArgumentException("Appointment client does not exist.");
+        }
+        for (int i = 0; i < appointments.size(); i++) {
+            if (i != excludedIndex && appointment.overlaps(appointments.get(i))) {
+                throw new IllegalArgumentException("Schedule clash with appointment: " + appointments.get(i).getName());
+            }
+        }
     }
 
     /** Removes an existing appointment. */

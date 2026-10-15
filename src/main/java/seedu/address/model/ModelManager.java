@@ -49,6 +49,23 @@ public class ModelManager implements Model {
         this(new AddressBook(), new UserPrefs());
     }
 
+    @Override
+    public Checkpoint createCheckpoint() {
+        return new ModelCheckpoint(this, addressBook.captureState(), filteredPersons.getPredicate(),
+                appointmentClientFilter, appointmentDateFilter);
+    }
+
+    @Override
+    public void restoreCheckpoint(Checkpoint checkpoint) {
+        requireNonNull(checkpoint);
+        if (!(checkpoint instanceof ModelCheckpoint state) || state.owner != this) {
+            throw new IllegalArgumentException("Checkpoint belongs to a different model.");
+        }
+        addressBook.restoreState(state.history);
+        filteredPersons.setPredicate(state.clientFilter);
+        updateFilteredAppointmentList(state.appointmentClient, state.appointmentDate);
+    }
+
     //=========== UserPrefs ==================================================================================
 
     @Override
@@ -133,20 +150,23 @@ public class ModelManager implements Model {
     @Override
     public void addAppointment(Appointment appointment) {
         addressBook.addAppointment(appointment);
-        updateFilteredAppointmentList(null, null);
-    }
-
-    @Override
-    public void deleteAppointment(Appointment appointment) {
-        addressBook.removeAppointment(appointment);
+        addressBook.commit();
         updateFilteredAppointmentList(null, null);
     }
 
     @Override
     public void setAppointment(Appointment target, Appointment editedAppointment) {
-        requireAllNonNull(target, editedAppointment);
         addressBook.setAppointment(target, editedAppointment);
-        addressBook.commit();
+        if (!target.equals(editedAppointment)) {
+            addressBook.commit();
+        }
+    }
+
+    @Override
+    public void deleteAppointment(Appointment appointment) {
+        addressBook.removeAppointment(appointment);
+        addressBook.resetHistory();
+        updateFilteredAppointmentList(null, null);
     }
 
     //=========== Filtered Person List Accessors =============================================================
@@ -179,11 +199,18 @@ public class ModelManager implements Model {
     @Override
     public void undoAddressBook() {
         addressBook.undo();
+        resetFilters();
     }
 
     @Override
     public void redoAddressBook() {
         addressBook.redo();
+        resetFilters();
+    }
+
+    private void resetFilters() {
+        updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
+        updateFilteredAppointmentList(null, null);
     }
 
     @Override
@@ -200,6 +227,24 @@ public class ModelManager implements Model {
         return addressBook.equals(otherModelManager.addressBook)
                 && userPrefs.equals(otherModelManager.userPrefs)
                 && filteredPersons.equals(otherModelManager.filteredPersons);
+    }
+
+    /** Captures filters along with history so a failed undo, redo or deletion can be rolled back. */
+    private static final class ModelCheckpoint implements Checkpoint {
+        private final ModelManager owner;
+        private final VersionedAddressBook.State history;
+        private final Predicate<? super Person> clientFilter;
+        private final Person appointmentClient;
+        private final LocalDate appointmentDate;
+
+        private ModelCheckpoint(ModelManager owner, VersionedAddressBook.State history,
+                Predicate<? super Person> clientFilter, Person appointmentClient, LocalDate appointmentDate) {
+            this.owner = owner;
+            this.history = history;
+            this.clientFilter = clientFilter;
+            this.appointmentClient = appointmentClient;
+            this.appointmentDate = appointmentDate;
+        }
     }
 
 }

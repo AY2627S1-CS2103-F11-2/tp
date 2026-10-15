@@ -155,8 +155,6 @@ Classes used by multiple components are in the `seedu.address.commons` package.
 
 This section describes some noteworthy details on how certain features are implemented.
 
-### Undo/redo feature
-
 ### Appointment location editing
 
 `editappt A<INDEX> loc/LOCATION` implements UC03. `EditAppointmentCommandParser` parses the displayed
@@ -169,8 +167,9 @@ replaces the existing entry and commits a history snapshot, preserving the activ
 the existing appointment JSON format. An unchanged location is rejected without recording history.
 
 Only location editing is exposed; changing time, name, client or remarks is outside this command's scope.
-The appointment history and save-failure rollback corrections tracked in #71 remain a prerequisite for
-releasing this command safely across mixed operations (for example, creating then editing an appointment).
+The shared history and checkpoint APIs provide separate undo steps for creation and editing, and restore
+data, history and filters if saving fails. Integration tests exercise these paths through the command parser
+and real JSON storage, including simulated I/O and permission failures.
 
 ### Appointment viewing and deletion
 
@@ -198,7 +197,19 @@ are recalculated by the panel and are not stored as stable IDs. These commands d
 
 `appointment` supplies the creation dependency for this iteration: it validates all required fields,
 resolves a displayed client reference and checks for overlaps against the complete stored schedule.
-Intervals that meet at an endpoint do not clash. Appointment editing remains separate work.
+Intervals that meet at an endpoint do not clash. The model also rejects overlapping appointments,
+including when loading saved data. Location editing is implemented by `editappt` as described above.
+
+The model provides `Model#setAppointment(target, editedAppointment)` for the `editappt`
+command. Construct the complete immutable replacement first, resolve its client against the current
+client list, then call this operation **once**. It validates that the target and linked client exist
+and that the replacement does not clash with another appointment, excluding the target itself.
+Validation finishes before any mutation. A changed replacement updates the observable list atomically,
+records one history entry, and preserves both active filters and chronological display ordering.
+If an edit changes a field used by a filter, the appointment may leave those results; a location-only
+edit keeps its displayed reference. An identical replacement preserves history as well as filters.
+Do not implement editing as deletion followed by addition: confirmed
+appointment deletion deliberately establishes an irreversible history boundary.
 
 JSON stores appointments in the same data file as clients. `JsonAdaptedAppointment.clientIndex` is the
 one-based position in the **saved, unfiltered** client array, resolved only when loading that file.
@@ -212,17 +223,40 @@ Parser, model, command and disk integration tests cover filtering, displayed del
 client lifecycle changes, backwards-compatible loading, save/restart behavior and invalid-data rejection.
 See the [appointment smoke test](Testing.md#appointment-smoke-test) for GUI verification.
 
-### \[Proposed\] Undo/redo feature
+### Undo/redo feature
 
 #### Implementation
 
-The undo/redo mechanism is facilitated by `VersionedAddressBook`. It extends `AddressBook` with an undo/redo history, stored internally as an `addressBookStateList` and `currentStatePointer`. Additionally, it implements the following operations: Re-showing the full client list after both commands means a filter applied after the change being reversed is cleared, so the restored state is visible.
+The undo/redo mechanism is facilitated by `VersionedAddressBook`. It extends `AddressBook` with an
+undo/redo history, stored internally as an `addressBookStateList` and `currentStatePointer`.
+Each snapshot contains both clients and appointments, preserving their links. Successful undo and
+redo reset both filters in `ModelManager`, so a predicate referencing an edited client cannot hide
+restored appointments. Unavailable operations leave filters unchanged.
 
 * `VersionedAddressBook#commit()` — Saves the current address book state in its history.
 * `VersionedAddressBook#undo()` — Restores the previous address book state from its history.
 * `VersionedAddressBook#redo()` — Restores a previously undone address book state from its history.
 
-`Model#undoAddressBook()`, `Model#redoAddressBook()`, `Model#canUndoAddressBook()` and `Model#canRedoAddressBook()` are exposed in the `Model` interface. The model commits a new state itself whenever a command actually changes the data, which is what keeps commands that change nothing, such as `list`, out of the history. The history is kept in memory only: after a restart there is nothing to undo or redo.
+`Model#undoAddressBook()`, `Model#redoAddressBook()`, `Model#canUndoAddressBook()` and
+`Model#canRedoAddressBook()` are exposed in the `Model` interface. The model commits one new snapshot
+for a client mutation, appointment creation or appointment replacement. A commit compares the full
+data before truncating redo, so no-op edits preserve redo. Viewing and rejected commands do not
+record history. History is kept in memory only: after a restart there is nothing to undo or redo.
+
+Confirmed `deleteappt` is deliberately irreversible. After removal, `VersionedAddressBook#resetHistory()`
+replaces the whole timeline with the current data as its only baseline. This clears both older undo
+and redo entries, including client changes, and prevents any old snapshot from resurrecting the
+deleted appointment. Later mutations start a fresh undoable timeline. Client deletion and `clear`
+remain undoable, restoring their linked appointments together.
+
+Before executing a parsed command, `LogicManager` captures an opaque `Model.Checkpoint`. It contains
+current data, the complete history (including future redo entries), its pointer, and both filters.
+If saving throws `IOException` or `AccessDeniedException`, logic restores the checkpoint before
+reporting failure. This also recovers a redo branch truncated by a failed change, or history cleared
+by a failed confirmed deletion. Checkpoints belong to their originating model and never become
+new history entries. They restore in-memory state; this mechanism does not guarantee filesystem
+recovery after a partially completed write. `editappt` uses this existing logic execution
+and save path rather than performing its own save or history commit.
 
 Given below is an example usage scenario and how the undo/redo mechanism behaves at each step.
 
