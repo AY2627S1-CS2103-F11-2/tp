@@ -159,7 +159,6 @@ public class ModelManager implements Model {
         addressBook.setAppointment(target, editedAppointment);
         if (!target.equals(editedAppointment)) {
             addressBook.commit();
-            updateFilteredAppointmentList(null, null);
         }
     }
 

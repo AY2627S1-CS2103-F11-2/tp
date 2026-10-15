@@ -189,8 +189,10 @@ command. Construct the complete immutable replacement first, resolve its client 
 client list, then call this operation **once**. It validates that the target and linked client exist
 and that the replacement does not clash with another appointment, excluding the target itself.
 Validation finishes before any mutation. A changed replacement updates the observable list atomically,
-records one history entry, and shows all appointments in chronological order. An identical replacement
-preserves history and filters. Do not implement editing as deletion followed by addition: confirmed
+records one history entry, and preserves both active filters and chronological display ordering.
+If an edit changes a field used by a filter, the appointment may leave those results; a location-only
+edit keeps its displayed reference. An identical replacement preserves history as well as filters.
+Do not implement editing as deletion followed by addition: confirmed
 appointment deletion deliberately establishes an irreversible history boundary.
 
 JSON stores appointments in the same data file as clients. `JsonAdaptedAppointment.clientIndex` is the

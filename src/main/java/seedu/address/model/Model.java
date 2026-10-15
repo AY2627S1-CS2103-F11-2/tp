@@ -117,6 +117,7 @@ public interface Model {
 
     /**
      * Atomically replaces an existing appointment and records one undo step if data changes.
+     * Preserves the active client and appointment filters.
      * Invalid replacements leave data, filters and history unchanged. Future editappt commands should
      * construct the complete replacement and call this operation once.
      */

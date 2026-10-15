@@ -26,7 +26,7 @@ public class AppointmentEditHistoryTest {
     private final ModelManager model = new ModelManager(getAppointmentAddressBook(), new UserPrefs());
 
     @Test
-    public void setAppointment_allFieldsChanged_singleUndoStepAndChronologicalDisplay() {
+    public void setAppointment_allFieldsChanged_singleUndoStepAndFilteredChronologicalDisplay() {
         Appointment edited = new Appointment("Inspection", BOB, "NUS COM3 #02-01",
                 HANDOVER.getEnd(), HANDOVER.getEnd().plusHours(2), "New keys");
         model.updateFilteredPersonList(BOB::equals);
@@ -35,7 +35,8 @@ public class AppointmentEditHistoryTest {
 
         model.setAppointment(VIEWING, edited);
 
-        assertEquals(List.of(SIGNING, HANDOVER, edited), liveSchedule);
+        assertTrue(liveSchedule.isEmpty());
+        assertTrue(model.getAddressBook().getAppointmentList().contains(edited));
         assertEquals(List.of(BOB), model.getFilteredPersonList());
         model.undoAddressBook();
         assertEquals(getAppointmentAddressBook(), model.getAddressBook());
@@ -54,6 +55,21 @@ public class AppointmentEditHistoryTest {
         assertEquals(List.of(edited, SIGNING, HANDOVER), model.getFilteredAppointmentList());
         model.undoAddressBook();
         assertEquals(getAppointmentAddressBook(), model.getAddressBook());
+    }
+
+    @Test
+    public void setAppointment_locationOnly_preservesBothFiltersForEditappt() {
+        model.updateFilteredPersonList(BOB::equals);
+        model.updateFilteredAppointmentList(BOB, SIGNING.getStart().toLocalDate());
+        Appointment edited = new Appointment(SIGNING.getName(), BOB, "NUS COM3 #02-01",
+                SIGNING.getStart(), SIGNING.getEnd(), SIGNING.getRemarks());
+        model.setAppointment(SIGNING, edited);
+        assertEquals(List.of(edited), model.getFilteredAppointmentList());
+        assertEquals(List.of(BOB), model.getFilteredPersonList());
+        model.undoAddressBook();
+        assertEquals(getAppointmentAddressBook(), model.getAddressBook());
+        model.redoAddressBook();
+        assertEquals(List.of(VIEWING, edited, HANDOVER), model.getFilteredAppointmentList());
     }
 
     @Test
