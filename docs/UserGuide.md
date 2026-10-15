@@ -164,6 +164,24 @@ Clears all entries from the address book.
 
 Format: `clear`
 
+### Undoing the last change: `undo`
+
+Restores the client list to how it was before the last change was made to the data.
+
+Format: `undo`
+
+* Only changes to client data can be undone. `list`, `find` and `help` change no data, so there is nothing to undo after them.
+* The history is kept in memory only. After you close and reopen PropTrack there is nothing to undo, and the result box says `Nothing to undo.`
+
+### Reapplying an undone change: `redo`
+
+Reapplies the change that was undone most recently.
+
+Format: `redo`
+
+* A new change to client data discards the changes that were undone, so they can no longer be redone.
+* After you close and reopen PropTrack there is nothing to redo, and the result box says `Nothing to redo.`
+
 ### Exiting the program: `exit`
 
 Exits the program.
@@ -213,4 +231,6 @@ Action | Format, Examples
 **Edit** | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]…​`<br> e.g., `edit 2 n/James Lee e/jameslee@example.com`
 **Find** | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
 **List** | `list`
+**Redo** | `redo`
+**Undo** | `undo`
 **Help** | `help`
