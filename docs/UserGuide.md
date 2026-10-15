@@ -240,7 +240,10 @@ Format: `deleteappt A<INDEX> yes` or `deleteappt A<INDEX> confirm`
 * Missing references, invalid references, missing confirmation, extra arguments and references outside
   the displayed appointment list are rejected without deleting anything or changing the filters.
   A missing confirmation produces `Deletion requires yes/confirm. Nothing was deleted.`
-* Appointment deletion is saved automatically. Undo and redo are not available in this version.
+* Appointment deletion is saved automatically and cannot be undone. A successful `deleteappt` clears
+  **all earlier undo and redo history**, including client changes, so a deleted appointment cannot
+  reappear through an older snapshot. Changes made after deletion can still be undone and redone.
+  A rejected deletion leaves the history unchanged.
 * Editing a client's details retains their linked appointments. Deleting a client removes all of
   that client's appointments. `clear` removes both clients and appointments.
 
@@ -257,12 +260,19 @@ Format: `clear`
 
 ### Undoing the last change: `undo`
 
-Restores the client list to how it was before the last change was made to the data.
+Restores clients and appointments to how they were before the last undoable change.
 
 Format: `undo`
 
-* Only changes to client data can be undone. `list`, `search` and `help` change no data, so there is nothing to undo after them.
-* After an undo or a redo, the full client list is shown again, so a filter from an earlier `search` is cleared.
+* Client additions, edits and deletions, appointment creation, and `clear` can be undone. Undoing a
+  client edit or deletion also restores the appointments linked to that client in the same step.
+* `list`, `search`, `appointments` and `help` do not add history entries. Undo after one of these
+  commands still reverses the most recent undoable data change.
+* After a successful undo or redo, both the full client list and the full appointment list are shown.
+  An unavailable undo or redo leaves the data and current filters unchanged.
+* Confirmed `deleteappt` clears earlier undo and redo history, as described above.
+* If saving a command fails, the in-memory data, history and filters return to their state before
+  that command. Resolve the reported storage error before retrying.
 * The history is kept in memory only. After you close and reopen PropTrack there is nothing to undo, and the result box says `Nothing to undo.`
 
 ### Reapplying an undone change: `redo`
@@ -271,7 +281,8 @@ Reapplies the change that was undone most recently.
 
 Format: `redo`
 
-* A new change to client data discards the changes that were undone, so they can no longer be redone.
+* A new undoable data change, including appointment creation, discards the changes that were undone,
+  so they can no longer be redone. Rejected commands and edits that change no data preserve redo history.
 * After you close and reopen PropTrack there is nothing to redo, and the result box says `Nothing to redo.`
 
 ### Exiting the program: `exit`

@@ -1,5 +1,7 @@
 package seedu.address.model;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +37,31 @@ public class VersionedAddressBook extends AddressBook {
         addressBookStateList.subList(currentStatePointer + 1, addressBookStateList.size()).clear();
         addressBookStateList.add(new AddressBook(this));
         currentStatePointer++;
+    }
+
+    /**
+     * Makes the current data a new history baseline after an irreversible operation.
+     * Neither undo nor redo can cross this boundary.
+     */
+    public void resetHistory() {
+        AddressBook baseline = new AddressBook(this);
+        addressBookStateList.clear();
+        addressBookStateList.add(baseline);
+        currentStatePointer = 0;
+    }
+
+    /** Captures data and the complete history so a failed save can be rolled back. */
+    State captureState() {
+        return new State(new AddressBook(this), List.copyOf(addressBookStateList), currentStatePointer);
+    }
+
+    /** Restores a captured state without recording a new history entry. */
+    void restoreState(State state) {
+        requireNonNull(state);
+        resetData(state.data);
+        addressBookStateList.clear();
+        addressBookStateList.addAll(state.history);
+        currentStatePointer = state.pointer;
     }
 
     /**
@@ -75,5 +102,18 @@ public class VersionedAddressBook extends AddressBook {
      */
     public boolean canRedo() {
         return currentStatePointer < addressBookStateList.size() - 1;
+    }
+
+    /** History snapshots remain private and are never modified after capture. */
+    static final class State {
+        private final AddressBook data;
+        private final List<ReadOnlyAddressBook> history;
+        private final int pointer;
+
+        private State(AddressBook data, List<ReadOnlyAddressBook> history, int pointer) {
+            this.data = data;
+            this.history = history;
+            this.pointer = pointer;
+        }
     }
 }
