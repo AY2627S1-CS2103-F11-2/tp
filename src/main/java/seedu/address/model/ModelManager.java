@@ -3,13 +3,17 @@ package seedu.address.model;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 
+import java.time.LocalDate;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.commons.core.LogsCenter;
+import seedu.address.model.appointment.Appointment;
 import seedu.address.model.person.Person;
 
 /**
@@ -21,6 +25,10 @@ public class ModelManager implements Model {
     private final VersionedAddressBook addressBook;
     private final UserPrefs userPrefs;
     private final FilteredList<Person> filteredPersons;
+    private final FilteredList<Appointment> filteredAppointments;
+    private final SortedList<Appointment> sortedAppointments;
+    private Person appointmentClientFilter;
+    private LocalDate appointmentDateFilter;
 
     /**
      * Initializes a ModelManager with the given addressBook and userPrefs.
@@ -33,6 +41,8 @@ public class ModelManager implements Model {
         this.addressBook = new VersionedAddressBook(addressBook);
         this.userPrefs = new UserPrefs(userPrefs);
         filteredPersons = new FilteredList<>(this.addressBook.getPersonList());
+        filteredAppointments = new FilteredList<>(this.addressBook.getAppointmentList());
+        sortedAppointments = new SortedList<>(filteredAppointments, Appointment.CHRONOLOGICAL_ORDER);
     }
 
     public ModelManager() {
@@ -63,6 +73,8 @@ public class ModelManager implements Model {
     public void setAddressBook(ReadOnlyAddressBook addressBook) {
         this.addressBook.resetData(addressBook);
         this.addressBook.commit();
+
+        updateFilteredAppointmentList(null, null);
     }
 
     @Override
@@ -80,6 +92,10 @@ public class ModelManager implements Model {
     public void deletePerson(Person target) {
         addressBook.removePerson(target);
         addressBook.commit();
+
+        if (target.equals(appointmentClientFilter)) {
+            updateFilteredAppointmentList(null, appointmentDateFilter);
+        }
     }
 
     @Override
@@ -95,6 +111,35 @@ public class ModelManager implements Model {
 
         addressBook.setPerson(target, editedPerson);
         addressBook.commit();
+
+        if (target.equals(appointmentClientFilter)) {
+            updateFilteredAppointmentList(editedPerson, appointmentDateFilter);
+        }
+    }
+
+    @Override
+    public ObservableList<Appointment> getFilteredAppointmentList() {
+        return FXCollections.unmodifiableObservableList(sortedAppointments);
+    }
+
+    @Override
+    public void updateFilteredAppointmentList(Person client, LocalDate date) {
+        appointmentClientFilter = client;
+        appointmentDateFilter = date;
+        filteredAppointments.setPredicate(appointment -> (client == null || appointment.getClient().equals(client))
+                && (date == null || appointment.getStart().toLocalDate().equals(date)));
+    }
+
+    @Override
+    public void addAppointment(Appointment appointment) {
+        addressBook.addAppointment(appointment);
+        updateFilteredAppointmentList(null, null);
+    }
+
+    @Override
+    public void deleteAppointment(Appointment appointment) {
+        addressBook.removeAppointment(appointment);
+        updateFilteredAppointmentList(null, null);
     }
 
     //=========== Filtered Person List Accessors =============================================================
