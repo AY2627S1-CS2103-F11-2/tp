@@ -3,9 +3,12 @@ package seedu.address.model;
 import static java.util.Objects.requireNonNull;
 
 import java.util.List;
+import java.util.Objects;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import seedu.address.commons.util.ToStringBuilder;
+import seedu.address.model.appointment.Appointment;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.UniquePersonList;
 
@@ -16,6 +19,7 @@ import seedu.address.model.person.UniquePersonList;
 public class AddressBook implements ReadOnlyAddressBook {
 
     private final UniquePersonList persons = new UniquePersonList();
+    private final ObservableList<Appointment> appointments = FXCollections.observableArrayList();
 
     public AddressBook() {}
 
@@ -35,6 +39,7 @@ public class AddressBook implements ReadOnlyAddressBook {
      */
     public void setPersons(List<Person> persons) {
         this.persons.setPersons(persons);
+        appointments.removeIf(appointment -> !persons.contains(appointment.getClient()));
     }
 
     /**
@@ -43,7 +48,16 @@ public class AddressBook implements ReadOnlyAddressBook {
     public void resetData(ReadOnlyAddressBook newData) {
         requireNonNull(newData);
 
-        setPersons(newData.getPersonList());
+        // Validate and copy before mutating, including when resetting from this address book itself.
+        UniquePersonList replacementPersons = new UniquePersonList();
+        replacementPersons.setPersons(newData.getPersonList());
+        List<Appointment> replacementAppointments = List.copyOf(newData.getAppointmentList());
+        if (replacementAppointments.stream().anyMatch(a -> !newData.getPersonList().contains(a.getClient()))
+                || replacementAppointments.stream().distinct().count() != replacementAppointments.size()) {
+            throw new IllegalArgumentException("Invalid appointment client or duplicate appointment.");
+        }
+        persons.setPersons(replacementPersons);
+        appointments.setAll(replacementAppointments);
     }
 
     //// person-level operations
@@ -73,6 +87,11 @@ public class AddressBook implements ReadOnlyAddressBook {
         requireNonNull(editedPerson);
 
         persons.setPerson(target, editedPerson);
+        for (int i = 0; i < appointments.size(); i++) {
+            if (appointments.get(i).getClient().equals(target)) {
+                appointments.set(i, appointments.get(i).withClient(editedPerson));
+            }
+        }
     }
 
     /**
@@ -81,6 +100,29 @@ public class AddressBook implements ReadOnlyAddressBook {
      */
     public void removePerson(Person key) {
         persons.remove(key);
+        appointments.removeIf(appointment -> appointment.getClient().equals(key));
+    }
+
+    /** Adds an appointment linked to an existing client, rejecting duplicates. */
+    public void addAppointment(Appointment appointment) {
+        requireNonNull(appointment);
+        if (!getPersonList().contains(appointment.getClient()) || appointments.contains(appointment)) {
+            throw new IllegalArgumentException("Invalid appointment client or duplicate appointment.");
+        }
+        appointments.add(appointment);
+    }
+
+    /** Removes an existing appointment. */
+    public void removeAppointment(Appointment appointment) {
+        requireNonNull(appointment);
+        if (!appointments.remove(appointment)) {
+            throw new IllegalArgumentException("Appointment does not exist.");
+        }
+    }
+
+    @Override
+    public ObservableList<Appointment> getAppointmentList() {
+        return FXCollections.unmodifiableObservableList(appointments);
     }
 
     //// util methods
@@ -108,11 +150,11 @@ public class AddressBook implements ReadOnlyAddressBook {
             return false;
         }
 
-        return persons.equals(otherAddressBook.persons);
+        return persons.equals(otherAddressBook.persons) && appointments.equals(otherAddressBook.appointments);
     }
 
     @Override
     public int hashCode() {
-        return persons.hashCode();
+        return Objects.hash(persons, appointments);
     }
 }

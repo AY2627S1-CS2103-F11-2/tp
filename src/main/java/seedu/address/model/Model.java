@@ -1,9 +1,11 @@
 package seedu.address.model;
 
+import java.time.LocalDate;
 import java.util.function.Predicate;
 
 import javafx.collections.ObservableList;
 import seedu.address.commons.core.GuiSettings;
+import seedu.address.model.appointment.Appointment;
 import seedu.address.model.person.Person;
 
 /**
@@ -68,4 +70,16 @@ public interface Model {
      * @throws NullPointerException if {@code predicate} is null.
      */
     void updateFilteredPersonList(Predicate<Person> predicate);
+
+    /** Returns chronologically sorted, unmodifiable appointment results. */
+    ObservableList<Appointment> getFilteredAppointmentList();
+
+    /** Replaces the appointment filter; null client/date means no restriction for that field. */
+    void updateFilteredAppointmentList(Person client, LocalDate date);
+
+    /** Adds an appointment linked to an existing client. */
+    void addAppointment(Appointment appointment);
+
+    /** Deletes an existing appointment and shows all remaining appointments. */
+    void deleteAppointment(Appointment appointment);
 }
