@@ -7,8 +7,9 @@ import static seedu.address.commons.util.AppUtil.checkArgument;
  * Value object representing an appointment location.
  */
 public final class AppointmentLocation {
-    private final String value;
     public static final String MESSAGE_CONSTRAINTS = "Appointment location cannot be empty.";
+
+    private final String value;
 
     /**
      * Constructs an {@code AppointmentLocation} with the specified value.
