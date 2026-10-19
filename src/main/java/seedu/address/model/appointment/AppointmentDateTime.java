@@ -13,10 +13,6 @@ import java.time.format.ResolverStyle;
  */
 public final class AppointmentDateTime implements Comparable<AppointmentDateTime> {
 
-    public static final String MESSAGE_CONSTRAINTS =
-            "Appointment date-time must use YYYYMMDD-HHMM format "
-                    + "and represent a valid date and time.";
-
     private static final DateTimeFormatter INPUT_FORMAT =
             DateTimeFormatter.ofPattern("uuuuMMdd-HHmm")
                     .withResolverStyle(ResolverStyle.STRICT);
