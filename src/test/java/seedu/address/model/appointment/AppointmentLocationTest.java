@@ -26,7 +26,7 @@ public class AppointmentLocationTest {
     public void isValid_validatesBlankAndNonblankValues() {
         assertEquals(true, AppointmentLocation.isValid("NUS"));
         assertEquals(false, AppointmentLocation.isValid("  "));
-        assertThrows(NullPointerException.class, () -> AppointmentLocation.isValid(null));
+        assertEquals(false, AppointmentLocation.isValid(null));
     }
 
     @Test

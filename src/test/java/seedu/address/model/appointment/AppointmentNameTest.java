@@ -36,7 +36,7 @@ public class AppointmentNameTest {
         assertEquals(false, AppointmentName.isValid(""));
         assertEquals(false, AppointmentName.isValid("Flat1"));
         assertEquals(false, AppointmentName.isValid("A".repeat(81)));
-        assertThrows(NullPointerException.class, () -> AppointmentName.isValid(null));
+        assertEquals(false, AppointmentName.isValid(null));
     }
 
     @Test

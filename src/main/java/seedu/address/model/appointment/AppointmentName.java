@@ -25,8 +25,8 @@ public final class AppointmentName {
 
     /** Returns whether the supplied value satisfies the appointment-name constraints. */
     public static boolean isValid(String value) {
-        requireNonNull(value);
-        return value.length() <= 80 && value.matches("[A-Za-z ]*") && value.matches(".*[A-Za-z].*");
+        return value != null && value.length() <= 80
+                && value.matches("[A-Za-z ]*") && value.matches(".*[A-Za-z].*");
     }
 
     public String getValue() {

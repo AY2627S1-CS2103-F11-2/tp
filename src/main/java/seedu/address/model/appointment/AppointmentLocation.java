@@ -22,8 +22,7 @@ public final class AppointmentLocation {
 
     /** Returns whether the supplied value is a non-blank appointment location. */
     public static boolean isValid(String value) {
-        requireNonNull(value);
-        return !value.strip().isEmpty();
+        return value != null && !value.isBlank();
     }
 
     public String getValue() {
