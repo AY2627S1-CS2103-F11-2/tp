@@ -24,8 +24,9 @@ public final class AppointmentDateTime implements Comparable<AppointmentDateTime
     private final LocalDateTime value;
 
     /**
-     * Constructs an {@code AppointmentDateTime} from an already-parsed value.
-     * This is useful when the value comes from Java code rather than command input.
+     * Constructs an {@code AppointmentDateTime} with the specified value.
+     *
+     * @param value The DateTime (in LocalDateTime Object) of the appointment.
      */
     public AppointmentDateTime(LocalDateTime value) {
         this.value = requireNonNull(value);
