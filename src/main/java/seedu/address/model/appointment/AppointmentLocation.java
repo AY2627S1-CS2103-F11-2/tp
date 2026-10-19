@@ -8,6 +8,7 @@ import static seedu.address.commons.util.AppUtil.checkArgument;
  */
 public final class AppointmentLocation {
     private final String value;
+    public static final String MESSAGE_CONSTRAINTS = "Appointment location cannot be empty.";
 
     /**
      * Constructs an {@code AppointmentLocation} with the specified value.
@@ -16,7 +17,7 @@ public final class AppointmentLocation {
      */
     public AppointmentLocation(String value) {
         requireNonNull(value);
-        checkArgument(isValid(value), "Appointment location cannot be empty.");
+        checkArgument(isValid(value), MESSAGE_CONSTRAINTS);
         this.value = value.strip();
     }
 
