@@ -19,26 +19,24 @@ public final class Appointment {
             .comparing(Appointment::getStart).thenComparing(Appointment::getEnd)
             .thenComparing(Appointment::getName).thenComparing(a -> a.getClient().getName().fullName);
 
-    private final String name;
+    private final AppointmentName name;
     private final Person client;
-    private final String location;
-    private final LocalDateTime start;
-    private final LocalDateTime end;
-    private final String remarks;
+    private final AppointmentLocation location;
+    private final AppointmentDateTime start;
+    private final AppointmentDateTime end;
+    private final AppointmentRemarks remarks;
 
     /** Creates an appointment after validating its fields and period. */
     public Appointment(String name, Person client, String location, LocalDateTime start,
             LocalDateTime end, String remarks) {
         requireAllNonNull(name, client, location, start, end, remarks);
-        checkArgument(isValidName(name.trim()), MESSAGE_INVALID_NAME);
-        checkArgument(isValidLocation(location), MESSAGE_INVALID_LOCATION);
-        checkArgument(end.isAfter(start), MESSAGE_INVALID_PERIOD);
-        this.name = name.trim();
+        this.name = new AppointmentName(name);
         this.client = client;
-        this.location = location.strip();
-        this.start = start;
-        this.end = end;
-        this.remarks = remarks;
+        this.location = new AppointmentLocation(location);
+        this.start = new AppointmentDateTime(start);
+        this.end = new AppointmentDateTime(end);
+        checkArgument(this.end.compareTo(this.start) > 0, MESSAGE_INVALID_PERIOD);
+        this.remarks = new AppointmentRemarks(remarks);
     }
 
     public static boolean isValidName(String name) {
@@ -50,7 +48,7 @@ public final class Appointment {
     }
 
     public String getName() {
-        return name;
+        return name.getValue();
     }
 
     public Person getClient() {
@@ -58,29 +56,30 @@ public final class Appointment {
     }
 
     public String getLocation() {
-        return location;
+        return location.getValue();
     }
 
     public LocalDateTime getStart() {
-        return start;
+        return start.getValue();
     }
 
     public LocalDateTime getEnd() {
-        return end;
+        return end.getValue();
     }
 
     public String getRemarks() {
-        return remarks;
+        return remarks.getValue();
     }
 
     /** Returns a copy linked to the updated client. */
     public Appointment withClient(Person updatedClient) {
-        return new Appointment(name, updatedClient, location, start, end, remarks);
+        return new Appointment(name.getValue(), updatedClient, location.getValue(), start.getValue(),
+                end.getValue(), remarks.getValue());
     }
 
     /** Adjacent appointments do not overlap. */
     public boolean overlaps(Appointment other) {
-        return start.isBefore(other.end) && end.isAfter(other.start);
+        return start.getValue().isBefore(other.end.getValue()) && end.getValue().isAfter(other.start.getValue());
     }
 
     @Override
