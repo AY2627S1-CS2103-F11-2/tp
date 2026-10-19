@@ -1,3 +1,4 @@
+
 package seedu.address.model.appointment;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -14,25 +15,27 @@ public class AppointmentDateTimeTest {
     @Test
     public void constructor_validValue_preservesValue() {
         AppointmentDateTime dateTime = new AppointmentDateTime(VALUE);
+
         assertEquals(VALUE, dateTime.getValue());
-        assertEquals(VALUE.toString(), dateTime.toString());
+        assertEquals("20261020-1030", dateTime.toString());
     }
 
     @Test
     public void constructor_nullValue_rejects() {
-        assertThrows(NullPointerException.class, () -> new AppointmentDateTime(null));
+        assertThrows(NullPointerException.class, () -> new AppointmentDateTime((LocalDateTime) null));
     }
 
     @Test
-    public void isValid_validatesNullAndNonNullValues() {
+    public void isValid_validatesLocalDateTime() {
         assertEquals(true, AppointmentDateTime.isValid(VALUE));
-        assertEquals(false, AppointmentDateTime.isValid(null));
+        assertEquals(false, AppointmentDateTime.isValid((LocalDateTime) null));
     }
 
     @Test
     public void constructor_boundaryValues_preserveValue() {
         LocalDateTime earliest = LocalDateTime.MIN;
         LocalDateTime latest = LocalDateTime.MAX;
+
         assertEquals(earliest, new AppointmentDateTime(earliest).getValue());
         assertEquals(latest, new AppointmentDateTime(latest).getValue());
     }
@@ -40,8 +43,10 @@ public class AppointmentDateTimeTest {
     @Test
     public void compareTo_ordersChronologically() {
         AppointmentDateTime earlier = new AppointmentDateTime(VALUE.minusHours(1));
+        AppointmentDateTime same = new AppointmentDateTime(VALUE);
         AppointmentDateTime later = new AppointmentDateTime(VALUE.plusHours(1));
-        assertEquals(0, new AppointmentDateTime(VALUE).compareTo(new AppointmentDateTime(VALUE)));
+
+        assertEquals(0, same.compareTo(new AppointmentDateTime(VALUE)));
         assertEquals(-1, Integer.signum(earlier.compareTo(later)));
         assertEquals(1, Integer.signum(later.compareTo(earlier)));
     }
@@ -50,6 +55,7 @@ public class AppointmentDateTimeTest {
     public void equals_sameValue_returnsTrue() {
         AppointmentDateTime first = new AppointmentDateTime(VALUE);
         AppointmentDateTime second = new AppointmentDateTime(VALUE);
+
         assertEquals(first, second);
         assertEquals(first.hashCode(), second.hashCode());
         assertNotEquals(first, new AppointmentDateTime(VALUE.plusNanos(1)));
