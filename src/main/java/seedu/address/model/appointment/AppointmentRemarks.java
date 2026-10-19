@@ -8,6 +8,11 @@ import static java.util.Objects.requireNonNull;
 public final class AppointmentRemarks {
     private final String value;
 
+    /**
+     * Constructs an {@code AppointmentRemark} with the specified value.
+     *
+     * @param value The remark for the appointment.
+     */
     public AppointmentRemarks(String value) {
         this.value = requireNonNull(value);
     }
