@@ -11,8 +11,6 @@ import seedu.address.model.person.Person;
 
 /** An immutable appointment. All date-times are Singapore local date-times. */
 public final class Appointment {
-    public static final String MESSAGE_INVALID_NAME =
-            "Appointment name must contain only letters and spaces, with 1-80 characters.";
     public static final String MESSAGE_INVALID_LOCATION = "Appointment location cannot be empty.";
     public static final String MESSAGE_INVALID_PERIOD = "Appointment end must be after its start.";
     public static final Comparator<Appointment> CHRONOLOGICAL_ORDER = Comparator
@@ -37,14 +35,6 @@ public final class Appointment {
         this.end = new AppointmentDateTime(end);
         checkArgument(this.end.compareTo(this.start) > 0, MESSAGE_INVALID_PERIOD);
         this.remarks = new AppointmentRemarks(remarks);
-    }
-
-    public static boolean isValidName(String name) {
-        return name.length() <= 80 && name.matches("[A-Za-z ]*") && name.matches(".*[A-Za-z].*");
-    }
-
-    public static boolean isValidLocation(String location) {
-        return !location.strip().isEmpty();
     }
 
     public String getName() {
@@ -79,7 +69,8 @@ public final class Appointment {
 
     /** Adjacent appointments do not overlap. */
     public boolean overlaps(Appointment other) {
-        return start.getValue().isBefore(other.end.getValue()) && end.getValue().isAfter(other.start.getValue());
+        requireAllNonNull(other);
+        return start.compareTo(other.end) < 0 && end.compareTo(other.start) > 0;
     }
 
     @Override
