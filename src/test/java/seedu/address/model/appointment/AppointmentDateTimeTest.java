@@ -24,6 +24,12 @@ public class AppointmentDateTimeTest {
     }
 
     @Test
+    public void isValid_validatesNullAndNonNullValues() {
+        assertEquals(true, AppointmentDateTime.isValid(VALUE));
+        assertEquals(false, AppointmentDateTime.isValid(null));
+    }
+
+    @Test
     public void constructor_boundaryValues_preserveValue() {
         LocalDateTime earliest = LocalDateTime.MIN;
         LocalDateTime latest = LocalDateTime.MAX;

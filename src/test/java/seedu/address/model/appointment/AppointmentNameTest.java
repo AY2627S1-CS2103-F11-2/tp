@@ -30,6 +30,16 @@ public class AppointmentNameTest {
     }
 
     @Test
+    public void isValid_validatesNameConstraints() {
+        assertEquals(true, AppointmentName.isValid("Viewing flat"));
+        assertEquals(true, AppointmentName.isValid("A".repeat(80)));
+        assertEquals(false, AppointmentName.isValid(""));
+        assertEquals(false, AppointmentName.isValid("Flat1"));
+        assertEquals(false, AppointmentName.isValid("A".repeat(81)));
+        assertThrows(NullPointerException.class, () -> AppointmentName.isValid(null));
+    }
+
+    @Test
     public void equals_sameValue_returnsTrue() {
         assertEquals(new AppointmentName("Viewing"), new AppointmentName(" Viewing "));
         assertEquals(new AppointmentName("Viewing").hashCode(), new AppointmentName("Viewing").hashCode());

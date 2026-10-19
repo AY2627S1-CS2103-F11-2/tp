@@ -14,6 +14,11 @@ public final class AppointmentDateTime implements Comparable<AppointmentDateTime
         this.value = requireNonNull(value);
     }
 
+    /** Returns whether the supplied date-time is valid. */
+    public static boolean isValid(LocalDateTime value) {
+        return value != null;
+    }
+
     public LocalDateTime getValue() {
         return value;
     }

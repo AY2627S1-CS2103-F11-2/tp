@@ -16,8 +16,14 @@ public final class AppointmentLocation {
      */
     public AppointmentLocation(String value) {
         requireNonNull(value);
-        checkArgument(!value.strip().isEmpty(), "Appointment location cannot be empty.");
+        checkArgument(isValid(value), "Appointment location cannot be empty.");
         this.value = value.strip();
+    }
+
+    /** Returns whether the supplied value is a non-blank appointment location. */
+    public static boolean isValid(String value) {
+        requireNonNull(value);
+        return !value.strip().isEmpty();
     }
 
     public String getValue() {

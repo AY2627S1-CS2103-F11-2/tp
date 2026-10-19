@@ -31,6 +31,13 @@ public class AppointmentRemarksTest {
     }
 
     @Test
+    public void isValid_validatesNullAndEmptyValues() {
+        assertEquals(true, AppointmentRemarks.isValid(""));
+        assertEquals(true, AppointmentRemarks.isValid(" remarks "));
+        assertEquals(false, AppointmentRemarks.isValid(null));
+    }
+
+    @Test
     public void equals_sameValue_returnsTrue() {
         assertEquals(new AppointmentRemarks("Bring keys"), new AppointmentRemarks("Bring keys"));
         assertEquals(new AppointmentRemarks("Bring keys").hashCode(),

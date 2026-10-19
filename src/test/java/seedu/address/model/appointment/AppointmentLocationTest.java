@@ -23,6 +23,13 @@ public class AppointmentLocationTest {
     }
 
     @Test
+    public void isValid_validatesBlankAndNonblankValues() {
+        assertEquals(true, AppointmentLocation.isValid("NUS"));
+        assertEquals(false, AppointmentLocation.isValid("  "));
+        assertThrows(NullPointerException.class, () -> AppointmentLocation.isValid(null));
+    }
+
+    @Test
     public void constructor_nonblankLocation_preservesPunctuationAndWhitespace() {
         for (String value : new String[]{"#02-01", "NUS\nCOM3", "Block 123, Unit #04-05"}) {
             assertEquals(value, new AppointmentLocation(value).getValue());

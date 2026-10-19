@@ -12,6 +12,11 @@ public final class AppointmentRemarks {
         this.value = requireNonNull(value);
     }
 
+    /** Returns whether the supplied remarks value is valid. Empty remarks are allowed. */
+    public static boolean isValid(String value) {
+        return value != null;
+    }
+
     public String getValue() {
         return value;
     }
