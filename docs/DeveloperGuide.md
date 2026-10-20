@@ -249,6 +249,13 @@ and redo entries, including client changes, and prevents any old snapshot from r
 deleted appointment. Later mutations start a fresh undoable timeline. Client deletion and `clear`
 remain undoable, restoring their linked appointments together.
 
+`BackupCommand` writes a copy of the current data with `JsonAddressBookStorage`, so the copy is a
+complete data file that `restore` can read. It changes no data and calls no `Model` mutator, which is why
+it creates no history entry, leaves both filters alone and preserves redo. `LogicManager` skips the
+automatic save for it, as it does for `appointments`, because there is nothing to save. A file that
+already exists is refused rather than overwritten, and any `IOException` is reported with the target path
+and the note that nothing was changed.
+
 Before executing a parsed command, `LogicManager` captures an opaque `Model.Checkpoint`. It contains
 current data, the complete history (including future redo entries), its pointer, and both filters.
 If saving throws `IOException` or `AccessDeniedException`, logic restores the checkpoint before

@@ -274,6 +274,25 @@ Clears all clients and appointments from the address book.
 
 Format: `clear`
 
+### Backing up your data: `backup`
+
+Writes a copy of your current data to the backup folder, so a mistake or a hand-edited file can be
+recovered later.
+
+Format: `backup [f/FILE]`
+
+* With no `f/FILE`, the copy is named `clients-<date>-<time>.json`, for example
+  `data/backup/clients-2026-10-21-143005.json`.
+* With `f/FILE`, that name is used instead. It must end in `.json` and contain no folder part.
+* Copies are written into the `backup` folder beside your data file, which is `data/backup` by default.
+* An existing file is never overwritten. Use another name, or let the timestamped name be used.
+* Nothing in the app changes. Your clients, appointments, current filters and the undo and redo history
+  all stay exactly as they were, so `undo` after a backup still reverses your last change.
+* If the file cannot be written, the result box names the file and says that nothing was changed.
+* The copy is a complete data file in the same format as your data file, so `restore` can read it later.
+
+Example: `backup f/before-clearing.json` writes `data/backup/before-clearing.json`.
+
 ### Undoing the last change: `undo`
 
 Restores clients and appointments to how they were before the last undoable change.
@@ -352,6 +371,7 @@ Action | Format, Examples
 **List** | `list`
 **Redo** | `redo`
 **Undo** | `undo`
+**Backup** | `backup [f/FILE]` <br> e.g., `backup f/before-clearing.json`
 
 **Add appointment** | `appointment n/NAME c/CLIENT_INDEX loc/LOCATION s/YYYYMMDD-HHMM e/YYYYMMDD-HHMM`
 **View appointments** | `appointments [c/CLIENT_INDEX] [d/DDMMYYYY]`
