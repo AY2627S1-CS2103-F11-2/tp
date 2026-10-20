@@ -22,10 +22,12 @@ import seedu.address.storage.Storage;
  * The main LogicManager of the app.
  */
 public class LogicManager implements Logic {
-    public static final String FILE_OPS_ERROR_FORMAT = "Could not save data due to the following error: %s";
+    public static final String FILE_OPS_ERROR_FORMAT =
+            "Could not write to the data file at %1$s. Your last change is not saved. (%2$s)";
 
     public static final String FILE_OPS_PERMISSION_ERROR_FORMAT =
-            "Could not save data to file %s due to insufficient permissions to write to the file or the folder.";
+            "Could not write to the data file at %1$s. Your last change is not saved, because there are "
+                    + "insufficient permissions to write to the file or the folder.";
 
     private final Logger logger = LogsCenter.getLogger(LogicManager.class);
 
@@ -59,10 +61,12 @@ public class LogicManager implements Logic {
             storage.saveAddressBook(model.getAddressBook());
         } catch (AccessDeniedException e) {
             model.restoreCheckpoint(checkpoint);
-            throw new CommandException(String.format(FILE_OPS_PERMISSION_ERROR_FORMAT, e.getMessage()), e);
+            throw new CommandException(String.format(FILE_OPS_PERMISSION_ERROR_FORMAT,
+                    storage.getAddressBookFilePath()), e);
         } catch (IOException ioe) {
             model.restoreCheckpoint(checkpoint);
-            throw new CommandException(String.format(FILE_OPS_ERROR_FORMAT, ioe.getMessage()), ioe);
+            throw new CommandException(String.format(FILE_OPS_ERROR_FORMAT,
+                    storage.getAddressBookFilePath(), ioe.getMessage()), ioe);
         }
 
         return commandResult;

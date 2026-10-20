@@ -312,14 +312,19 @@ Format: `exit`
 PropTrack automatically saves clients and appointments after changes. You do not need to save manually.
 Existing client-only data files remain readable and start with an empty appointment list.
 
+If a change cannot be written, the result box says `Could not write to the data file at <path>.
+Your last change is not saved.` and names the underlying reason. The change is rolled back, so the list
+on screen still matches the file.
+
 ### Editing the data file
 
 PropTrack data is saved automatically as a JSON file `[JAR file location]/data/addressbook.json`. Advanced users are welcome to update data directly by editing that data file.
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
 If the file contains invalid client or appointment data, PropTrack rejects the whole file and starts empty.
-It attempts to preserve the unreadable file under a name ending in `.corrupt-TIMESTAMP`; the log records
-the preserved path or any failure to rename it. Back up the data file before editing it.<br>
+It attempts to preserve the unreadable file under a name ending in `.corrupt-TIMESTAMP`, and the result box
+names both the data file and the preserved copy, or says that the rename failed. Back up the data file
+before editing it.<br>
 Appointment `clientIndex` fields refer to positions in the saved client array. Reordering that array by hand
 without updating those references can associate appointments with the wrong clients.
 </div>
