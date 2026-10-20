@@ -12,7 +12,6 @@ import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import seedu.address.logic.Messages;
 import seedu.address.logic.parser.AddCommandParser;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
@@ -40,7 +39,8 @@ public class AddCommandIntegrationTest {
         expectedModel.addPerson(validPerson);
 
         assertCommandSuccess(new AddCommand(validPerson), model,
-                String.format(AddCommand.MESSAGE_SUCCESS, Messages.format(validPerson)),
+                new CommandResult("Added client C8: Amy Bee.",
+                        expectedModel.getAddressBook().getPersonList().getLast()),
                 expectedModel);
     }
 
@@ -48,7 +48,7 @@ public class AddCommandIntegrationTest {
     public void execute_duplicatePerson_throwsCommandException() {
         Person personInList = model.getAddressBook().getPersonList().get(0);
         assertCommandFailure(new AddCommand(personInList), model,
-                AddCommand.MESSAGE_DUPLICATE_PERSON);
+                "Name already belongs to client C1 (Alice Pauline). No client was added.");
     }
 
     @Test
@@ -59,7 +59,8 @@ public class AddCommandIntegrationTest {
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.addPerson(expectedPerson);
 
-        assertCommandSuccess(command, model, String.format(AddCommand.MESSAGE_SUCCESS, Messages.format(expectedPerson)),
+        assertCommandSuccess(command, model, new CommandResult("Added client C8: 李 D'Arcy-Smith.",
+                expectedModel.getAddressBook().getPersonList().getLast()),
                 expectedModel);
     }
 
@@ -69,7 +70,8 @@ public class AddCommandIntegrationTest {
         AddCommand command = new AddCommandParser().parse(" n/  Alice   Pauline  " + PHONE_DESC_BOB
                 + EMAIL_DESC_BOB + ADDRESS_DESC_BOB + TYPE_DESC_BOB);
 
-        assertCommandFailure(command, model, AddCommand.MESSAGE_DUPLICATE_PERSON);
+        assertCommandFailure(command, model,
+                "Name already belongs to client C1 (Alice Pauline). No client was added.");
     }
 
 }

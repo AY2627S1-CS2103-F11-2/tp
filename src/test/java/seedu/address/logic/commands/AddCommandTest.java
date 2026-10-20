@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Test;
 
 import javafx.collections.ObservableList;
 import seedu.address.commons.core.GuiSettings;
-import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.AddressBook;
 import seedu.address.model.Model;
@@ -40,8 +39,9 @@ public class AddCommandTest {
 
         CommandResult commandResult = new AddCommand(validPerson).execute(modelStub);
 
-        assertEquals(String.format(AddCommand.MESSAGE_SUCCESS, Messages.format(validPerson)),
-                commandResult.getFeedbackToUser());
+        assertEquals("Added client C1: Amy Bee.", commandResult.getFeedbackToUser());
+        assertEquals(modelStub.getAddressBook().getPersonList().getFirst(),
+                commandResult.getSelectedClient().orElseThrow());
         assertEquals(List.of(validPerson), modelStub.personsAdded);
     }
 
@@ -51,7 +51,8 @@ public class AddCommandTest {
         AddCommand addCommand = new AddCommand(validPerson);
         ModelStub modelStub = new ModelStubWithPerson(validPerson);
 
-        assertThrows(CommandException.class, AddCommand.MESSAGE_DUPLICATE_PERSON, () -> addCommand.execute(modelStub));
+        String expectedMessage = "Name already belongs to client C1 (Amy Bee). No client was added.";
+        assertThrows(CommandException.class, expectedMessage, () -> addCommand.execute(modelStub));
     }
 
     @Test
@@ -205,10 +206,17 @@ public class AddCommandTest {
      */
     private class ModelStubWithPerson extends ModelStub {
         private final Person person;
+        private final AddressBook addressBook = new AddressBook();
 
         ModelStubWithPerson(Person person) {
             requireNonNull(person);
             this.person = person;
+            addressBook.addPerson(person);
+        }
+
+        @Override
+        public ReadOnlyAddressBook getAddressBook() {
+            return addressBook;
         }
 
         @Override
@@ -223,6 +231,7 @@ public class AddCommandTest {
      */
     private class ModelStubAcceptingPersonAdded extends ModelStub {
         final ArrayList<Person> personsAdded = new ArrayList<>();
+        private final AddressBook addressBook = new AddressBook();
 
         @Override
         public boolean hasPerson(Person person) {
@@ -234,11 +243,12 @@ public class AddCommandTest {
         public void addPerson(Person person) {
             requireNonNull(person);
             personsAdded.add(person);
+            addressBook.addPerson(person);
         }
 
         @Override
         public ReadOnlyAddressBook getAddressBook() {
-            return new AddressBook();
+            return addressBook;
         }
     }
 

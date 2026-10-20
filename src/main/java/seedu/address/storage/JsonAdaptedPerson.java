@@ -8,9 +8,12 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.LongNode;
 
 import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.model.person.Address;
+import seedu.address.model.person.ClientId;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
@@ -25,6 +28,7 @@ class JsonAdaptedPerson {
 
     public static final String MISSING_FIELD_MESSAGE_FORMAT = "Person's %s field is missing!";
 
+    private final JsonNode clientId;
     private final String name;
     private final String phone;
     private final String email;
@@ -38,7 +42,9 @@ class JsonAdaptedPerson {
     @JsonCreator
     public JsonAdaptedPerson(@JsonProperty("name") String name, @JsonProperty("phone") String phone,
             @JsonProperty("email") String email, @JsonProperty("address") String address,
-            @JsonProperty("type") String type, @JsonProperty("tags") List<JsonAdaptedTag> tags) {
+            @JsonProperty("type") String type, @JsonProperty("tags") List<JsonAdaptedTag> tags,
+            @JsonProperty("clientId") JsonNode clientId) {
+        this.clientId = clientId;
         this.name = name;
         this.phone = phone;
         this.email = email;
@@ -49,10 +55,17 @@ class JsonAdaptedPerson {
         }
     }
 
+    /** Creates an adapted legacy client without a stored identifier. */
+    public JsonAdaptedPerson(String name, String phone, String email, String address,
+            String type, List<JsonAdaptedTag> tags) {
+        this(name, phone, email, address, type, tags, null);
+    }
+
     /**
      * Converts a given {@code Person} into this class for Jackson use.
      */
     public JsonAdaptedPerson(Person source) {
+        clientId = source.getClientId().map(id -> LongNode.valueOf(id.getNumber())).orElse(null);
         name = source.getName().fullName;
         phone = source.getPhone().value;
         email = source.getEmail().value;
@@ -112,7 +125,15 @@ class JsonAdaptedPerson {
         final Type modelType = new Type(type);
 
         final Set<Tag> modelTags = new HashSet<>(personTags);
-        return new Person(modelName, modelPhone, modelEmail, modelAddress, modelType, modelTags);
+        Person person = new Person(modelName, modelPhone, modelEmail, modelAddress, modelType, modelTags);
+        if (clientId == null || clientId.isNull()) {
+            return person;
+        }
+        if (!clientId.isIntegralNumber() || !clientId.canConvertToLong()
+                || !ClientId.isValidNumber(clientId.longValue())) {
+            throw new IllegalValueException(ClientId.MESSAGE_CONSTRAINTS);
+        }
+        return person.withClientId(new ClientId(clientId.longValue()));
     }
 
 }

@@ -153,6 +153,36 @@ Classes used by multiple components are in the `seedu.address.commons` package.
 
 ## **Implementation**
 
+### Adding a client: identity, feedback and selection
+
+`AddCommand` reports `Added client C1: Alex Tan.` after creating a client. Full contact details
+remain available in `PersonDetailsPanel`, including `Not provided` for an omitted email address.
+
+1. The command checks the complete address book for an existing normalized name, including clients
+   hidden by the current filter. A duplicate produces a message identifying the existing client;
+   no client is added and no identifier is allocated.
+2. `AddressBook` assigns an immutable `ClientId` and advances its allocation counter. Editing a
+   client preserves the identifier. Deleting, clearing or undoing an addition does not make an
+   allocated identifier available to another client.
+3. `ModelManager` exposes a sorted projection of the filtered clients: names are compared without
+   regard to letter case, followed by the numeric client ID. The underlying storage order stays
+   unchanged, preserving existing appointment links.
+4. `AddCommand` returns the stored client in `CommandResult`. `LogicManager` saves the address book
+   before returning that result to the UI. If saving fails, its checkpoint restores the data, filters,
+   ID counter and undo/redo history, and no selection request reaches the UI.
+5. `MainWindow` selects and scrolls to the newly added record. Selection changes update the details
+   panel; the command box clears after successful execution.
+
+The JSON representation stores each client's numeric `clientId` and the address book's
+`nextClientId` counter. Legacy files without these fields receive IDs in stored-client order.
+When a file mixes old and identified records, explicit IDs are reserved before missing IDs are
+assigned. Duplicate IDs, invalid numeric values and counters below existing IDs are rejected.
+Undo/redo snapshots retain identifier metadata; failed-save rollback restores the exact checkpoint.
+
+Client cards label **Position** separately from **Client ID**. Existing `delete` and appointment
+commands continue to use their displayed-position references, while `edit` uses the numeric row
+position. These argument contracts are independent of the permanent ID reported by `add`.
+
 This section describes some noteworthy details on how certain features are implemented.
 
 ### Appointment viewing and deletion

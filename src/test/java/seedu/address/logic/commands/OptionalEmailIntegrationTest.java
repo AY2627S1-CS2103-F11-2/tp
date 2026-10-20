@@ -39,7 +39,8 @@ public class OptionalEmailIntegrationTest {
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.addPerson(expectedPerson);
 
-        assertCommandSuccess(command, model, String.format(AddCommand.MESSAGE_SUCCESS, Messages.format(expectedPerson)),
+        assertCommandSuccess(command, model, new CommandResult("Added client C8: Amy Bee.",
+                expectedModel.getAddressBook().getPersonList().getLast()),
                 expectedModel);
         assertTrue(expectedPerson.getTags().isEmpty());
         assertTrue(Messages.format(expectedPerson).contains("; Email: Not provided;"));
@@ -52,7 +53,8 @@ public class OptionalEmailIntegrationTest {
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.addPerson(expectedPerson);
 
-        assertCommandSuccess(command, model, String.format(AddCommand.MESSAGE_SUCCESS, Messages.format(expectedPerson)),
+        assertCommandSuccess(command, model, new CommandResult("Added client C8: Amy Bee.",
+                expectedModel.getAddressBook().getPersonList().getLast()),
                 expectedModel);
         assertTrue(Messages.format(expectedPerson).contains("; Email: " + PersonBuilder.DEFAULT_EMAIL + ";"));
     }
@@ -76,7 +78,8 @@ public class OptionalEmailIntegrationTest {
     public void add_duplicateNameWithoutEmail_doesNotChangeModel() throws Exception {
         Person duplicate = new PersonBuilder(ALICE).withNoEmail().build();
         AddCommand command = new AddCommandParser().parse(" " + PersonUtil.getPersonDetails(duplicate));
-        assertCommandFailure(command, model, AddCommand.MESSAGE_DUPLICATE_PERSON);
+        assertCommandFailure(command, model,
+                "Name already belongs to client C1 (Alice Pauline). No client was added.");
     }
 
     @Test
