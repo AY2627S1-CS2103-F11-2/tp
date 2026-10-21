@@ -9,7 +9,13 @@ title: Developer Guide
 
 ## **Acknowledgements**
 
-* _{List the sources of reused or adapted ideas, code, documentation, and third-party libraries here, with links to the originals.}_
+* PropTrack is built on [AddressBook Level 3 (AB3)](https://se-education.org/addressbook-level3/), the
+  sample project from the SE-EDU initiative, and reuses its architecture, build configuration and parts of
+  its code and documentation under that project's licence.
+* The libraries used are [JavaFX](https://openjfx.io/) for the interface, [Jackson](https://github.com/FasterXML/jackson)
+  for reading and writing the data file, [JUnit 5](https://junit.org/junit5/) for the tests,
+  [Gradle](https://gradle.org/) with the [Shadow plugin](https://github.com/GradleUp/shadow) for the build and the
+  fat JAR, and [Checkstyle](https://checkstyle.sourceforge.io/) for the coding standard checks.
 
 --------------------------------------------------------------------------------------------------------------------
 
