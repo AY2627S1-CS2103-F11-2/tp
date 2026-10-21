@@ -11,6 +11,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import seedu.address.logic.commands.exceptions.CommandException;
+import seedu.address.logic.parser.DeleteCommandParser;
 import seedu.address.model.AddressBook;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
@@ -43,7 +44,8 @@ public class AddClientWorkflowTest {
 
         CommandResult result = new AddCommand(person("Alex Tan")).execute(model);
 
-        assertEquals("Added client C3: Alex Tan.", result.getFeedbackToUser());
+        assertEquals("Added client C3: Alex Tan. Current position: C1 (for delete/appointment commands).",
+                result.getFeedbackToUser());
         assertEquals(List.of("Alex Tan", "Bob Lim", "Zara Tan"), model.getFilteredPersonList().stream()
                 .map(client -> client.getName().fullName).toList());
         Person selected = result.getSelectedClient().orElseThrow();
@@ -60,9 +62,25 @@ public class AddClientWorkflowTest {
 
         CommandResult result = new AddCommand(person("Alex Tan")).execute(model);
 
-        assertEquals("Added client C2: Alex Tan.", result.getFeedbackToUser());
+        assertEquals("Added client C2: Alex Tan. Current position: C1 (for delete/appointment commands).",
+                result.getFeedbackToUser());
         assertEquals(1, model.getFilteredPersonList().size());
         assertEquals("C2", model.getFilteredPersonList().getFirst().getClientId().orElseThrow().toString());
+    }
+
+    @Test
+    public void add_reportedPositionTargetsNewClientWhenIdAndPositionDiffer() throws Exception {
+        ModelManager model = new ModelManager();
+        new AddCommand(person("Zara Tan")).execute(model);
+        new AddCommand(person("Bob Lim")).execute(model);
+
+        CommandResult result = new AddCommand(person("Alex Tan")).execute(model);
+        String position = result.getFeedbackToUser().split("Current position: ")[1].split(" ")[0];
+        new DeleteCommandParser().parse(position).execute(model);
+
+        assertFalse(model.hasPerson(person("Alex Tan")));
+        assertEquals(List.of("Bob Lim", "Zara Tan"), model.getFilteredPersonList().stream()
+                .map(client -> client.getName().fullName).toList());
     }
 
     @Test

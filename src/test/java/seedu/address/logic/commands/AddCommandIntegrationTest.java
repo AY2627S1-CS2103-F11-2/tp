@@ -39,7 +39,7 @@ public class AddCommandIntegrationTest {
         expectedModel.addPerson(validPerson);
 
         assertCommandSuccess(new AddCommand(validPerson), model,
-                new CommandResult("Added client C8: Amy Bee.",
+                new CommandResult("Added client C8: Amy Bee. Current position: C2 (for delete/appointment commands).",
                         expectedModel.getAddressBook().getPersonList().getLast()),
                 expectedModel);
     }
@@ -59,7 +59,8 @@ public class AddCommandIntegrationTest {
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.addPerson(expectedPerson);
 
-        assertCommandSuccess(command, model, new CommandResult("Added client C8: 李 D'Arcy-Smith.",
+        assertCommandSuccess(command, model, new CommandResult("Added client C8: 李 D'Arcy-Smith. "
+                + "Current position: C8 (for delete/appointment commands).",
                 expectedModel.getAddressBook().getPersonList().getLast()),
                 expectedModel);
     }

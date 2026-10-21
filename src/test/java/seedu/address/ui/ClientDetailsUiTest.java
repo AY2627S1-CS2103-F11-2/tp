@@ -29,6 +29,7 @@ import javafx.event.ActionEvent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
@@ -166,6 +167,8 @@ public class ClientDetailsUiTest {
     public void mainWindow_commandBoxAdd_savesSelectsShowsDetailsAndClearsInput() throws Exception {
         onFxThread(() -> {
             ModelManager model = new ModelManager();
+            model.addPerson(new PersonBuilder().withName("Zara Tan").build());
+            model.addPerson(new PersonBuilder().withName("Bob Lim").build());
             Path dataFile = testFolder.resolve("clients.json");
             StorageManager storage = storage(dataFile);
             Stage stage = new Stage();
@@ -183,9 +186,12 @@ public class ClientDetailsUiTest {
 
                 Person selected = window.getPersonListPanel().selectedPersonProperty().get();
                 assertEquals("Alex Tan", selected.getName().fullName);
-                assertEquals("C1", selected.getClientId().orElseThrow().toString());
+                assertEquals("C3", selected.getClientId().orElseThrow().toString());
                 assertEquals("", command.getText());
-                assertEquals("Client ID: C1", label(root, "clientId").getText());
+                assertEquals("Client ID: C3", label(root, "clientId").getText());
+                TextArea feedback = (TextArea) root.lookup("#resultDisplay");
+                assertEquals("Added client C3: Alex Tan. Current position: C1 (for delete/appointment commands).",
+                        feedback.getText());
                 assertEquals("Alex Tan", label(root, "clientName").getText());
                 assertEquals("Email: Not provided", label(root, "clientEmail").getText());
                 assertEquals(model.getAddressBook(), storage.readAddressBook().orElseThrow());
@@ -198,7 +204,7 @@ public class ClientDetailsUiTest {
                 assertEquals(duplicateCommand, command.getText());
                 assertTrue(command.getStyleClass().contains(CommandBox.ERROR_STYLE_CLASS));
                 assertSame(selected, window.getPersonListPanel().selectedPersonProperty().get());
-                assertEquals(1, model.getAddressBook().getPersonList().size());
+                assertEquals(3, model.getAddressBook().getPersonList().size());
                 assertEquals("Alex Tan", label(root, "clientName").getText());
             } finally {
                 stage.close();

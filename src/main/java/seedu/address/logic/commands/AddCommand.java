@@ -8,8 +8,6 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TYPE;
 
-import java.util.Optional;
-
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
@@ -40,7 +38,8 @@ public class AddCommand extends Command {
             + PREFIX_TAG + "friends "
             + PREFIX_TAG + "owesMoney";
 
-    public static final String MESSAGE_SUCCESS = "Added client %1$s: %2$s.";
+    public static final String MESSAGE_SUCCESS = "Added client %1$s: %2$s. "
+            + "Current position: C%3$d (for delete/appointment commands).";
     public static final String MESSAGE_DUPLICATE_PERSON =
             "Name already belongs to client %1$s (%2$s). No client was added.";
     public static final String MESSAGE_ID_LIMIT = "No client was added because no more client IDs are available.";
@@ -59,10 +58,9 @@ public class AddCommand extends Command {
     public CommandResult execute(Model model) throws CommandException {
         requireNonNull(model);
 
-        Optional<Person> duplicate = model.getAddressBook().getPersonList().stream()
-                .filter(toAdd::isSamePerson).findFirst();
-        if (duplicate.isPresent()) {
-            Person existing = duplicate.get();
+        if (model.hasPerson(toAdd)) {
+            Person existing = model.getAddressBook().getPersonList().stream()
+                    .filter(toAdd::isSamePerson).findFirst().orElseThrow();
             throw new CommandException(String.format(MESSAGE_DUPLICATE_PERSON,
                     existing.getClientId().orElseThrow(), existing.getName().fullName));
         }
@@ -73,8 +71,9 @@ public class AddCommand extends Command {
         model.addPerson(toAdd);
         Person added = model.getAddressBook().getPersonList().stream()
                 .filter(toAdd::isSamePerson).findFirst().orElseThrow();
+        int displayedPosition = model.getFilteredPersonList().indexOf(added) + 1;
         return new CommandResult(String.format(MESSAGE_SUCCESS,
-                added.getClientId().orElseThrow(), added.getName().fullName), added);
+                added.getClientId().orElseThrow(), added.getName().fullName, displayedPosition), added);
     }
 
     @Override

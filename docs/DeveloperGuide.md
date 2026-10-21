@@ -155,11 +155,13 @@ Classes used by multiple components are in the `seedu.address.commons` package.
 
 ### Adding a client: identity, feedback and selection
 
-`AddCommand` reports `Added client C1: Alex Tan.` after creating a client. Full contact details
+`AddCommand` reports `Added client C8: Alex Tan. Current position: C1 (for delete/appointment commands).`
+after creating a client. The position comes from the updated, sorted displayed list. Full contact details
 remain available in `PersonDetailsPanel`, including `Not provided` for an omitted email address.
 
-1. The command checks the complete address book for an existing normalized name, including clients
-   hidden by the current filter. A duplicate produces a message identifying the existing client;
+1. `Model.hasPerson` checks the complete address book for an existing normalized name, including clients
+   hidden by the current filter. Only when the model reports a duplicate does the command look up the
+   existing record for its name and ID in the error message;
    no client is added and no identifier is allocated.
 2. `AddressBook` assigns an immutable `ClientId` and advances its allocation counter. Editing a
    client preserves the identifier. Deleting, clearing or undoing an addition does not make an

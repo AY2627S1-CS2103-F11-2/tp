@@ -92,7 +92,8 @@ Format: `add n/NAME p/PHONE_NUMBER a/ADDRESS y/TYPE [e/EMAIL] [t/TAG]…​`
   The client card and details panel show `Not provided`, and the email remains absent after saving and reopening the app.
 * If `e/` is supplied when adding a client, it must contain a valid email address. A bare `e/`,
   whitespace-only email or malformed address is rejected. Repeating `e/` is also rejected.
-* On success, the result identifies the new client, for example `Added client C1: Alex Tan.`
+* On success, the result identifies the new client and its current command position, for example
+  `Added client C8: Alex Tan. Current position: C1 (for delete/appointment commands).`
   The full client list is shown, sorted alphabetically by name without regard to letter case, then by numeric
   client ID when names compare equally. The new client is selected automatically and their details appear in the details panel.
 * If the name already belongs to a client, no client is added. The result identifies the existing record,
@@ -104,7 +105,8 @@ Format: `add n/NAME p/PHONE_NUMBER a/ADDRESS y/TYPE [e/EMAIL] [t/TAG]…​`
   and is also shown in the details panel. It is separate from the positional
   references accepted by `delete`, `appointment` and `appointments`: those commands still use `C` followed
   by the current row number. For example, a client with permanent ID `C8` in row `1` is addressed as `C1`
-  by those commands, or as `1` by `edit`.
+  by those commands, or as `1` by `edit`. The success message reports the position immediately after
+  the addition; check the current card position again after later sorting, filtering or other list changes.
 
 <div markdown="span" class="alert alert-primary">:bulb: **Tip:**
 A client can have any number of tags, including zero.

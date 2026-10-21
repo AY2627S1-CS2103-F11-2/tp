@@ -39,7 +39,8 @@ public class OptionalEmailIntegrationTest {
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.addPerson(expectedPerson);
 
-        assertCommandSuccess(command, model, new CommandResult("Added client C8: Amy Bee.",
+        assertCommandSuccess(command, model,
+                new CommandResult("Added client C8: Amy Bee. Current position: C2 (for delete/appointment commands).",
                 expectedModel.getAddressBook().getPersonList().getLast()),
                 expectedModel);
         assertTrue(expectedPerson.getTags().isEmpty());
@@ -53,7 +54,8 @@ public class OptionalEmailIntegrationTest {
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.addPerson(expectedPerson);
 
-        assertCommandSuccess(command, model, new CommandResult("Added client C8: Amy Bee.",
+        assertCommandSuccess(command, model,
+                new CommandResult("Added client C8: Amy Bee. Current position: C2 (for delete/appointment commands).",
                 expectedModel.getAddressBook().getPersonList().getLast()),
                 expectedModel);
         assertTrue(Messages.format(expectedPerson).contains("; Email: " + PersonBuilder.DEFAULT_EMAIL + ";"));

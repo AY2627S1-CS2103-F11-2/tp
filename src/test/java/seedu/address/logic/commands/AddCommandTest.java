@@ -39,7 +39,8 @@ public class AddCommandTest {
 
         CommandResult commandResult = new AddCommand(validPerson).execute(modelStub);
 
-        assertEquals("Added client C1: Amy Bee.", commandResult.getFeedbackToUser());
+        assertEquals("Added client C1: Amy Bee. Current position: C1 (for delete/appointment commands).",
+                commandResult.getFeedbackToUser());
         assertEquals(modelStub.getAddressBook().getPersonList().getFirst(),
                 commandResult.getSelectedClient().orElseThrow());
         assertEquals(List.of(validPerson), modelStub.personsAdded);
@@ -49,10 +50,11 @@ public class AddCommandTest {
     public void execute_duplicatePerson_throwsCommandException() {
         Person validPerson = new PersonBuilder().build();
         AddCommand addCommand = new AddCommand(validPerson);
-        ModelStub modelStub = new ModelStubWithPerson(validPerson);
+        ModelStubWithPerson modelStub = new ModelStubWithPerson(validPerson);
 
         String expectedMessage = "Name already belongs to client C1 (Amy Bee). No client was added.";
         assertThrows(CommandException.class, expectedMessage, () -> addCommand.execute(modelStub));
+        assertTrue(modelStub.duplicateCheckPerformed);
     }
 
     @Test
@@ -207,6 +209,7 @@ public class AddCommandTest {
     private class ModelStubWithPerson extends ModelStub {
         private final Person person;
         private final AddressBook addressBook = new AddressBook();
+        private boolean duplicateCheckPerformed;
 
         ModelStubWithPerson(Person person) {
             requireNonNull(person);
@@ -222,6 +225,7 @@ public class AddCommandTest {
         @Override
         public boolean hasPerson(Person person) {
             requireNonNull(person);
+            duplicateCheckPerformed = true;
             return this.person.isSamePerson(person);
         }
     }
@@ -249,6 +253,11 @@ public class AddCommandTest {
         @Override
         public ReadOnlyAddressBook getAddressBook() {
             return addressBook;
+        }
+
+        @Override
+        public ObservableList<Person> getFilteredPersonList() {
+            return addressBook.getPersonList();
         }
     }
 
