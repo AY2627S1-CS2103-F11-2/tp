@@ -330,6 +330,24 @@ The following activity diagram summarizes what happens when a user executes a ne
 
 _{more aspects and alternatives to be added}_
 
+### Client addition flow
+
+The activity diagram below shows the `add` command's validation, model changes and persistence.
+
+<img src="images/AddClientActivityDiagram.png" alt="Activity diagram for adding a client, including validation, duplicate rejection and rollback after a failed save" width="650"/>
+
+`AddCommandParser` validates the required fields, rejects repeated single-value prefixes and
+validates an email only when it is supplied. Invalid input stops before a model checkpoint is
+created. After parsing, `LogicManager` captures the model's data, undo/redo history and filters.
+`AddCommand` then checks for a duplicate client before making any changes.
+
+For a new client, `ModelManager.addPerson` updates the address book, commits an undoable state and
+resets the client filter to show all clients. The command prepares a success `CommandResult`, but
+`LogicManager` returns it only after `Storage.saveAddressBook` succeeds. If saving throws an
+`IOException` (including `AccessDeniedException`), the model checkpoint is restored and a
+`CommandException` is thrown instead. This restores the previous data, history and filters so a
+failed save does not leave an added client in memory.
+
 ### \[Proposed\] Data archiving
 
 _{Explain here how the data archiving feature will be implemented}_
