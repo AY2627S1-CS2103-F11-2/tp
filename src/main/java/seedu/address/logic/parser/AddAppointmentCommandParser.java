@@ -12,6 +12,7 @@ import seedu.address.commons.core.index.Index;
 import seedu.address.logic.commands.AddAppointmentCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.appointment.Appointment;
+import seedu.address.model.appointment.AppointmentName;
 
 /** Parses the supporting appointment creation command with strict calendar validation. */
 public class AddAppointmentCommandParser implements Parser<AddAppointmentCommand> {
@@ -43,8 +44,8 @@ public class AddAppointmentCommandParser implements Parser<AddAppointmentCommand
             }
         }
         String name = fields.getValue(NAME).orElseThrow();
-        if (!Appointment.isValidName(name)) {
-            throw new ParseException(Appointment.MESSAGE_INVALID_NAME);
+        if (!Appointment.isValidName(name.trim())) {
+            throw new ParseException(AppointmentName.MESSAGE_CONSTRAINTS);
         }
         String location = ParserUtil.parseAppointmentLocation(fields.getValue(LOCATION).orElseThrow());
         Index client = AppointmentsCommandParser.parseClientIndex(fields.getValue(CLIENT).orElseThrow());
