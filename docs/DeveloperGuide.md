@@ -155,6 +155,22 @@ Classes used by multiple components are in the `seedu.address.commons` package.
 
 This section describes some noteworthy details on how certain features are implemented.
 
+### Appointment location editing
+
+`editappt A<INDEX> loc/LOCATION` implements UC03. `EditAppointmentCommandParser` parses the displayed
+reference and reuses `ParserUtil.parseAppointmentLocation`. Missing, repeated or unsupported fields
+are rejected before command execution.
+
+`EditAppointmentCommand` resolves the reference against `Model#getFilteredAppointmentList`, then builds
+an immutable replacement retaining the name, client, time interval and remarks. `Model#setAppointment`
+replaces the existing entry and commits a history snapshot, preserving the active filters. Storage uses
+the existing appointment JSON format. An unchanged location is rejected without recording history.
+
+Only location editing is exposed; changing time, name, client or remarks is outside this command's scope.
+The shared history and checkpoint APIs provide separate undo steps for creation and editing, and restore
+data, history and filters if saving fails. Integration tests exercise these paths through the command parser
+and real JSON storage, including simulated I/O and permission failures.
+
 ### Appointment viewing and deletion
 
 `Appointment` is immutable and stores a linked `Person`, name, location, Singapore local start/end
@@ -182,9 +198,9 @@ are recalculated by the panel and are not stored as stable IDs. These commands d
 `appointment` supplies the creation dependency for this iteration: it validates all required fields,
 resolves a displayed client reference and checks for overlaps against the complete stored schedule.
 Intervals that meet at an endpoint do not clash. The model also rejects overlapping appointments,
-including when loading saved data. Appointment editing remains separate work.
+including when loading saved data. Location editing is implemented by `editappt` as described above.
 
-The model provides `Model#setAppointment(target, editedAppointment)` for the future `editappt`
+The model provides `Model#setAppointment(target, editedAppointment)` for the `editappt`
 command. Construct the complete immutable replacement first, resolve its client against the current
 client list, then call this operation **once**. It validates that the target and linked client exist
 and that the replacement does not clash with another appointment, excluding the target itself.
@@ -239,7 +255,7 @@ If saving throws `IOException` or `AccessDeniedException`, logic restores the ch
 reporting failure. This also recovers a redo branch truncated by a failed change, or history cleared
 by a failed confirmed deletion. Checkpoints belong to their originating model and never become
 new history entries. They restore in-memory state; this mechanism does not guarantee filesystem
-recovery after a partially completed write. Future `editappt` should use the existing logic execution
+recovery after a partially completed write. `editappt` uses this existing logic execution
 and save path rather than performing its own save or history commit.
 
 Given below is an example usage scenario and how the undo/redo mechanism behaves at each step.
