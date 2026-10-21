@@ -249,6 +249,22 @@ Examples:
 * `appointments d/15102026`
 * `appointments c/C2 d/15102026`
 
+### Editing an appointment location: `editappt`
+
+Format: `editappt A<INDEX> loc/LOCATION`
+
+* Selects the appointment from the **currently displayed appointment list**, including any client/date filter.
+* Updates only its location. Its name, client, start/end times and remarks stay unchanged.
+* Leading/trailing whitespace is removed; internal spaces and unit numbers are preserved.
+* The location must not be blank. Supply exactly one `loc/` field; other fields are not supported.
+* An invalid reference, invalid input or unchanged location leaves the data and filters unchanged.
+* A successful edit keeps both displayed filters, is saved automatically, and records one undo step.
+* Prefix-like tokens such as `n/` or `loc/` preceded by whitespace are reserved command syntax,
+  so they cannot be included as separate tokens in the location.
+
+Example: `appointments d/15102026` followed by `editappt A1 loc/NUS COM3 #02-01`
+changes the location of the first appointment in those results.
+
 ### Deleting an appointment: `deleteappt`
 
 Format: `deleteappt A<INDEX> yes` or `deleteappt A<INDEX> confirm`
@@ -287,7 +303,7 @@ Restores clients and appointments to how they were before the last undoable chan
 
 Format: `undo`
 
-* Client additions, edits and deletions, appointment creation, and `clear` can be undone. Undoing a
+* Client additions, edits and deletions, appointment creation and location edits, and `clear` can be undone. Undoing a
   client edit or deletion also restores the appointments linked to that client in the same step.
 * `list`, `search`, `appointments` and `help` do not add history entries. Undo after one of these
   commands still reverses the most recent undoable data change.
@@ -365,5 +381,6 @@ Action | Format, Examples
 
 **Add appointment** | `appointment n/NAME c/CLIENT_INDEX loc/LOCATION s/YYYYMMDD-HHMM e/YYYYMMDD-HHMM`
 **View appointments** | `appointments [c/CLIENT_INDEX] [d/DDMMYYYY]`
+**Edit appointment location** | `editappt A<INDEX> loc/LOCATION`
 **Delete appointment** | `deleteappt A<INDEX> yes` or `deleteappt A<INDEX> confirm`
 **Help** | `help`
