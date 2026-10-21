@@ -61,6 +61,14 @@ public final class Appointment {
         return remarks.getValue();
     }
 
+    public static boolean isValidName(String apptName) {
+        return AppointmentName.isValid(apptName);
+    }
+
+    public static boolean isValidLocation(String loc) {
+        return AppointmentLocation.isValid(loc);
+    }
+
     /** Returns a copy linked to the updated client. */
     public Appointment withClient(Person updatedClient) {
         return new Appointment(name.getValue(), updatedClient, location.getValue(), start.getValue(),
