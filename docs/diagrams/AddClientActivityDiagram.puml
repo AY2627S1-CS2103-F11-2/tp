@@ -1,0 +1,49 @@
+@startuml
+skin rose
+
+skinparam ActivityFontSize 15
+skinparam ArrowFontSize 12
+skinparam ArrowFontStyle plain
+
+start
+:Receive add command;
+:Tokenize arguments and validate fields\n(AddCommandParser);
+
+if () then ([invalid arguments])
+    :Throw ParseException;
+    stop
+else ([valid arguments])
+    :Create Person and AddCommand;
+endif
+
+:Capture model checkpoint\n(LogicManager);
+note right
+    Preserves data, undo/redo
+    history and active filters.
+end note
+
+if () then ([client already exists])
+    :Throw duplicate-client\nCommandException;
+    stop
+else ([new client])
+    :Add client to AddressBook\n(ModelManager.addPerson);
+    :Commit undo/redo history;
+    :Reset client filter to show all clients;
+endif
+
+:Prepare success CommandResult\n(AddCommand);
+:Save address book\n(Storage.saveAddressBook);
+
+if () then ([save throws IOException])
+    :Restore model checkpoint;
+    :Throw save-error CommandException;
+    note right
+        AccessDeniedException produces
+        the permission-specific message.
+    end note
+    stop
+else ([save succeeds])
+    :Return success CommandResult\n(LogicManager);
+    stop
+endif
+@enduml

@@ -44,14 +44,26 @@ public class LogicManager implements Logic {
 
     @Override
     public CommandResult execute(String commandText) throws CommandException, ParseException {
-        logger.info("----------------[USER COMMAND][" + commandText + "]");
-
         CommandResult commandResult;
-        Command command = addressBookParser.parseCommand(commandText);
+        Command command;
+        try {
+            command = addressBookParser.parseCommand(commandText);
+        } catch (ParseException e) {
+            logger.fine("Command rejected during parsing.");
+            throw e;
+        }
+        String commandType = command.getClass().getSimpleName();
+        logger.fine("Executing command: " + commandType);
         Model.Checkpoint checkpoint = model.createCheckpoint();
-        commandResult = command.execute(model);
+        try {
+            commandResult = command.execute(model);
+        } catch (CommandException e) {
+            logger.fine("Command rejected during execution: " + commandType);
+            throw e;
+        }
 
         if (command instanceof AppointmentsCommand) {
+            logger.info("Command completed without saving: " + commandType);
             return commandResult;
         }
 
@@ -59,12 +71,15 @@ public class LogicManager implements Logic {
             storage.saveAddressBook(model.getAddressBook());
         } catch (AccessDeniedException e) {
             model.restoreCheckpoint(checkpoint);
+            logger.warning("Command changes rolled back after access-denied save failure: " + commandType);
             throw new CommandException(String.format(FILE_OPS_PERMISSION_ERROR_FORMAT, e.getMessage()), e);
         } catch (IOException ioe) {
             model.restoreCheckpoint(checkpoint);
+            logger.warning("Command changes rolled back after save failure: " + commandType);
             throw new CommandException(String.format(FILE_OPS_ERROR_FORMAT, ioe.getMessage()), ioe);
         }
 
+        logger.info("Command changes saved successfully: " + commandType);
         return commandResult;
     }
 
