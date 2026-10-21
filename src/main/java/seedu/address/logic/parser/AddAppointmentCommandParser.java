@@ -44,7 +44,7 @@ public class AddAppointmentCommandParser implements Parser<AddAppointmentCommand
             }
         }
         String name = fields.getValue(NAME).orElseThrow();
-        if (!AppointmentName.isValid(name.trim())) {
+        if (!Appointment.isValidName(name.trim())) {
             throw new ParseException(AppointmentName.MESSAGE_CONSTRAINTS);
         }
         String location = ParserUtil.parseAppointmentLocation(fields.getValue(LOCATION).orElseThrow());
