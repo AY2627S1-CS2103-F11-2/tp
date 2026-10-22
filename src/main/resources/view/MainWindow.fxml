@@ -55,11 +55,18 @@
             <Label text="Clients" styleClass="label-bright" />
             <StackPane fx:id="personListPanelPlaceholder" VBox.vgrow="ALWAYS" />
           </VBox>
-          <StackPane fx:id="appointmentListPanelPlaceholder" styleClass="pane-with-border" minWidth="300">
-            <padding>
-              <Insets top="10" right="10" bottom="10" left="10" />
-            </padding>
-          </StackPane>
+          <SplitPane orientation="VERTICAL" dividerPositions="0.45" minWidth="300">
+            <StackPane fx:id="personDetailsPanelPlaceholder" styleClass="pane-with-border" minHeight="100">
+              <padding>
+                <Insets top="10" right="10" bottom="10" left="10" />
+              </padding>
+            </StackPane>
+            <StackPane fx:id="appointmentListPanelPlaceholder" styleClass="pane-with-border" minHeight="100">
+              <padding>
+                <Insets top="10" right="10" bottom="10" left="10" />
+              </padding>
+            </StackPane>
+          </SplitPane>
         </SplitPane>
 
         <StackPane fx:id="statusbarPlaceholder" VBox.vgrow="NEVER" />

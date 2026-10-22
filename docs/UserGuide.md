@@ -75,7 +75,7 @@ Format: `help`
 
 ### Adding a client: `add`
 
-Adds a client to PropTrack.
+Adds a client to PropTrack and assigns a permanent client ID such as `C1`.
 
 Format: `add n/NAME p/PHONE_NUMBER a/ADDRESS y/TYPE [e/EMAIL] [t/TAG]…​`
 
@@ -89,9 +89,24 @@ Format: `add n/NAME p/PHONE_NUMBER a/ADDRESS y/TYPE [e/EMAIL] [t/TAG]…​`
   `Name must contain 1-100 characters and at least one letter or digit.` No client is added.
 * `TYPE` must be `buyer`, `seller`, `landlord` or `tenant`, in lowercase.
 * Email is optional. Omit the entire `e/EMAIL` field if the client's email is unknown.
-  The client card and command feedback show `Not provided`, and the email remains absent after saving and reopening the app.
+  The client card and details panel show `Not provided`, and the email remains absent after saving and reopening the app.
 * If `e/` is supplied when adding a client, it must contain a valid email address. A bare `e/`,
   whitespace-only email or malformed address is rejected. Repeating `e/` is also rejected.
+* On success, the result identifies the new client and its current command position, for example
+  `Added client C8: Alex Tan. Current position: C1 (for delete/appointment commands).`
+  The full client list is shown, sorted alphabetically by name without regard to letter case, then by numeric
+  client ID when names compare equally. The new client is selected automatically and their details appear in the details panel.
+* If the name already belongs to a client, no client is added. The result identifies the existing record,
+  for example `Name already belongs to client C1 (Alex Tan). No client was added.`
+* A client's ID is saved with the record and remains unchanged when the list is sorted or filtered,
+  when other clients are deleted, when the client is edited, and after reopening the app.
+  Each card labels these separately, for example `Position C1 · Client ID C8`.
+  The position may change as the displayed list changes; the **Client ID** identifies the saved record
+  and is also shown in the details panel. It is separate from the positional
+  references accepted by `delete`, `appointment` and `appointments`: those commands still use `C` followed
+  by the current row number. For example, a client with permanent ID `C8` in row `1` is addressed as `C1`
+  by those commands, or as `1` by `edit`. The success message reports the position immediately after
+  the addition; check the current card position again after later sorting, filtering or other list changes.
 
 <div markdown="span" class="alert alert-primary">:bulb: **Tip:**
 A client can have any number of tags, including zero.
@@ -105,7 +120,8 @@ Examples:
 
 ### Listing all clients: `list`
 
-Shows every client in PropTrack, renumbered from `C1`, and clears any active filter.
+Shows every client in PropTrack and clears any active filter. Clients are sorted alphabetically by name,
+ignoring letter case, then by numeric client ID. Position references start from `C1`; permanent Client IDs do not change.
 
 Format: `list`
 
@@ -118,7 +134,10 @@ Edits an existing client in PropTrack.
 
 Format: `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [y/TYPE] [t/TAG]…​`
 
-* Edits the client at the specified `INDEX`. The index refers to the index number shown in the displayed client list. The index **must be a positive integer** 1, 2, 3, …​
+* Edits the client at the specified `INDEX`. Use the numeric part of the card's `Position` label,
+  **not** its permanent Client ID. For example, `Position C1` means index `1`. The index **must be a positive integer** 1, 2, 3, …​
+  For example, `edit 1 n/Alice` edits the first visible row even if the Client ID in their details is `C8`.
+  Editing retains the client's stable ID; changing the name may move the card in the alphabetically sorted list.
 * At least one of the optional fields must be provided.
 * Existing values will be updated to the input values.
 * Edited names follow the same validation and space normalization rules as [adding a client](#adding-a-client-add).
@@ -164,19 +183,21 @@ Deletes the specified client from PropTrack.
 
 Format: `delete CLIENT_ID`
 
-* `CLIENT_ID` is uppercase `C` followed directly by a positive integer, e.g. `C1`, `C4`, or `C12`.
+* For this command, `CLIENT_ID` is a **positional reference**: uppercase `C` followed directly by a positive
+  row number, e.g. `C1`, `C4`, or `C12`. It is separate from the permanent Client ID in the details panel.
 * The number refers to the client's position in the **currently displayed list**, including search results.
-  It is not a permanent unique ID. Client cards display these references as `C1`, `C2`, etc.
-* The selected card disappears and subsequent clients are renumbered. Repeating `delete C1` deletes the
-  new first client, or reports an error if the list is empty.
+  Use the current row number, rather than the permanent ID reported by `add`.
+* The selected card disappears and subsequent row positions are renumbered. Repeating `delete C1` deletes
+  the new first client, or reports an error if the list is empty. The remaining clients' permanent IDs do not change.
 * Missing arguments, invalid references (`C0`, `C-2`, `C3.5`, `Cabc`), and extra arguments are rejected.
   A reference beyond the displayed list size also reports an error without deleting a client.
 * Successful deletion displays `Deleted Client: ` followed by the client's current details.
-* Other commands such as `edit` still use the numeric position without `C` (e.g. `edit 1 n/Alice`).
+* Other commands such as `edit` use the numeric position without `C` (e.g. `edit 1 n/Alice`).
 
 Examples:
-* `list` followed by `delete C2` deletes the 2nd client in the address book.
-* `search n/Betsy` followed by `delete C1` deletes the 1st client in the search results.
+* `list` followed by `delete C2` deletes the 2nd client in the displayed list.
+* `search n/Betsy` followed by `delete C1` deletes the 1st client in the search results,
+  even if their permanent Client ID is `C8`.
 
 ### Adding an appointment: `appointment`
 
@@ -185,7 +206,8 @@ Creates an appointment for a client in the currently displayed client list.
 Format: `appointment n/NAME c/CLIENT_INDEX loc/LOCATION s/YYYYMMDD-HHMM e/YYYYMMDD-HHMM`
 
 * Every field is required and may appear only once. Fields may be supplied in any order.
-* `CLIENT_INDEX` is a displayed client reference such as `C1`; it is not a permanent ID.
+* `CLIENT_INDEX` is a positional reference such as `C1` for the first client in the currently displayed list.
+  Use `C` followed by the current row number, not the permanent Client ID shown in the details panel.
 * The name contains letters and spaces, with 1-80 characters. The location cannot be blank;
   punctuation such as `#` and `-` is accepted, for example `NUS COM3 #02-01`.
   Leading and trailing whitespace is removed, while internal spacing is preserved.
@@ -206,6 +228,7 @@ Format: `appointments [c/CLIENT_INDEX] [d/DDMMYYYY]`
 
 * With no fields, displays all stored appointments. Each command replaces the previous appointment filter.
 * `c/C1` selects the first client in the **currently displayed client list**, including search results.
+  This positional reference is separate from the permanent Client ID in the details panel.
   Viewing appointments does not change that client list.
 * `d/15102026` selects appointments whose **start date** is 15 October 2026 in Singapore local time.
   Past, present and future dates are accepted. For an appointment that crosses midnight, use its start date.
@@ -226,21 +249,46 @@ Examples:
 * `appointments d/15102026`
 * `appointments c/C2 d/15102026`
 
-### Editing an appointment location: `editappt`
+### Editing an appointment: `editappt`
 
-Format: `editappt A<INDEX> loc/LOCATION`
+Format: `editappt APPOINTMENT_INDEX [n/APPOINTMENT_NAME] [c/CLIENT_INDEX] [d/DATETIME] [loc/LOCATION] [desc/DESCRIPTION]`
 
-* Selects the appointment from the **currently displayed appointment list**, including any client/date filter.
-* Updates only its location. Its name, client, start/end times and remarks stay unchanged.
-* Leading/trailing whitespace is removed; internal spaces and unit numbers are preserved.
-* The location must not be blank. Supply exactly one `loc/` field; other fields are not supported.
-* An invalid reference, invalid input or unchanged location leaves the data and filters unchanged.
-* A successful edit keeps both displayed filters, is saved automatically, and records one undo step.
-* Prefix-like tokens such as `n/` or `loc/` preceded by whitespace are reserved command syntax,
-  so they cannot be included as separate tokens in the location.
+* `APPOINTMENT_INDEX` is a positive numeric position in the **currently displayed appointment list**,
+  including any client/date filter. Use `1` for the card numbered `A1`, rather than typing `A1`.
+* Supply at least one of the five editable fields. Each field may appear only once, even with identical
+  repeated values. Fields may appear in any order. Omitted fields retain their existing values.
 
-Example: `appointments d/15102026` followed by `editappt A1 loc/NUS COM3 #02-01`
-changes the location of the first appointment in those results.
+| Field | Meaning and accepted values |
+| --- | --- |
+| `n/APPOINTMENT_NAME` | Replacement name: 1-50 ASCII letters, digits or spaces, with at least one non-space character. |
+| `c/CLIENT_INDEX` | Positive numeric position in the currently displayed **client** list, e.g. `c/2`. This is not a permanent Client ID and does not include `C`. |
+| `d/DATETIME` | New start time in strict `yyyy-MM-dd HH:mm` format, e.g. `d/2026-10-18 15:30`. It must be a real calendar time in 24-hour Singapore local time, with year 0001-9999. |
+| `loc/LOCATION` | Non-blank location, at most 100 characters. Unit numbers and punctuation are accepted. |
+| `desc/DESCRIPTION` | Replacement remarks. Supply a bare `desc/` to clear the existing notes. |
+
+* Leading/trailing whitespace is removed from supplied names and locations; internal spacing is retained.
+* Changing `d/` moves the whole appointment while **preserving its original duration**, including appointments
+  longer or shorter than an hour. Both the shifted start and end must remain within years 0001-9999.
+* A time clash with **any stored appointment**, including one hidden by filters, rejects the whole edit.
+  Adjacent appointments are allowed. Invalid fields, references, repeated fields and unknown prefixes also
+  reject the whole edit; data, filters and undo/redo history stay unchanged.
+* An edit that changes data is saved automatically and records one undo step for all supplied fields together.
+  Both active filters remain in place. Changing the client or date can make the edited appointment leave the
+  current results; use `appointments` to view the full updated schedule. References are recalculated in time order.
+* Success shows `Edited Appointment: [Index 1] Title: ...; Client: ...; Date & Time: ...; Location: ...; Description: ...`.
+  The index in this feedback is the position selected before editing.
+* If every supplied value is unchanged, the command succeeds with
+  `No changes made to appointment 1: supplied values are unchanged.` The command box clears, but no data is
+  written, no history entry is created, and the current lists, filters and redo history stay unchanged.
+* Field-like tokens such as `n/` or `loc/` preceded by whitespace are reserved command syntax and cannot be
+  included literally as separate tokens in a name, location or description. Ordinary URLs are accepted in notes.
+
+Examples:
+
+* `editappt 1 d/2026-10-18 15:30` moves the first displayed appointment, keeping its duration.
+* `editappt 2 loc/Marina Bay Sands Lobby desc/Rescheduled viewing, bring tenancy agreement`
+* `editappt 3 n/Follow up 2 c/2 d/2026-11-01 10:00 loc/Starbucks Clementi Mall`
+* `editappt 1 desc/` clears only the first displayed appointment's notes.
 
 ### Deleting an appointment: `deleteappt`
 
@@ -299,7 +347,7 @@ Restores clients and appointments to how they were before the last undoable chan
 
 Format: `undo`
 
-* Client additions, edits and deletions, appointment creation and location edits, and `clear` can be undone. Undoing a
+* Client additions, edits and deletions, appointment creation and edits, and `clear` can be undone. Undoing a
   client edit or deletion also restores the appointments linked to that client in the same step.
 * `list`, `search`, `appointments` and `help` do not add history entries. Undo after one of these
   commands still reverses the most recent undoable data change.
@@ -330,6 +378,8 @@ Format: `exit`
 
 PropTrack automatically saves clients and appointments after changes. You do not need to save manually.
 Existing client-only data files remain readable and start with an empty appointment list.
+Clients in older files that have no client IDs receive IDs automatically when loaded. These IDs and the
+next ID to allocate are saved with the data; you do not need to assign or renumber IDs yourself.
 
 ### Editing the data file
 
@@ -339,8 +389,9 @@ PropTrack data is saved automatically as a JSON file `[JAR file location]/data/a
 If the file contains invalid client or appointment data, PropTrack rejects the whole file and starts empty.
 It attempts to preserve the unreadable file under a name ending in `.corrupt-TIMESTAMP`; the log records
 the preserved path or any failure to rename it. Back up the data file before editing it.<br>
-Appointment `clientIndex` fields refer to positions in the saved client array. Reordering that array by hand
-without updating those references can associate appointments with the wrong clients.
+Client `clientId` fields store stable numeric IDs; do not duplicate IDs or decrease the `nextClientId` counter.<br>
+Appointment `clientIndex` fields refer to positions in the saved client array, rather than stable client IDs.
+Reordering that array by hand without updating those references can associate appointments with the wrong clients.
 </div>
 
  --------------------------------------------------------------------------------------------------------------------
@@ -375,6 +426,6 @@ Action | Format, Examples
 
 **Add appointment** | `appointment n/NAME c/CLIENT_INDEX loc/LOCATION s/YYYYMMDD-HHMM e/YYYYMMDD-HHMM`
 **View appointments** | `appointments [c/CLIENT_INDEX] [d/DDMMYYYY]`
-**Edit appointment location** | `editappt A<INDEX> loc/LOCATION`
+**Edit appointment** | `editappt APPOINTMENT_INDEX [n/APPOINTMENT_NAME] [c/CLIENT_INDEX] [d/DATETIME] [loc/LOCATION] [desc/DESCRIPTION]`
 **Delete appointment** | `deleteappt A<INDEX> yes` or `deleteappt A<INDEX> confirm`
 **Help** | `help`

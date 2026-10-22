@@ -21,8 +21,17 @@ public class VersionedAddressBook extends AddressBook {
      */
     public VersionedAddressBook(ReadOnlyAddressBook initialState) {
         super(initialState);
-        addressBookStateList.add(new AddressBook(initialState));
+        addressBookStateList.add(new AddressBook(this));
         currentStatePointer = 0;
+    }
+
+    /** Restores data while keeping previously allocated IDs unavailable to future clients. */
+    @Override
+    public void resetData(ReadOnlyAddressBook newData) {
+        requireNonNull(newData);
+        long highWaterMark = Math.max(getNextClientId(), newData.getNextClientId());
+        super.resetData(newData);
+        setNextClientId(Math.max(highWaterMark, getNextClientId()));
     }
 
     /**
@@ -31,7 +40,12 @@ public class VersionedAddressBook extends AddressBook {
      * do not change data out of the history.
      */
     public void commit() {
-        if (addressBookStateList.get(currentStatePointer).equals(this)) {
+        AddressBook historyState = new AddressBook(addressBookStateList.get(currentStatePointer));
+        AddressBook currentState = new AddressBook(this);
+        long highWaterMark = Math.max(historyState.getNextClientId(), getNextClientId());
+        historyState.setNextClientId(highWaterMark);
+        currentState.setNextClientId(highWaterMark);
+        if (historyState.equals(currentState)) {
             return;
         }
         addressBookStateList.subList(currentStatePointer + 1, addressBookStateList.size()).clear();
@@ -58,7 +72,7 @@ public class VersionedAddressBook extends AddressBook {
     /** Restores a captured state without recording a new history entry. */
     void restoreState(State state) {
         requireNonNull(state);
-        resetData(state.data);
+        super.resetData(state.data);
         addressBookStateList.clear();
         addressBookStateList.addAll(state.history);
         currentStatePointer = state.pointer;
