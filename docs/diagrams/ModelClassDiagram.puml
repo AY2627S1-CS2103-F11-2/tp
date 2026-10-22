@@ -9,46 +9,70 @@ Class "<<interface>>\nReadOnlyAddressBook" as ReadOnlyAddressBook
 Class "<<interface>>\nReadOnlyUserPrefs" as ReadOnlyUserPrefs
 Class "<<interface>>\nModel" as Model
 Class AddressBook
+Class VersionedAddressBook
 Class ModelManager
 Class UserPrefs
 
 Class UniquePersonList
 Class Person
+Class ClientId
 Class Address
 Class Email
 Class Name
 Class Phone
+Class Type
 Class Tag
 
-Class I #FFFFFF
+Class Appointment
+Class AppointmentName
+Class AppointmentLocation
+Class AppointmentDateTime
+Class AppointmentRemarks
+
 }
 
 Class HiddenOutside #FFFFFF
 HiddenOutside ..> Model
 
 AddressBook .up.|> ReadOnlyAddressBook
+VersionedAddressBook -up-|> AddressBook
+VersionedAddressBook --> "1..* history" ReadOnlyAddressBook
 
 ModelManager .up.|> Model
 Model .right.> ReadOnlyUserPrefs
 Model .left.> ReadOnlyAddressBook
-ModelManager -left-> "1" AddressBook
+ModelManager -left-> "1" VersionedAddressBook
 ModelManager -right-> "1" UserPrefs
 UserPrefs .up.|> ReadOnlyUserPrefs
 
 AddressBook *--> "1" UniquePersonList
 UniquePersonList --> "~* all" Person
+AddressBook *--> "~* all" Appointment
+
+Person *--> ClientId
 Person *--> Name
 Person *--> Phone
 Person *--> Email
 Person *--> Address
+Person *--> Type
 Person *--> "*" Tag
 
-Person -[hidden]up--> I
-UniquePersonList -[hidden]right-> I
+Appointment "*" -right-> "1" Person : client >
+Appointment *--> AppointmentName
+Appointment *--> AppointmentLocation
+Appointment *--> "2 start/end" AppointmentDateTime
+Appointment *--> AppointmentRemarks
 
+ClientId -[hidden]right-> Name
 Name -[hidden]right-> Phone
 Phone -[hidden]right-> Address
 Address -[hidden]right-> Email
+Email -[hidden]right-> Type
+
+AppointmentName -[hidden]right-> AppointmentLocation
+AppointmentLocation -[hidden]right-> AppointmentDateTime
+AppointmentDateTime -[hidden]right-> AppointmentRemarks
 
 ModelManager --> "~* filtered" Person
+ModelManager --> "~* filtered, sorted" Appointment
 @enduml
