@@ -47,7 +47,7 @@ public class BackupCommandTest {
         }
         assertEquals(1, written.size());
         String name = written.get(0).getFileName().toString();
-        assertTrue(name.matches("clients-\\d{4}-\\d{2}-\\d{2}-\\d{6}\\.json"), name);
+        assertTrue(name.matches("clients-\\d{4}-\\d{2}-\\d{2}-\\d{4}\\.json"), name);
 
         ReadOnlyAddressBook loaded = new JsonAddressBookStorage(written.get(0)).readAddressBook().orElseThrow();
         assertEquals(model.getAddressBook().getPersonList(), loaded.getPersonList());

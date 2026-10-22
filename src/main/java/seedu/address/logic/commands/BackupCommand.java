@@ -31,7 +31,7 @@ public class BackupCommand extends Command {
     public static final Path DEFAULT_BACKUP_DIR = Paths.get("data", "backup");
 
     private static final DateTimeFormatter STAMP =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd-HHmmss", Locale.ENGLISH);
+            DateTimeFormatter.ofPattern("yyyy-MM-dd-HHmm", Locale.ENGLISH);
 
     private final Optional<String> fileName;
     private final Path backupDir;

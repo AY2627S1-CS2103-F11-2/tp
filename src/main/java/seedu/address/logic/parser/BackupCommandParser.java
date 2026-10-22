@@ -15,8 +15,7 @@ public class BackupCommandParser implements Parser<BackupCommand> {
     public static final String MESSAGE_FORMAT =
             "Invalid command format. Use: " + BackupCommand.MESSAGE_USAGE;
     public static final String MESSAGE_INVALID_FILE =
-            "The backup file must be a name ending in .json with no folders, "
-                    + "for example f/before-clearing.json.";
+            "Backup file should be a .json file name, for example f/before-july.json.";
 
     private static final Prefix FILE = new Prefix("f/");
     private static final Pattern FIELD_PREFIX = Pattern.compile("(?<!\\S)([A-Za-z]+/)");

@@ -281,8 +281,8 @@ recovered later.
 
 Format: `backup [f/FILE]`
 
-* With no `f/FILE`, the copy is named `clients-<date>-<time>.json`, for example
-  `data/backup/clients-2026-10-21-143005.json`.
+* With no `f/FILE`, the copy is named `clients-<yyyy-MM-dd-HHmm>.json`, for example
+  `data/backup/clients-2026-10-21-1430.json`.
 * With `f/FILE`, that name is used instead. It must end in `.json` and contain no folder part.
 * Copies are written into the `backup` folder beside your data file, which is `data/backup` by default.
 * An existing file is never overwritten. Use another name, or let the timestamped name be used.
