@@ -34,7 +34,7 @@ public class AppointmentTest {
             assertThrows(IllegalArgumentException.class, () -> new Appointment("Viewing", ALICE, location,
                     VIEWING.getStart(), VIEWING.getEnd(), ""));
         }
-        assertTrue(Appointment.isValidName("a".repeat(80)));
+        assertTrue(AppointmentName.isValid("a".repeat(80)));
         assertThrows(NullPointerException.class, () -> VIEWING.withClient(null));
     }
 
