@@ -9,7 +9,13 @@ title: Developer Guide
 
 ## **Acknowledgements**
 
-* _{List the sources of reused or adapted ideas, code, documentation, and third-party libraries here, with links to the originals.}_
+* PropTrack is built on [AddressBook Level 3 (AB3)](https://se-education.org/addressbook-level3/), the
+  sample project from the SE-EDU initiative, and reuses its architecture, build configuration and parts of
+  its code and documentation under that project's licence.
+* The libraries used are [JavaFX](https://openjfx.io/) for the interface, [Jackson](https://github.com/FasterXML/jackson)
+  for reading and writing the data file, [JUnit 5](https://junit.org/junit5/) for the tests,
+  [Gradle](https://gradle.org/) with the [Shadow plugin](https://github.com/GradleUp/shadow) for the build and the
+  fat JAR, and [Checkstyle](https://checkstyle.sourceforge.io/) for the coding standard checks.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -334,6 +340,24 @@ The following activity diagram summarizes what happens when a user executes a ne
   * Cons: We must ensure that the implementation of each individual command is correct.
 
 _{more aspects and alternatives to be added}_
+
+### Client addition flow
+
+The activity diagram below shows the `add` command's validation, model changes and persistence.
+
+<img src="images/AddClientActivityDiagram.png" alt="Activity diagram for adding a client, including validation, duplicate rejection and rollback after a failed save" width="650"/>
+
+`AddCommandParser` validates the required fields, rejects repeated single-value prefixes and
+validates an email only when it is supplied. Invalid input stops before a model checkpoint is
+created. After parsing, `LogicManager` captures the model's data, undo/redo history and filters.
+`AddCommand` then checks for a duplicate client before making any changes.
+
+For a new client, `ModelManager.addPerson` updates the address book, commits an undoable state and
+resets the client filter to show all clients. The command prepares a success `CommandResult`, but
+`LogicManager` returns it only after `Storage.saveAddressBook` succeeds. If saving throws an
+`IOException` (including `AccessDeniedException`), the model checkpoint is restored and a
+`CommandException` is thrown instead. This restores the previous data, history and filters so a
+failed save does not leave an added client in memory.
 
 ### \[Proposed\] Data archiving
 

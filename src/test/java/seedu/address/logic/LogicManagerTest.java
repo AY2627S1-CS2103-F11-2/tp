@@ -13,11 +13,18 @@ import static seedu.address.testutil.Assert.assertThrows;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import seedu.address.commons.core.LogsCenter;
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.commands.CommandResult;
 import seedu.address.logic.commands.ListCommand;
@@ -34,6 +41,8 @@ import seedu.address.storage.StorageManager;
 public class LogicManagerTest {
     private static final IOException DUMMY_IO_EXCEPTION = new IOException("dummy IO exception");
     private static final IOException DUMMY_AD_EXCEPTION = new AccessDeniedException("dummy access denied exception");
+    private static final String ADD_AMY_COMMAND = AddCommand.COMMAND_WORD + NAME_DESC_AMY + PHONE_DESC_AMY
+            + EMAIL_DESC_AMY + ADDRESS_DESC_AMY + TYPE_DESC_AMY;
 
     @TempDir
     public Path temporaryFolder;
@@ -80,6 +89,81 @@ public class LogicManagerTest {
     public void execute_storageThrowsAdException_throwsCommandException() {
         assertCommandFailureForExceptionFromStorage(DUMMY_AD_EXCEPTION, String.format(
                 LogicManager.FILE_OPS_PERMISSION_ERROR_FORMAT, temporaryFolder.resolve("ExceptionUserPrefs.json")));
+    }
+
+    @Test
+    public void execute_addCommand_logsSavedSuccessWithoutClientDetails() throws Exception {
+        try (CapturingLogHandler logs = new CapturingLogHandler()) {
+            logic.execute(ADD_AMY_COMMAND);
+
+            assertEquals(List.of("Executing command: AddCommand",
+                    "Command changes saved successfully: AddCommand"), logs.getMessages());
+            assertEquals(List.of(Level.FINE, Level.INFO), logs.getLevels());
+        }
+    }
+
+    @Test
+    public void execute_storageThrowsIoException_logsRollbackWithoutSavedSuccess() {
+        logic = createLogicWithFailingStorage(DUMMY_IO_EXCEPTION);
+
+        try (CapturingLogHandler logs = new CapturingLogHandler()) {
+            assertCommandFailure(ADD_AMY_COMMAND, CommandException.class,
+                    String.format(LogicManager.FILE_OPS_ERROR_FORMAT, DUMMY_IO_EXCEPTION.getMessage()),
+                    new ModelManager());
+
+            assertEquals(List.of("Executing command: AddCommand",
+                    "Command changes rolled back after save failure: AddCommand"), logs.getMessages());
+            assertEquals(List.of(Level.FINE, Level.WARNING), logs.getLevels());
+        }
+    }
+
+    @Test
+    public void execute_storageThrowsAdException_logsRollbackWithoutSavedSuccess() {
+        logic = createLogicWithFailingStorage(DUMMY_AD_EXCEPTION);
+
+        try (CapturingLogHandler logs = new CapturingLogHandler()) {
+            assertCommandFailure(ADD_AMY_COMMAND, CommandException.class,
+                    String.format(LogicManager.FILE_OPS_PERMISSION_ERROR_FORMAT, DUMMY_AD_EXCEPTION.getMessage()),
+                    new ModelManager());
+
+            assertEquals(List.of("Executing command: AddCommand",
+                    "Command changes rolled back after access-denied save failure: AddCommand"), logs.getMessages());
+            assertEquals(List.of(Level.FINE, Level.WARNING), logs.getLevels());
+        }
+    }
+
+    @Test
+    public void execute_appointmentsCommand_logsCompletionWithoutSaving() throws Exception {
+        logic = createLogicWithFailingStorage(DUMMY_IO_EXCEPTION);
+
+        try (CapturingLogHandler logs = new CapturingLogHandler()) {
+            logic.execute("appointments");
+
+            assertEquals(List.of("Executing command: AppointmentsCommand",
+                    "Command completed without saving: AppointmentsCommand"), logs.getMessages());
+        }
+    }
+
+    @Test
+    public void execute_invalidAddCommand_logsParsingRejectionWithoutClientDetails() {
+        try (CapturingLogHandler logs = new CapturingLogHandler()) {
+            assertThrows(ParseException.class, () -> logic.execute(AddCommand.COMMAND_WORD + NAME_DESC_AMY));
+
+            assertEquals(List.of("Command rejected during parsing."), logs.getMessages());
+        }
+    }
+
+    @Test
+    public void execute_duplicateAddCommand_logsExecutionRejectionWithoutClientDetails() throws Exception {
+        logic.execute(ADD_AMY_COMMAND);
+
+        try (CapturingLogHandler logs = new CapturingLogHandler()) {
+            assertThrows(CommandException.class, () -> logic.execute(ADD_AMY_COMMAND));
+
+            assertEquals(List.of("Executing command: AddCommand",
+                    "Command rejected during execution: AddCommand"), logs.getMessages());
+            assertEquals(1, model.getAddressBook().getPersonList().size());
+        }
     }
 
     @Test
@@ -147,6 +231,14 @@ public class LogicManagerTest {
      * @param expectedMessage the message expected inside exception thrown by the Logic component
      */
     private void assertCommandFailureForExceptionFromStorage(IOException e, String expectedMessage) {
+        logic = createLogicWithFailingStorage(e);
+
+        // Triggers the saveAddressBook method by executing an add command.
+        assertCommandFailure(ADD_AMY_COMMAND, CommandException.class, expectedMessage, new ModelManager());
+    }
+
+    /** Creates a logic manager whose storage always throws the given exception when saving. */
+    private Logic createLogicWithFailingStorage(IOException e) {
         Path prefPath = temporaryFolder.resolve("ExceptionUserPrefs.json");
 
         // Inject LogicManager with a JsonAddressBookStorage that throws the IOException e when saving
@@ -161,12 +253,40 @@ public class LogicManagerTest {
                 new JsonUserPrefsStorage(temporaryFolder.resolve("ExceptionUserPrefs.json"));
         StorageManager storage = new StorageManager(addressBookStorage, userPrefsStorage);
 
-        logic = new LogicManager(model, storage);
+        return new LogicManager(model, storage);
+    }
 
-        // Triggers the saveAddressBook method by executing an add command
-        String addCommand = AddCommand.COMMAND_WORD + NAME_DESC_AMY + PHONE_DESC_AMY
-                + EMAIL_DESC_AMY + ADDRESS_DESC_AMY + TYPE_DESC_AMY;
-        ModelManager expectedModel = new ModelManager();
-        assertCommandFailure(addCommand, CommandException.class, expectedMessage, expectedModel);
+    /** Captures this component's records without changing logging for other components or tests. */
+    private static class CapturingLogHandler extends Handler implements AutoCloseable {
+        private final Logger logger = LogsCenter.getLogger(LogicManager.class);
+        private final Level previousLevel = logger.getLevel();
+        private final List<LogRecord> records = new ArrayList<>();
+
+        CapturingLogHandler() {
+            logger.setLevel(Level.ALL);
+            logger.addHandler(this);
+        }
+
+        List<String> getMessages() {
+            return records.stream().map(LogRecord::getMessage).toList();
+        }
+
+        List<Level> getLevels() {
+            return records.stream().map(LogRecord::getLevel).toList();
+        }
+
+        @Override
+        public void publish(LogRecord record) {
+            records.add(record);
+        }
+
+        @Override
+        public void flush() {}
+
+        @Override
+        public void close() {
+            logger.removeHandler(this);
+            logger.setLevel(previousLevel);
+        }
     }
 }

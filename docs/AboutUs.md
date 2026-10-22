@@ -5,7 +5,7 @@ title: About Us
 
 We are a team based in the [School of Computing, National University of Singapore](https://www.comp.nus.edu.sg).
 
-You can reach us at the email `seer[at]comp.nus.edu.sg`
+You can reach us through our GitHub profiles below, or through the issue tracker of [our repository](https://github.com/AY2627S1-CS2103-F11-2/tp).
 
 ## Project team
 
