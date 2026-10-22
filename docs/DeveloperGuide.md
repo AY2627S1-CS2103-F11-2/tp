@@ -292,6 +292,11 @@ before the model is touched, and then replaces the whole book with `Model#setAdd
 single snapshot. A missing file or an unreadable one throws a `CommandException` before any mutation, so a
 rejected restore leaves the data, both filters and the redo branch untouched.
 
+The sequence diagram below shows the check-before-act flow, including the branch where the file is
+rejected before anything is changed.
+
+![Interactions for the `restore` command](images/RestoreSequenceDiagram.png)
+
 Before executing a parsed command, `LogicManager` captures an opaque `Model.Checkpoint`. It contains
 current data, the complete history (including future redo entries), its pointer, and both filters.
 If saving throws `IOException` or `AccessDeniedException`, logic restores the checkpoint before
