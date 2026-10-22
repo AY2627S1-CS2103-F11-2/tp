@@ -249,21 +249,46 @@ Examples:
 * `appointments d/15102026`
 * `appointments c/C2 d/15102026`
 
-### Editing an appointment location: `editappt`
+### Editing an appointment: `editappt`
 
-Format: `editappt A<INDEX> loc/LOCATION`
+Format: `editappt APPOINTMENT_INDEX [n/APPOINTMENT_NAME] [c/CLIENT_INDEX] [d/DATETIME] [loc/LOCATION] [desc/DESCRIPTION]`
 
-* Selects the appointment from the **currently displayed appointment list**, including any client/date filter.
-* Updates only its location. Its name, client, start/end times and remarks stay unchanged.
-* Leading/trailing whitespace is removed; internal spaces and unit numbers are preserved.
-* The location must not be blank. Supply exactly one `loc/` field; other fields are not supported.
-* An invalid reference, invalid input or unchanged location leaves the data and filters unchanged.
-* A successful edit keeps both displayed filters, is saved automatically, and records one undo step.
-* Prefix-like tokens such as `n/` or `loc/` preceded by whitespace are reserved command syntax,
-  so they cannot be included as separate tokens in the location.
+* `APPOINTMENT_INDEX` is a positive numeric position in the **currently displayed appointment list**,
+  including any client/date filter. Use `1` for the card numbered `A1`, rather than typing `A1`.
+* Supply at least one of the five editable fields. Each field may appear only once, even with identical
+  repeated values. Fields may appear in any order. Omitted fields retain their existing values.
 
-Example: `appointments d/15102026` followed by `editappt A1 loc/NUS COM3 #02-01`
-changes the location of the first appointment in those results.
+| Field | Meaning and accepted values |
+| --- | --- |
+| `n/APPOINTMENT_NAME` | Replacement name: 1-50 ASCII letters, digits or spaces, with at least one non-space character. |
+| `c/CLIENT_INDEX` | Positive numeric position in the currently displayed **client** list, e.g. `c/2`. This is not a permanent Client ID and does not include `C`. |
+| `d/DATETIME` | New start time in strict `yyyy-MM-dd HH:mm` format, e.g. `d/2026-10-18 15:30`. It must be a real calendar time in 24-hour Singapore local time, with year 0001-9999. |
+| `loc/LOCATION` | Non-blank location, at most 100 characters. Unit numbers and punctuation are accepted. |
+| `desc/DESCRIPTION` | Replacement remarks. Supply a bare `desc/` to clear the existing notes. |
+
+* Leading/trailing whitespace is removed from supplied names and locations; internal spacing is retained.
+* Changing `d/` moves the whole appointment while **preserving its original duration**, including appointments
+  longer or shorter than an hour. Both the shifted start and end must remain within years 0001-9999.
+* A time clash with **any stored appointment**, including one hidden by filters, rejects the whole edit.
+  Adjacent appointments are allowed. Invalid fields, references, repeated fields and unknown prefixes also
+  reject the whole edit; data, filters and undo/redo history stay unchanged.
+* An edit that changes data is saved automatically and records one undo step for all supplied fields together.
+  Both active filters remain in place. Changing the client or date can make the edited appointment leave the
+  current results; use `appointments` to view the full updated schedule. References are recalculated in time order.
+* Success shows `Edited Appointment: [Index 1] Title: ...; Client: ...; Date & Time: ...; Location: ...; Description: ...`.
+  The index in this feedback is the position selected before editing.
+* If every supplied value is unchanged, the command succeeds with
+  `No changes made to appointment 1: supplied values are unchanged.` The command box clears, but no data is
+  written, no history entry is created, and the current lists, filters and redo history stay unchanged.
+* Field-like tokens such as `n/` or `loc/` preceded by whitespace are reserved command syntax and cannot be
+  included literally as separate tokens in a name, location or description. Ordinary URLs are accepted in notes.
+
+Examples:
+
+* `editappt 1 d/2026-10-18 15:30` moves the first displayed appointment, keeping its duration.
+* `editappt 2 loc/Marina Bay Sands Lobby desc/Rescheduled viewing, bring tenancy agreement`
+* `editappt 3 n/Follow up 2 c/2 d/2026-11-01 10:00 loc/Starbucks Clementi Mall`
+* `editappt 1 desc/` clears only the first displayed appointment's notes.
 
 ### Deleting an appointment: `deleteappt`
 
@@ -322,7 +347,7 @@ Restores clients and appointments to how they were before the last undoable chan
 
 Format: `undo`
 
-* Client additions, edits and deletions, appointment creation and location edits, and `clear` can be undone. Undoing a
+* Client additions, edits and deletions, appointment creation and edits, and `clear` can be undone. Undoing a
   client edit or deletion also restores the appointments linked to that client in the same step.
 * `list`, `search`, `appointments` and `help` do not add history entries. Undo after one of these
   commands still reverses the most recent undoable data change.
@@ -401,6 +426,6 @@ Action | Format, Examples
 
 **Add appointment** | `appointment n/NAME c/CLIENT_INDEX loc/LOCATION s/YYYYMMDD-HHMM e/YYYYMMDD-HHMM`
 **View appointments** | `appointments [c/CLIENT_INDEX] [d/DDMMYYYY]`
-**Edit appointment location** | `editappt A<INDEX> loc/LOCATION`
+**Edit appointment** | `editappt APPOINTMENT_INDEX [n/APPOINTMENT_NAME] [c/CLIENT_INDEX] [d/DATETIME] [loc/LOCATION] [desc/DESCRIPTION]`
 **Delete appointment** | `deleteappt A<INDEX> yes` or `deleteappt A<INDEX> confirm`
 **Help** | `help`

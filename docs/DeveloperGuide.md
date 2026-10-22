@@ -57,7 +57,7 @@ The bulk of the app's work is done by the following four components:
 
 **How the architecture components interact with each other**
 
-The *Sequence Diagram* below shows how the components interact with each other for the scenario where the user issues the command `delete 1`.
+The *Sequence Diagram* below shows how the components interact with each other for the scenario where the user issues the command `delete C1`.
 
 <img src="images/ArchitectureSequenceDiagram.png" width="574" />
 
@@ -97,9 +97,9 @@ Here's a (partial) class diagram of the `Logic` component:
 
 <img src="images/LogicClassDiagram.png" width="550"/>
 
-The sequence diagram below illustrates the interactions within the `Logic` component, taking `execute("delete 1")` API call as an example.
+The sequence diagram below illustrates the interactions within the `Logic` component, taking `execute("delete C1")` API call as an example.
 
-![Interactions Inside the Logic Component for the `delete 1` Command](images/DeleteSequenceDiagram.png)
+![Interactions Inside the Logic Component for the `delete C1` Command](images/DeleteSequenceDiagram.png)
 
 <div markdown="span" class="alert alert-info">:information_source: **Note:** The lifeline for `DeleteCommandParser` should end at the destroy marker (X), but due to a limitation of PlantUML, it continues to the end of the diagram.
 </div>
@@ -193,21 +193,37 @@ position. These argument contracts are independent of the permanent ID reported 
 
 This section describes some noteworthy details on how certain features are implemented.
 
-### Appointment location editing
+### Appointment editing
 
-`editappt A<INDEX> loc/LOCATION` implements UC03. `EditAppointmentCommandParser` parses the displayed
-reference and reuses `ParserUtil.parseAppointmentLocation`. Missing, repeated or unsupported fields
-are rejected before command execution.
+`editappt APPOINTMENT_INDEX [n/APPOINTMENT_NAME] [c/CLIENT_INDEX] [d/DATETIME] [loc/LOCATION] [desc/DESCRIPTION]`
+supports all five fields in the feature specification, including UC03's location change. Appointment and
+client references are numeric positions in their respective displayed lists; neither is a permanent ID.
+`EditAppointmentCommandParser` rejects missing changes, repeated/unknown prefixes and invalid values before
+execution. `ParserUtil#parseAppointmentEditDateTime` validates the exact `yyyy-MM-dd HH:mm` format and real
+calendar values independently of the creation command's date format.
 
-`EditAppointmentCommand` resolves the reference against `Model#getFilteredAppointmentList`, then builds
-an immutable replacement retaining the name, client, time interval and remarks. `Model#setAppointment`
-replaces the existing entry and commits a history snapshot, preserving the active filters. Storage uses
-the existing appointment JSON format. An unchanged location is rejected without recording history.
+The immutable `AppointmentEditFields` distinguishes an omitted description (`null`) from an explicit clear
+(empty string). It validates edit-specific name and location limits. `AppointmentName` can represent legacy
+creation names of up to 80 letters/spaces and replacement names of up to 50 letters/digits/spaces, so an edit
+cannot make its saved name unreadable. Creation still uses its original letter-only validation.
 
-Only location editing is exposed; changing time, name, client or remarks is outside this command's scope.
-The shared history and checkpoint APIs provide separate undo steps for creation and editing, and restore
-data, history and filters if saving fails. Integration tests exercise these paths through the command parser
-and real JSON storage, including simulated I/O and permission failures.
+`EditAppointmentCommand` resolves both references against the current filtered lists and constructs the
+complete immutable replacement before mutation. A new start time shifts the end by the original duration;
+an overflowing end is rejected. `Model#setAppointment` checks the full schedule for clashes, excluding the
+target, then replaces the stored entry and commits one history snapshot. A rejected replacement changes
+neither data nor history. Active filters are retained, so a changed client/date can hide the edited record.
+
+![Appointment edit execution, persistence and no-op behavior](images/EditAppointmentSequenceDiagram.png)
+
+If the replacement equals the target, the command returns `CommandResult.withoutSave` with a friendly
+advisory. `LogicManager` skips storage for this successful no-op, preserving the file, filters and redo
+history even if the data file cannot be written. Changed results use the existing save/checkpoint path:
+a save failure restores all fields, both filters and the history before reporting the error. Diagnostic
+logs distinguish rejected edits, no-ops, in-memory updates and completed persistence.
+
+Integration tests exercise individual and combined fields, clearing notes, filtered references, chronological
+reordering, preserved durations, hidden schedule clashes, calendar overflow, unchanged edits, legacy names,
+separate creation/edit undo steps, JSON round trips and I/O/permission failure rollback.
 
 ### Appointment viewing and deletion
 
@@ -236,7 +252,7 @@ are recalculated by the panel and are not stored as stable IDs. These commands d
 `appointment` supplies the creation dependency for this iteration: it validates all required fields,
 resolves a displayed client reference and checks for overlaps against the complete stored schedule.
 Intervals that meet at an endpoint do not clash. The model also rejects overlapping appointments,
-including when loading saved data. Location editing is implemented by `editappt` as described above.
+including when loading saved data. Appointment editing is implemented by `editappt` as described above.
 
 The model provides `Model#setAppointment(target, editedAppointment)` for the `editappt`
 command. Construct the complete immutable replacement first, resolve its client against the current
@@ -312,7 +328,7 @@ Step 1. The user launches the application for the first time. The `VersionedAddr
 
 ![UndoRedoState0](images/UndoRedoState0.png)
 
-Step 2. The user executes `delete 5` command to delete the 5th person in the address book. The data change is committed by the model, causing the modified state of the address book after the `delete 5` command executes to be saved in the `addressBookStateList`, and the `currentStatePointer` is shifted to the newly inserted address book state.
+Step 2. The user executes `delete C5` command to delete the 5th person in the address book. The data change is committed by the model, causing the modified state of the address book after the `delete C5` command executes to be saved in the `addressBookStateList`, and the `currentStatePointer` is shifted to the newly inserted address book state.
 
 ![UndoRedoState1](images/UndoRedoState1.png)
 
@@ -739,16 +755,23 @@ testers are expected to do more *exploratory* testing.
 
    1. Prerequisites: List all persons using the `list` command, with multiple persons in the list.
 
-   1. Test case: `delete 1`<br>
+   1. Test case: `delete C1`<br>
       Expected: The first contact is deleted from the list. The status message shows the deleted contact's details.
 
-   1. Test case: `delete 0`<br>
+   1. Test case: `delete C0`<br>
       Expected: No person is deleted. The status message shows error details.
 
-   1. Other incorrect delete commands to try: `delete`, `delete x`, `...` (where x is larger than the list size)<br>
+   1. Other incorrect delete commands to try: `delete`, `delete C1 extra`, and `delete C999`
+      (when fewer than 999 clients are displayed)<br>
       Expected: Similar to previous.
 
 1. _{ more test cases …​ }_
+
+### Editing appointments
+
+Follow the [five-field appointment edit smoke test](Testing.md#appointment-edit-smoke-test). It exercises a
+combined edit, clearing notes, preserving duration, filter changes, undo/redo, unchanged input, schedule
+conflicts and save/restart behavior. Use numeric displayed positions for both `editappt` and its `c/` field.
 
 ### Saving data
 

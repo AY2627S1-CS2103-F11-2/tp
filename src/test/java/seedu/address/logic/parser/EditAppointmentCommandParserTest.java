@@ -4,8 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 
+import java.time.LocalDateTime;
+
 import org.junit.jupiter.api.Test;
 
+import seedu.address.commons.core.index.Index;
+import seedu.address.logic.commands.AppointmentEditFields;
 import seedu.address.logic.commands.EditAppointmentCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 
@@ -15,16 +19,38 @@ public class EditAppointmentCommandParserTest {
     @Test
     public void parse_validInput_preservesLocationAndRoutesCommand() throws Exception {
         EditAppointmentCommand expected = new EditAppointmentCommand(INDEX_FIRST_PERSON, "NUS  COM3 #02-01");
-        assertEquals(expected, parser.parse(" A1 loc/  NUS  COM3 #02-01  "));
-        assertEquals(expected, parser.parse(" A1\tloc/NUS  COM3 #02-01"));
-        assertEquals(expected, new AddressBookParser().parseCommand("editappt A1 loc/NUS  COM3 #02-01"));
+        assertEquals(expected, parser.parse(" 1 loc/  NUS  COM3 #02-01  "));
+        assertEquals(expected, parser.parse(" 1\tloc/NUS  COM3 #02-01"));
+        assertEquals(expected, new AddressBookParser().parseCommand("editappt 1 loc/NUS  COM3 #02-01"));
+    }
+
+    @Test
+    public void parse_allFields_acceptsAnyOrderAndAnEmptyDescription() throws Exception {
+        AppointmentEditFields fields = new AppointmentEditFields("Viewing 2", Index.fromOneBased(2),
+                LocalDateTime.of(2026, 11, 1, 10, 0), "NUS  COM3", "");
+        EditAppointmentCommand expected = new EditAppointmentCommand(INDEX_FIRST_PERSON, fields);
+        assertEquals(expected, parser.parse("1 n/Viewing 2 c/2 d/2026-11-01 10:00 loc/NUS  COM3 desc/"));
+        assertEquals(expected, parser.parse("1 desc/ loc/NUS  COM3 d/2026-11-01 10:00 c/2 n/Viewing 2"));
+        assertEquals(new EditAppointmentCommand(INDEX_FIRST_PERSON,
+                new AppointmentEditFields(null, null, null, null, "See https://example.com/checklist")),
+                parser.parse("1 desc/See https://example.com/checklist"));
+    }
+
+    @Test
+    public void parse_repeatedPrefixes_rejectsEvenIdenticalOrEmptyValues() {
+        for (String fields : new String[]{"n/Viewing n/Viewing", "c/1 c/1", "d/2026-10-18 15:30 d/2026-10-18 15:30",
+            "loc/NUS loc/NUS", "desc/ desc/"}) {
+            ParseException error = assertThrows(ParseException.class, () -> parser.parse("1 " + fields));
+            assertEquals(true, error.getMessage().startsWith("Multiple values specified"));
+        }
     }
 
     @Test
     public void parse_invalidInput_rejects() {
-        for (String args : new String[]{"", "A1", "A1 loc/", "A1 loc/   ", "A1 loc/\u2003",
-            "1 loc/NUS", "a1 loc/NUS", "A0 loc/NUS", "A-1 loc/NUS", "A2147483648 loc/NUS",
-            "A1 A2 loc/NUS", "A1 loc/NUS loc/COM3", "A1 loc/NUS n/New Name", "A1 x/NUS"}) {
+        for (String args : new String[]{"", "1", "1 loc/", "1 loc/   ", "1 loc/\u2003",
+            "A1 loc/NUS", "0 loc/NUS", "-1 loc/NUS", "2147483648 loc/NUS", "1 extra loc/NUS",
+            "1 x/NUS", "1 c/", "1 c/C1", "1 c/0", "1 c/2147483648", "1 n/", "1 n/Name!",
+            "1 n/" + "A".repeat(51), "1 loc/" + "A".repeat(101), "1 d/", "1 d/2026-02-30 10:00"}) {
             assertThrows(ParseException.class, () -> parser.parse(args), args);
         }
         assertThrows(NullPointerException.class, () -> parser.parse(null));
