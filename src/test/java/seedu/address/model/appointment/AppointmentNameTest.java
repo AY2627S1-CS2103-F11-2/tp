@@ -16,7 +16,7 @@ public class AppointmentNameTest {
 
     @Test
     public void constructor_invalidName_rejects() {
-        for (String value : new String[]{"", " ", "Flat1", "View!", "a".repeat(81), "View\nflat"}) {
+        for (String value : new String[]{"", " ", "View!", "a".repeat(81), "View\nflat", "1".repeat(51)}) {
             assertThrows(IllegalArgumentException.class, () -> new AppointmentName(value));
         }
         assertThrows(NullPointerException.class, () -> new AppointmentName(null));
@@ -34,9 +34,19 @@ public class AppointmentNameTest {
         assertEquals(true, AppointmentName.isValid("Viewing flat"));
         assertEquals(true, AppointmentName.isValid("A".repeat(80)));
         assertEquals(false, AppointmentName.isValid(""));
-        assertEquals(false, AppointmentName.isValid("Flat1"));
+        assertEquals(true, AppointmentName.isValid("Flat1"));
         assertEquals(false, AppointmentName.isValid("A".repeat(81)));
         assertEquals(false, AppointmentName.isValid(null));
+    }
+
+    @Test
+    public void editedNames_roundTripWithoutChangingCreationRules() {
+        assertEquals("Viewing 123", new AppointmentName("Viewing 123").getValue());
+        assertEquals("1".repeat(50), new AppointmentName("1".repeat(50)).getValue());
+        assertEquals(true, AppointmentName.isValidForEditing("Viewing 123"));
+        assertEquals(false, AppointmentName.isValidForEditing("A".repeat(51)));
+        assertEquals(false, AppointmentName.isValidForCreation("Viewing 123"));
+        assertEquals(true, AppointmentName.isValidForCreation("A".repeat(80)));
     }
 
     @Test

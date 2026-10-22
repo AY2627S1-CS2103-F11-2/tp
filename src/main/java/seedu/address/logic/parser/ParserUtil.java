@@ -3,6 +3,7 @@ package seedu.address.logic.parser;
 import static java.util.Objects.requireNonNull;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
@@ -12,6 +13,7 @@ import java.util.Set;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.commons.util.StringUtil;
+import seedu.address.logic.commands.AppointmentEditFields;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.Address;
 import seedu.address.model.person.Email;
@@ -37,6 +39,26 @@ public class ParserUtil {
     private static final Set<String> CONFIRMATION_WORDS = Set.of("yes", "confirm");
     private static final DateTimeFormatter DATE_FORMATTER =
             DateTimeFormatter.ofPattern("ddMMuuuu").withResolverStyle(ResolverStyle.STRICT);
+    private static final DateTimeFormatter APPOINTMENT_EDIT_DATE_TIME =
+            DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm").withResolverStyle(ResolverStyle.STRICT);
+
+    /** Parses an edit-specific calendar date-time without changing the creation command's format. */
+    public static LocalDateTime parseAppointmentEditDateTime(String value) throws ParseException {
+        requireNonNull(value);
+        String normalized = value.strip();
+        if (!normalized.matches("[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}")) {
+            throw new ParseException(AppointmentEditFields.MESSAGE_INVALID_DATE_TIME);
+        }
+        try {
+            LocalDateTime dateTime = LocalDateTime.parse(normalized, APPOINTMENT_EDIT_DATE_TIME);
+            if (dateTime.getYear() < 1) {
+                throw new ParseException(AppointmentEditFields.MESSAGE_INVALID_DATE_TIME);
+            }
+            return dateTime;
+        } catch (DateTimeParseException e) {
+            throw new ParseException(AppointmentEditFields.MESSAGE_INVALID_DATE_TIME, e);
+        }
+    }
 
     /**
      * Parses {@code oneBasedIndex} into an {@code Index} and returns it. Leading and trailing whitespaces will be
