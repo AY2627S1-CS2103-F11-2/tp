@@ -15,7 +15,8 @@ You can reach us through our GitHub profiles below, or through the issue tracker
 
 [[github](https://github.com/JackyJiangCS)]
 
-* Role: Project Advisor
+* Role: Developer
+* Responsibilities: Delete Client & Edit Appointments
 
 ### Dai Koi Yim
 

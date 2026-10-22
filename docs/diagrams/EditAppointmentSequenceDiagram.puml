@@ -1,0 +1,45 @@
+@startuml
+!include style.puml
+skinparam ArrowFontStyle plain
+
+participant ":LogicManager" as Logic LOGIC_COLOR
+participant "edit:EditAppointmentCommand" as Command LOGIC_COLOR
+participant ":Model" as Model MODEL_COLOR
+participant ":Storage" as Storage STORAGE_COLOR
+
+Logic -> Model : createCheckpoint()
+Model --> Logic : checkpoint
+Logic -> Command : execute(model)
+Command -> Model : getFilteredAppointmentList()
+Model --> Command : displayed appointments
+opt c/ supplied
+    Command -> Model : getFilteredPersonList()
+    Model --> Command : displayed clients
+end
+note over Command
+Parser has validated all supplied fields.
+Build one complete replacement.
+For d/, retain the original duration.
+end note
+alt all supplied values unchanged
+    Command --> Logic : CommandResult.withoutSave(advisory)
+    note over Logic : Return success without writing or changing history.
+else changed
+    Command -> Model : setAppointment(target, replacement)
+    note over Model
+Validate the full schedule before mutation.
+Reject clashes; otherwise replace and commit once.
+Preserve active filters.
+end note
+    Model --> Command
+    Command --> Logic : CommandResult(updated details)
+    Logic -> Storage : saveAddressBook(addressBook)
+    alt saved
+        Storage --> Logic : success
+    else write failed
+        Storage --> Logic : IOException
+        Logic -> Model : restoreCheckpoint(checkpoint)
+        Model --> Logic : data, filters and history restored
+    end
+end
+@enduml

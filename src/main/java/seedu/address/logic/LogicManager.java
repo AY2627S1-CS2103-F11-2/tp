@@ -64,7 +64,7 @@ public class LogicManager implements Logic {
             throw e;
         }
 
-        if (command instanceof AppointmentsCommand) {
+        if (command instanceof AppointmentsCommand || !commandResult.isSaveRequired()) {
             logger.info("Command completed without saving: " + commandType);
             return commandResult;
         }

@@ -24,6 +24,9 @@ public class CommandResult {
     /** Client to select after the command has been saved successfully, if any. */
     private final Person selectedClient;
 
+    /** Whether logic must persist the command's changes before returning the result. */
+    private final boolean saveRequired;
+
     /**
      * Constructs a {@code CommandResult} with the specified fields.
      */
@@ -32,10 +35,16 @@ public class CommandResult {
     }
 
     private CommandResult(String feedbackToUser, boolean showHelp, boolean exit, Person selectedClient) {
+        this(feedbackToUser, showHelp, exit, selectedClient, true);
+    }
+
+    private CommandResult(String feedbackToUser, boolean showHelp, boolean exit,
+            Person selectedClient, boolean saveRequired) {
         this.feedbackToUser = requireNonNull(feedbackToUser);
         this.showHelp = showHelp;
         this.exit = exit;
         this.selectedClient = selectedClient;
+        this.saveRequired = saveRequired;
     }
 
     /**
@@ -49,6 +58,15 @@ public class CommandResult {
     /** Constructs a successful result that asks the UI to select the specified stored client. */
     public CommandResult(String feedbackToUser, Person selectedClient) {
         this(feedbackToUser, false, false, requireNonNull(selectedClient));
+    }
+
+    /** Returns a successful no-op result that must not write data or consume undo/redo history. */
+    public static CommandResult withoutSave(String feedbackToUser) {
+        return new CommandResult(feedbackToUser, false, false, null, false);
+    }
+
+    public boolean isSaveRequired() {
+        return saveRequired;
     }
 
     public Optional<Person> getSelectedClient() {
@@ -81,6 +99,7 @@ public class CommandResult {
         return feedbackToUser.equals(otherCommandResult.feedbackToUser)
                 && showHelp == otherCommandResult.showHelp
                 && exit == otherCommandResult.exit
+                && saveRequired == otherCommandResult.saveRequired
                 && Objects.equals(selectedClient, otherCommandResult.selectedClient)
                 && getSelectedClient().flatMap(Person::getClientId)
                         .equals(otherCommandResult.getSelectedClient().flatMap(Person::getClientId));
@@ -88,7 +107,7 @@ public class CommandResult {
 
     @Override
     public int hashCode() {
-        return Objects.hash(feedbackToUser, showHelp, exit, selectedClient,
+        return Objects.hash(feedbackToUser, showHelp, exit, selectedClient, saveRequired,
                 getSelectedClient().flatMap(Person::getClientId));
     }
 

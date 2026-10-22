@@ -7,8 +7,10 @@ import static seedu.address.commons.util.AppUtil.checkArgument;
  * Value object representing an appointment name.
  */
 public final class AppointmentName {
-    public static final String MESSAGE_CONSTRAINTS =
+    public static final String MESSAGE_CREATION_CONSTRAINTS =
             "Appointment name must contain only letters and spaces, with 1-80 characters.";
+    public static final String MESSAGE_CONSTRAINTS = "Appointment name must contain letters and spaces "
+            + "(1-80 characters), or letters, digits and spaces (1-50 characters).";
     private final String value;
 
     /**
@@ -25,8 +27,18 @@ public final class AppointmentName {
 
     /** Returns whether the supplied value satisfies the appointment-name constraints. */
     public static boolean isValid(String value) {
+        return isValidForCreation(value) || isValidForEditing(value);
+    }
+
+    /** Preserves the existing creation rules and compatibility with names stored before editing was extended. */
+    public static boolean isValidForCreation(String value) {
         return value != null && value.length() <= 80
                 && value.matches("[A-Za-z ]*") && value.matches(".*[A-Za-z].*");
+    }
+
+    /** Returns whether a replacement name satisfies the feature specification's edit-specific rules. */
+    public static boolean isValidForEditing(String value) {
+        return value != null && !value.isBlank() && value.length() <= 50 && value.matches("[A-Za-z0-9 ]+");
     }
 
     public String getValue() {
