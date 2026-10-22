@@ -31,6 +31,7 @@ public class MainWindow extends UiPart<Stage> {
     private Stage primaryStage;
     private Logic logic;
     private Path dataFilePath;
+    private String startupMessage;
 
     // Independent Ui parts residing in this Ui container
     private PersonListPanel personListPanel;
@@ -59,17 +60,23 @@ public class MainWindow extends UiPart<Stage> {
     @FXML
     private StackPane statusbarPlaceholder;
 
-    /**
-     * Creates a {@code MainWindow} with the given {@code Stage}, {@code Logic},
-     * and the data file path to show in the status bar.
-     */
+    /** Creates a {@code MainWindow} with no startup message. */
     public MainWindow(Stage primaryStage, Logic logic, Path dataFilePath) {
+        this(primaryStage, logic, dataFilePath, "");
+    }
+
+    /**
+     * Creates a {@code MainWindow} with the given {@code Stage}, {@code Logic}, the data file path to
+     * show in the status bar, and a message to show in the result box at startup.
+     */
+    public MainWindow(Stage primaryStage, Logic logic, Path dataFilePath, String startupMessage) {
         super(FXML, primaryStage);
 
         // Set dependencies
         this.primaryStage = primaryStage;
         this.logic = logic;
         this.dataFilePath = dataFilePath;
+        this.startupMessage = startupMessage;
 
         // Configure the UI
         setWindowDefaultSize(logic.getGuiSettings());
@@ -134,6 +141,9 @@ public class MainWindow extends UiPart<Stage> {
 
         resultDisplay = new ResultDisplay();
         resultDisplayPlaceholder.getChildren().add(resultDisplay.getRoot());
+        if (!startupMessage.isBlank()) {
+            resultDisplay.setFeedbackToUser(startupMessage);
+        }
 
         StatusBarFooter statusBarFooter = new StatusBarFooter(dataFilePath);
         statusbarPlaceholder.getChildren().add(statusBarFooter.getRoot());
