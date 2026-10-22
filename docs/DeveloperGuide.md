@@ -315,6 +315,16 @@ automatic save for it, as it does for `appointments`, because there is nothing t
 already exists is refused rather than overwritten, and any `IOException` is reported with the target path
 and the note that nothing was changed.
 
+`RestoreCommand` reads the named file with `JsonAddressBookStorage`, so the file is validated as a client list
+before the model is touched, and then replaces the whole book with `Model#setAddressBook`, which commits a
+single snapshot. A missing file or an unreadable one throws a `CommandException` before any mutation, so a
+rejected restore leaves the data, both filters and the redo branch untouched.
+
+The sequence diagram below shows the check-before-act flow, including the branch where the file is
+rejected before anything is changed.
+
+![Interactions for the `restore` command](images/RestoreSequenceDiagram.png)
+
 Before executing a parsed command, `LogicManager` captures an opaque `Model.Checkpoint`. It contains
 current data, the complete history (including future redo entries), its pointer, and both filters.
 If saving throws `IOException` or `AccessDeniedException`, logic restores the checkpoint before

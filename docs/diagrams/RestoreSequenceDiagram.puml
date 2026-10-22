@@ -1,0 +1,86 @@
+@startuml
+!include style.puml
+skinparam ArrowFontStyle plain
+
+box Logic LOGIC_COLOR_T1
+participant ":LogicManager" as LogicManager LOGIC_COLOR
+participant ":AddressBookParser" as AddressBookParser LOGIC_COLOR
+participant ":RestoreCommandParser" as RestoreCommandParser LOGIC_COLOR
+participant "r:RestoreCommand" as RestoreCommand LOGIC_COLOR
+end box
+
+box Storage STORAGE_COLOR_T1
+participant ":JsonAddressBookStorage" as Storage STORAGE_COLOR
+end box
+
+box Model MODEL_COLOR_T1
+participant "m:Model" as Model MODEL_COLOR
+end box
+
+[-> LogicManager : execute("restore f/before-clearing.json")
+activate LogicManager
+
+LogicManager -> AddressBookParser : parseCommand("restore f/before-clearing.json")
+activate AddressBookParser
+
+create RestoreCommandParser
+AddressBookParser -> RestoreCommandParser
+activate RestoreCommandParser
+
+RestoreCommandParser --> AddressBookParser
+deactivate RestoreCommandParser
+
+AddressBookParser -> RestoreCommandParser : parse("f/before-clearing.json")
+activate RestoreCommandParser
+
+create RestoreCommand
+RestoreCommandParser -> RestoreCommand
+activate RestoreCommand
+
+RestoreCommand --> RestoreCommandParser
+deactivate RestoreCommand
+
+RestoreCommandParser --> AddressBookParser : r
+deactivate RestoreCommandParser
+
+AddressBookParser --> LogicManager : r
+deactivate AddressBookParser
+
+LogicManager -> RestoreCommand : execute(m)
+activate RestoreCommand
+
+RestoreCommand -> Storage : readAddressBook()
+activate Storage
+
+alt file is missing or is not a client list
+    Storage --> RestoreCommand : empty or DataLoadingException
+    RestoreCommand --> LogicManager : CommandException
+    note right of RestoreCommand
+        Nothing is changed and no history
+        entry is recorded, so redo survives.
+    end note
+else file is a client list
+    Storage --> RestoreCommand : restored data
+    RestoreCommand -> Model : setAddressBook(restored)
+    activate Model
+    Model --> RestoreCommand
+    deactivate Model
+    RestoreCommand -> Model : updateFilteredPersonList(show all)
+    activate Model
+    Model --> RestoreCommand
+    deactivate Model
+    RestoreCommand --> LogicManager : result
+end
+
+deactivate Storage
+deactivate RestoreCommand
+
+LogicManager -> Storage : saveAddressBook(m)
+activate Storage
+Storage --> LogicManager
+deactivate Storage
+
+[<-- LogicManager : result
+deactivate LogicManager
+
+@enduml
