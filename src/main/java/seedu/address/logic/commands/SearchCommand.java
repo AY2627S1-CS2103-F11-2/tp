@@ -12,8 +12,15 @@ import seedu.address.model.Model;
 import seedu.address.model.person.Person;
 
 /**
- * Finds and lists all persons in the address book whose details contains any of the argument keywords.
- * Keyword matching is case insensitive.
+ * Finds and lists clients whose details match the supplied search criteria.
+ *
+ * <p>The search criteria are represented by a {@link Predicate} and may match
+ * client names, phone numbers, types, or a combination of these fields.
+ * Matching is case-insensitive where applicable, and the matching clients are
+ * displayed in the filtered client list.</p>
+ *
+ * <p>Valid search parameters are {@code n/} for name, {@code p/} for phone
+ * number, and {@code y/} for client type.</p>
  */
 public class SearchCommand extends Command {
 
@@ -28,7 +35,14 @@ public class SearchCommand extends Command {
 
     private final Predicate<Person> predicate;
 
+    /**
+     * Creates a search command using the specified client-matching predicate.
+     *
+     * @param predicate predicate used to determine which clients are displayed
+     * @throws NullPointerException if {@code predicate} is null
+     */
     public SearchCommand(Predicate<Person> predicate) {
+        requireNonNull(predicate);
         this.predicate = predicate;
     }
 
@@ -38,8 +52,6 @@ public class SearchCommand extends Command {
         model.updateFilteredPersonList(predicate);
 
         int count = model.getFilteredPersonList().size();
-        assert count >= 0
-                : "Search result count cannot be negative.";
         assert count <= model.getAddressBook().getPersonList().size()
                 : "Filtered clients cannot outnumber stored clients.";
 
@@ -51,6 +63,7 @@ public class SearchCommand extends Command {
                 .allMatch(model.getAddressBook().getPersonList()::contains)
                 : "Search results must only contain stored clients.";
 
+        logger.info("Search with " + predicate + " returned " + count + " result(s).");
 
         if (count > 0) {
             logger.info("Search returned " + count + " result(s).");
