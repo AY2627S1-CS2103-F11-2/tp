@@ -108,7 +108,8 @@ public class LogicManagerTest {
 
         try (CapturingLogHandler logs = new CapturingLogHandler()) {
             assertCommandFailure(ADD_AMY_COMMAND, CommandException.class,
-                    String.format(LogicManager.FILE_OPS_ERROR_FORMAT, DUMMY_IO_EXCEPTION.getMessage()),
+                    String.format(LogicManager.FILE_OPS_ERROR_FORMAT,
+                    temporaryFolder.resolve("ExceptionUserPrefs.json"), DUMMY_IO_EXCEPTION.getMessage()),
                     new ModelManager());
 
             assertEquals(List.of("Executing command: AddCommand",
@@ -123,7 +124,8 @@ public class LogicManagerTest {
 
         try (CapturingLogHandler logs = new CapturingLogHandler()) {
             assertCommandFailure(ADD_AMY_COMMAND, CommandException.class,
-                    String.format(LogicManager.FILE_OPS_PERMISSION_ERROR_FORMAT, DUMMY_AD_EXCEPTION.getMessage()),
+                    String.format(LogicManager.FILE_OPS_PERMISSION_ERROR_FORMAT,
+                    temporaryFolder.resolve("ExceptionUserPrefs.json")),
                     new ModelManager());
 
             assertEquals(List.of("Executing command: AddCommand",
