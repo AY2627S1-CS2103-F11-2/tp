@@ -74,11 +74,36 @@ Use a fresh temporary data folder for this sequence.
 `AppointmentHistoryIntegrationTest` checks parsed commands against real JSON persistence.
 `AppointmentHistorySaveFailureTest` injects I/O and permission errors before writing and verifies
 data, filters and both history directions are recovered, followed by a successful retry.
-`AppointmentEditHistoryTest` covers the future `editappt` model operation, including changes to every
+`AppointmentEditHistoryTest` covers atomic appointment replacement, including changes to every
 field, clashes, adjacent times, no-op edits, branching and client lifecycle changes.
 `AppointmentHistorySequenceTest` checks 1,000 mixed operations against an independent expected timeline
 using four fixed seeds, making any failure reproducible. `ModelCheckpointTest` also covers checkpoint
 ownership and restoring a truncated or cleared timeline more than once.
+
+## Appointment edit smoke test
+
+Use a fresh temporary data folder with at least two clients. Run `list` before using the client positions.
+
+1. Create `appointment n/Viewing c/C1 loc/NUS s/20261025-1000 e/20261025-1230` and
+   `appointment n/Signing c/C2 loc/Clementi s/20261025-1400 e/20261025-1500`.
+2. Run `appointments c/C1 d/25102026`, then
+   `editappt 1 n/Viewing 2 c/2 d/2026-10-26 10:00 loc/NUS COM3 #02-01 desc/Bring keys`.
+   Expect the complete edited details in the result box. The client list stays unchanged. The appointment
+   leaves the current results because its client/date changed; run `appointments` to show it again.
+   Check that its end is 12:30, preserving the original two-and-a-half-hour duration.
+3. Run `undo` once: all five fields return to their original values together. Run `redo` once: all five
+   changes return together. Both full lists are shown after these history operations.
+4. In the full schedule, Signing is first and Viewing 2 is second. Run `editappt 2 desc/` to clear its notes,
+   then repeat it. The second command succeeds with `No changes made to appointment 2: supplied values are unchanged.`
+   One `undo` must restore `Bring keys`, proving the unchanged command did not add a history step.
+5. Run `editappt 2 n/Changed d/2026-10-25 14:30`. Expect a clash with Signing. The name and times both stay
+   unchanged. Also try `editappt 2`, `editappt 2 loc/`, `editappt 2 loc/NUS loc/COM3`,
+   `editappt 2 c/2147483647` and `editappt 2 d/2026-02-30 10:00`; each must report an error without changing data.
+6. Close and reopen the JAR in the same folder. Verify Signing remains and Viewing 2 retains its changed
+   client, location, 26 October time slot and `Bring keys` notes. Undo/redo must be unavailable after restart.
+
+`EditAppointmentIntegrationTest` also checks saved JSON, legacy 80-character names, calendar overflow,
+filtered client references, hidden clashes, no-op writes and rollback of combined edits on I/O/permission errors.
 
 ## Types of tests
 
