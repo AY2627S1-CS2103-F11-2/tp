@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 
@@ -21,10 +22,14 @@ import seedu.address.model.person.Person;
  */
 public class ModelManager implements Model {
     private static final Logger logger = LogsCenter.getLogger(ModelManager.class);
+    private static final Comparator<Person> CLIENT_ORDER = Comparator
+            .comparing((Person person) -> person.getName().fullName, String.CASE_INSENSITIVE_ORDER)
+            .thenComparingLong(person -> person.getClientId().orElseThrow().getNumber());
 
     private final VersionedAddressBook addressBook;
     private final UserPrefs userPrefs;
     private final FilteredList<Person> filteredPersons;
+    private final SortedList<Person> sortedPersons;
     private final FilteredList<Appointment> filteredAppointments;
     private final SortedList<Appointment> sortedAppointments;
     private Person appointmentClientFilter;
@@ -41,6 +46,7 @@ public class ModelManager implements Model {
         this.addressBook = new VersionedAddressBook(addressBook);
         this.userPrefs = new UserPrefs(userPrefs);
         filteredPersons = new FilteredList<>(this.addressBook.getPersonList());
+        sortedPersons = new SortedList<>(filteredPersons, CLIENT_ORDER);
         filteredAppointments = new FilteredList<>(this.addressBook.getAppointmentList());
         sortedAppointments = new SortedList<>(filteredAppointments, Appointment.CHRONOLOGICAL_ORDER);
     }
@@ -177,7 +183,7 @@ public class ModelManager implements Model {
      */
     @Override
     public ObservableList<Person> getFilteredPersonList() {
-        return filteredPersons;
+        return sortedPersons;
     }
 
     @Override

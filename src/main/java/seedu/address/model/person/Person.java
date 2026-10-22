@@ -5,6 +5,7 @@ import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import seedu.address.commons.util.ToStringBuilder;
@@ -15,6 +16,9 @@ import seedu.address.model.tag.Tag;
  * Guarantees: details are present and not null, field values are validated, immutable.
  */
 public class Person {
+
+    // Stable identifier, assigned when the person is added to an address book.
+    private final ClientId clientId;
 
     // Identity fields
     private final Name name;
@@ -30,13 +34,28 @@ public class Person {
      * Every field must be present and not null.
      */
     public Person(Name name, Phone phone, Email email, Address address, Type type, Set<Tag> tags) {
+        this(name, phone, email, address, type, tags, null);
+    }
+
+    private Person(Name name, Phone phone, Email email, Address address, Type type, Set<Tag> tags, ClientId clientId) {
         requireAllNonNull(name, phone, email, address, type, tags);
+        this.clientId = clientId;
         this.name = name;
         this.phone = phone;
         this.email = email;
         this.address = address;
         this.type = type;
         this.tags.addAll(tags);
+    }
+
+    /** Returns the stable identifier, or empty for a person not yet added to an address book. */
+    public Optional<ClientId> getClientId() {
+        return Optional.ofNullable(clientId);
+    }
+
+    /** Returns an immutable copy with the given stable identifier. */
+    public Person withClientId(ClientId clientId) {
+        return new Person(name, phone, email, address, type, tags, Objects.requireNonNull(clientId));
     }
 
     public Name getName() {
@@ -81,7 +100,8 @@ public class Person {
     }
 
     /**
-     * Returns true if both persons have the same identity and data fields.
+     * Returns true if both persons have the same business details.
+     * Stable IDs are metadata and are compared separately by AddressBook snapshots.
      * This defines a stronger notion of equality between two persons.
      */
     @Override

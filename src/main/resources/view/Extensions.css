@@ -18,3 +18,19 @@
 .tooltip-text {
     -fx-text-fill: white;
 }
+
+.client-details-scroll, .client-details-scroll > .viewport {
+    -fx-background-color: #383838;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.client-details-content {
+    -fx-padding: 4 8 8 4;
+}
+
+.client-details-name {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}

@@ -75,7 +75,7 @@ Format: `help`
 
 ### Adding a client: `add`
 
-Adds a client to PropTrack.
+Adds a client to PropTrack and assigns a permanent client ID such as `C1`.
 
 Format: `add n/NAME p/PHONE_NUMBER a/ADDRESS y/TYPE [e/EMAIL] [t/TAG]…​`
 
@@ -89,9 +89,24 @@ Format: `add n/NAME p/PHONE_NUMBER a/ADDRESS y/TYPE [e/EMAIL] [t/TAG]…​`
   `Name must contain 1-100 characters and at least one letter or digit.` No client is added.
 * `TYPE` must be `buyer`, `seller`, `landlord` or `tenant`, in lowercase.
 * Email is optional. Omit the entire `e/EMAIL` field if the client's email is unknown.
-  The client card and command feedback show `Not provided`, and the email remains absent after saving and reopening the app.
+  The client card and details panel show `Not provided`, and the email remains absent after saving and reopening the app.
 * If `e/` is supplied when adding a client, it must contain a valid email address. A bare `e/`,
   whitespace-only email or malformed address is rejected. Repeating `e/` is also rejected.
+* On success, the result identifies the new client and its current command position, for example
+  `Added client C8: Alex Tan. Current position: C1 (for delete/appointment commands).`
+  The full client list is shown, sorted alphabetically by name without regard to letter case, then by numeric
+  client ID when names compare equally. The new client is selected automatically and their details appear in the details panel.
+* If the name already belongs to a client, no client is added. The result identifies the existing record,
+  for example `Name already belongs to client C1 (Alex Tan). No client was added.`
+* A client's ID is saved with the record and remains unchanged when the list is sorted or filtered,
+  when other clients are deleted, when the client is edited, and after reopening the app.
+  Each card labels these separately, for example `Position C1 · Client ID C8`.
+  The position may change as the displayed list changes; the **Client ID** identifies the saved record
+  and is also shown in the details panel. It is separate from the positional
+  references accepted by `delete`, `appointment` and `appointments`: those commands still use `C` followed
+  by the current row number. For example, a client with permanent ID `C8` in row `1` is addressed as `C1`
+  by those commands, or as `1` by `edit`. The success message reports the position immediately after
+  the addition; check the current card position again after later sorting, filtering or other list changes.
 
 <div markdown="span" class="alert alert-primary">:bulb: **Tip:**
 A client can have any number of tags, including zero.
@@ -105,7 +120,8 @@ Examples:
 
 ### Listing all clients: `list`
 
-Shows every client in PropTrack, renumbered from `C1`, and clears any active filter.
+Shows every client in PropTrack and clears any active filter. Clients are sorted alphabetically by name,
+ignoring letter case, then by numeric client ID. Position references start from `C1`; permanent Client IDs do not change.
 
 Format: `list`
 
@@ -118,7 +134,10 @@ Edits an existing client in PropTrack.
 
 Format: `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [y/TYPE] [t/TAG]…​`
 
-* Edits the client at the specified `INDEX`. The index refers to the index number shown in the displayed client list. The index **must be a positive integer** 1, 2, 3, …​
+* Edits the client at the specified `INDEX`. Use the numeric part of the card's `Position` label,
+  **not** its permanent Client ID. For example, `Position C1` means index `1`. The index **must be a positive integer** 1, 2, 3, …​
+  For example, `edit 1 n/Alice` edits the first visible row even if the Client ID in their details is `C8`.
+  Editing retains the client's stable ID; changing the name may move the card in the alphabetically sorted list.
 * At least one of the optional fields must be provided.
 * Existing values will be updated to the input values.
 * Edited names follow the same validation and space normalization rules as [adding a client](#adding-a-client-add).
@@ -164,19 +183,21 @@ Deletes the specified client from PropTrack.
 
 Format: `delete CLIENT_ID`
 
-* `CLIENT_ID` is uppercase `C` followed directly by a positive integer, e.g. `C1`, `C4`, or `C12`.
+* For this command, `CLIENT_ID` is a **positional reference**: uppercase `C` followed directly by a positive
+  row number, e.g. `C1`, `C4`, or `C12`. It is separate from the permanent Client ID in the details panel.
 * The number refers to the client's position in the **currently displayed list**, including search results.
-  It is not a permanent unique ID. Client cards display these references as `C1`, `C2`, etc.
-* The selected card disappears and subsequent clients are renumbered. Repeating `delete C1` deletes the
-  new first client, or reports an error if the list is empty.
+  Use the current row number, rather than the permanent ID reported by `add`.
+* The selected card disappears and subsequent row positions are renumbered. Repeating `delete C1` deletes
+  the new first client, or reports an error if the list is empty. The remaining clients' permanent IDs do not change.
 * Missing arguments, invalid references (`C0`, `C-2`, `C3.5`, `Cabc`), and extra arguments are rejected.
   A reference beyond the displayed list size also reports an error without deleting a client.
 * Successful deletion displays `Deleted Client: ` followed by the client's current details.
-* Other commands such as `edit` still use the numeric position without `C` (e.g. `edit 1 n/Alice`).
+* Other commands such as `edit` use the numeric position without `C` (e.g. `edit 1 n/Alice`).
 
 Examples:
-* `list` followed by `delete C2` deletes the 2nd client in the address book.
-* `search n/Betsy` followed by `delete C1` deletes the 1st client in the search results.
+* `list` followed by `delete C2` deletes the 2nd client in the displayed list.
+* `search n/Betsy` followed by `delete C1` deletes the 1st client in the search results,
+  even if their permanent Client ID is `C8`.
 
 ### Adding an appointment: `appointment`
 
@@ -185,7 +206,8 @@ Creates an appointment for a client in the currently displayed client list.
 Format: `appointment n/NAME c/CLIENT_INDEX loc/LOCATION s/YYYYMMDD-HHMM e/YYYYMMDD-HHMM`
 
 * Every field is required and may appear only once. Fields may be supplied in any order.
-* `CLIENT_INDEX` is a displayed client reference such as `C1`; it is not a permanent ID.
+* `CLIENT_INDEX` is a positional reference such as `C1` for the first client in the currently displayed list.
+  Use `C` followed by the current row number, not the permanent Client ID shown in the details panel.
 * The name contains letters and spaces, with 1-80 characters. The location cannot be blank;
   punctuation such as `#` and `-` is accepted, for example `NUS COM3 #02-01`.
   Leading and trailing whitespace is removed, while internal spacing is preserved.
@@ -206,6 +228,7 @@ Format: `appointments [c/CLIENT_INDEX] [d/DDMMYYYY]`
 
 * With no fields, displays all stored appointments. Each command replaces the previous appointment filter.
 * `c/C1` selects the first client in the **currently displayed client list**, including search results.
+  This positional reference is separate from the permanent Client ID in the details panel.
   Viewing appointments does not change that client list.
 * `d/15102026` selects appointments whose **start date** is 15 October 2026 in Singapore local time.
   Past, present and future dates are accepted. For an appointment that crosses midnight, use its start date.
@@ -311,6 +334,8 @@ Format: `exit`
 
 PropTrack automatically saves clients and appointments after changes. You do not need to save manually.
 Existing client-only data files remain readable and start with an empty appointment list.
+Clients in older files that have no client IDs receive IDs automatically when loaded. These IDs and the
+next ID to allocate are saved with the data; you do not need to assign or renumber IDs yourself.
 
 ### Editing the data file
 
@@ -320,8 +345,9 @@ PropTrack data is saved automatically as a JSON file `[JAR file location]/data/a
 If the file contains invalid client or appointment data, PropTrack rejects the whole file and starts empty.
 It attempts to preserve the unreadable file under a name ending in `.corrupt-TIMESTAMP`; the log records
 the preserved path or any failure to rename it. Back up the data file before editing it.<br>
-Appointment `clientIndex` fields refer to positions in the saved client array. Reordering that array by hand
-without updating those references can associate appointments with the wrong clients.
+Client `clientId` fields store stable numeric IDs; do not duplicate IDs or decrease the `nextClientId` counter.<br>
+Appointment `clientIndex` fields refer to positions in the saved client array, rather than stable client IDs.
+Reordering that array by hand without updating those references can associate appointments with the wrong clients.
 </div>
 
  --------------------------------------------------------------------------------------------------------------------

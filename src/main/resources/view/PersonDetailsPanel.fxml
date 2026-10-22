@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" spacing="8"
+      minHeight="80" prefHeight="230">
+  <Label text="Client details" styleClass="label-bright" />
+  <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="client-details-scroll">
+    <VBox spacing="8" styleClass="client-details-content">
+      <Label fx:id="emptyState" text="Select a client to view their details." wrapText="true"
+             styleClass="label-bright" />
+      <VBox fx:id="details" spacing="7">
+        <Label fx:id="clientName" wrapText="true" styleClass="label-bright,client-details-name" />
+        <Label fx:id="clientId" wrapText="true" styleClass="label-bright" />
+        <Label fx:id="clientType" wrapText="true" styleClass="label-bright" />
+        <Label fx:id="clientPhone" wrapText="true" styleClass="label-bright" />
+        <Label fx:id="clientEmail" wrapText="true" styleClass="label-bright" />
+        <Label fx:id="clientAddress" wrapText="true" styleClass="label-bright" />
+        <FlowPane fx:id="tags" />
+      </VBox>
+    </VBox>
+  </ScrollPane>
+</VBox>

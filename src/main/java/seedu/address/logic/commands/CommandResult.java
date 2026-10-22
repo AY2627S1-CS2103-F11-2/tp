@@ -3,8 +3,10 @@ package seedu.address.logic.commands;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import seedu.address.commons.util.ToStringBuilder;
+import seedu.address.model.person.Person;
 
 /**
  * Represents the result of a command execution.
@@ -19,13 +21,21 @@ public class CommandResult {
     /** The application should exit. */
     private final boolean exit;
 
+    /** Client to select after the command has been saved successfully, if any. */
+    private final Person selectedClient;
+
     /**
      * Constructs a {@code CommandResult} with the specified fields.
      */
     public CommandResult(String feedbackToUser, boolean showHelp, boolean exit) {
+        this(feedbackToUser, showHelp, exit, null);
+    }
+
+    private CommandResult(String feedbackToUser, boolean showHelp, boolean exit, Person selectedClient) {
         this.feedbackToUser = requireNonNull(feedbackToUser);
         this.showHelp = showHelp;
         this.exit = exit;
+        this.selectedClient = selectedClient;
     }
 
     /**
@@ -34,6 +44,15 @@ public class CommandResult {
      */
     public CommandResult(String feedbackToUser) {
         this(feedbackToUser, false, false);
+    }
+
+    /** Constructs a successful result that asks the UI to select the specified stored client. */
+    public CommandResult(String feedbackToUser, Person selectedClient) {
+        this(feedbackToUser, false, false, requireNonNull(selectedClient));
+    }
+
+    public Optional<Person> getSelectedClient() {
+        return Optional.ofNullable(selectedClient);
     }
 
     public String getFeedbackToUser() {
@@ -61,12 +80,16 @@ public class CommandResult {
 
         return feedbackToUser.equals(otherCommandResult.feedbackToUser)
                 && showHelp == otherCommandResult.showHelp
-                && exit == otherCommandResult.exit;
+                && exit == otherCommandResult.exit
+                && Objects.equals(selectedClient, otherCommandResult.selectedClient)
+                && getSelectedClient().flatMap(Person::getClientId)
+                        .equals(otherCommandResult.getSelectedClient().flatMap(Person::getClientId));
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(feedbackToUser, showHelp, exit);
+        return Objects.hash(feedbackToUser, showHelp, exit, selectedClient,
+                getSelectedClient().flatMap(Person::getClientId));
     }
 
     @Override
@@ -75,6 +98,7 @@ public class CommandResult {
                 .add("feedbackToUser", feedbackToUser)
                 .add("showHelp", showHelp)
                 .add("exit", exit)
+                .add("selectedClient", selectedClient)
                 .toString();
     }
 

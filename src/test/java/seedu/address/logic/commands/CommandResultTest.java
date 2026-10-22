@@ -4,10 +4,26 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static seedu.address.testutil.TypicalPersons.ALICE;
 
 import org.junit.jupiter.api.Test;
 
+import seedu.address.model.person.ClientId;
+import seedu.address.model.person.Person;
+
 public class CommandResultTest {
+    @Test
+    public void selectedClient_defaultEmpty_successCarriesStableIdentity() {
+        Person selected = ALICE.withClientId(new ClientId(1));
+        CommandResult result = new CommandResult("Added", selected);
+        assertTrue(new CommandResult("Other command").getSelectedClient().isEmpty());
+        assertEquals(selected, result.getSelectedClient().orElseThrow());
+        assertEquals(result, new CommandResult("Added", selected));
+        assertEquals(result.hashCode(), new CommandResult("Added", selected).hashCode());
+        assertNotEquals(result, new CommandResult("Added"));
+        assertNotEquals(result, new CommandResult("Added", ALICE.withClientId(new ClientId(2))));
+    }
+
     @Test
     public void equals() {
         CommandResult commandResult = new CommandResult("feedback");
@@ -57,7 +73,7 @@ public class CommandResultTest {
         CommandResult commandResult = new CommandResult("feedback");
         String expected = CommandResult.class.getCanonicalName() + "{feedbackToUser="
                 + commandResult.getFeedbackToUser() + ", showHelp=" + commandResult.isShowHelp()
-                + ", exit=" + commandResult.isExit() + "}";
+                + ", exit=" + commandResult.isExit() + ", selectedClient=null}";
         assertEquals(expected, commandResult.toString());
     }
 }

@@ -9,9 +9,9 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TYPE;
 
 import seedu.address.commons.util.ToStringBuilder;
-import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
+import seedu.address.model.person.ClientId;
 import seedu.address.model.person.Person;
 
 /**
@@ -38,8 +38,11 @@ public class AddCommand extends Command {
             + PREFIX_TAG + "friends "
             + PREFIX_TAG + "owesMoney";
 
-    public static final String MESSAGE_SUCCESS = "New person added: %1$s";
-    public static final String MESSAGE_DUPLICATE_PERSON = "This person already exists in the address book.";
+    public static final String MESSAGE_SUCCESS = "Added client %1$s: %2$s. "
+            + "Current position: C%3$d (for delete/appointment commands).";
+    public static final String MESSAGE_DUPLICATE_PERSON =
+            "Name already belongs to client %1$s (%2$s). No client was added.";
+    public static final String MESSAGE_ID_LIMIT = "No client was added because no more client IDs are available.";
 
     private final Person toAdd;
 
@@ -56,11 +59,21 @@ public class AddCommand extends Command {
         requireNonNull(model);
 
         if (model.hasPerson(toAdd)) {
-            throw new CommandException(MESSAGE_DUPLICATE_PERSON);
+            Person existing = model.getAddressBook().getPersonList().stream()
+                    .filter(toAdd::isSamePerson).findFirst().orElseThrow();
+            throw new CommandException(String.format(MESSAGE_DUPLICATE_PERSON,
+                    existing.getClientId().orElseThrow(), existing.getName().fullName));
+        }
+        if (!ClientId.isValidNumber(model.getAddressBook().getNextClientId())) {
+            throw new CommandException(MESSAGE_ID_LIMIT);
         }
 
         model.addPerson(toAdd);
-        return new CommandResult(String.format(MESSAGE_SUCCESS, Messages.format(toAdd)));
+        Person added = model.getAddressBook().getPersonList().stream()
+                .filter(toAdd::isSamePerson).findFirst().orElseThrow();
+        int displayedPosition = model.getFilteredPersonList().indexOf(added) + 1;
+        return new CommandResult(String.format(MESSAGE_SUCCESS,
+                added.getClientId().orElseThrow(), added.getName().fullName, displayedPosition), added);
     }
 
     @Override
