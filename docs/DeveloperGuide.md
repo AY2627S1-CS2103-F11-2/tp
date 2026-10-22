@@ -193,21 +193,37 @@ position. These argument contracts are independent of the permanent ID reported 
 
 This section describes some noteworthy details on how certain features are implemented.
 
-### Appointment location editing
+### Appointment editing
 
-`editappt A<INDEX> loc/LOCATION` implements UC03. `EditAppointmentCommandParser` parses the displayed
-reference and reuses `ParserUtil.parseAppointmentLocation`. Missing, repeated or unsupported fields
-are rejected before command execution.
+`editappt APPOINTMENT_INDEX [n/APPOINTMENT_NAME] [c/CLIENT_INDEX] [d/DATETIME] [loc/LOCATION] [desc/DESCRIPTION]`
+supports all five fields in the feature specification, including UC03's location change. Appointment and
+client references are numeric positions in their respective displayed lists; neither is a permanent ID.
+`EditAppointmentCommandParser` rejects missing changes, repeated/unknown prefixes and invalid values before
+execution. `ParserUtil#parseAppointmentEditDateTime` validates the exact `yyyy-MM-dd HH:mm` format and real
+calendar values independently of the creation command's date format.
 
-`EditAppointmentCommand` resolves the reference against `Model#getFilteredAppointmentList`, then builds
-an immutable replacement retaining the name, client, time interval and remarks. `Model#setAppointment`
-replaces the existing entry and commits a history snapshot, preserving the active filters. Storage uses
-the existing appointment JSON format. An unchanged location is rejected without recording history.
+The immutable `AppointmentEditFields` distinguishes an omitted description (`null`) from an explicit clear
+(empty string). It validates edit-specific name and location limits. `AppointmentName` can represent legacy
+creation names of up to 80 letters/spaces and replacement names of up to 50 letters/digits/spaces, so an edit
+cannot make its saved name unreadable. Creation still uses its original letter-only validation.
 
-Only location editing is exposed; changing time, name, client or remarks is outside this command's scope.
-The shared history and checkpoint APIs provide separate undo steps for creation and editing, and restore
-data, history and filters if saving fails. Integration tests exercise these paths through the command parser
-and real JSON storage, including simulated I/O and permission failures.
+`EditAppointmentCommand` resolves both references against the current filtered lists and constructs the
+complete immutable replacement before mutation. A new start time shifts the end by the original duration;
+an overflowing end is rejected. `Model#setAppointment` checks the full schedule for clashes, excluding the
+target, then replaces the stored entry and commits one history snapshot. A rejected replacement changes
+neither data nor history. Active filters are retained, so a changed client/date can hide the edited record.
+
+![Appointment edit execution, persistence and no-op behavior](images/EditAppointmentSequenceDiagram.png)
+
+If the replacement equals the target, the command returns `CommandResult.withoutSave` with a friendly
+advisory. `LogicManager` skips storage for this successful no-op, preserving the file, filters and redo
+history even if the data file cannot be written. Changed results use the existing save/checkpoint path:
+a save failure restores all fields, both filters and the history before reporting the error. Diagnostic
+logs distinguish rejected edits, no-ops, in-memory updates and completed persistence.
+
+Integration tests exercise individual and combined fields, clearing notes, filtered references, chronological
+reordering, preserved durations, hidden schedule clashes, calendar overflow, unchanged edits, legacy names,
+separate creation/edit undo steps, JSON round trips and I/O/permission failure rollback.
 
 ### Appointment viewing and deletion
 
@@ -236,7 +252,7 @@ are recalculated by the panel and are not stored as stable IDs. These commands d
 `appointment` supplies the creation dependency for this iteration: it validates all required fields,
 resolves a displayed client reference and checks for overlaps against the complete stored schedule.
 Intervals that meet at an endpoint do not clash. The model also rejects overlapping appointments,
-including when loading saved data. Location editing is implemented by `editappt` as described above.
+including when loading saved data. Appointment editing is implemented by `editappt` as described above.
 
 The model provides `Model#setAppointment(target, editedAppointment)` for the `editappt`
 command. Construct the complete immutable replacement first, resolve its client against the current
@@ -740,6 +756,12 @@ testers are expected to do more *exploratory* testing.
       Expected: Similar to previous.
 
 1. _{ more test cases …​ }_
+
+### Editing appointments
+
+Follow the [five-field appointment edit smoke test](Testing.md#appointment-edit-smoke-test). It exercises a
+combined edit, clearing notes, preserving duration, filter changes, undo/redo, unchanged input, schedule
+conflicts and save/restart behavior. Use numeric displayed positions for both `editappt` and its `c/` field.
 
 ### Saving data
 
