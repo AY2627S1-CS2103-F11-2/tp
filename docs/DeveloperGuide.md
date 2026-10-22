@@ -297,6 +297,11 @@ for a client mutation, appointment creation or appointment replacement. A commit
 data before truncating redo, so no-op edits preserve redo. Viewing and rejected commands do not
 record history. History is kept in memory only: after a restart there is nothing to undo or redo.
 
+`MainApp` builds the startup notice when the data file cannot be read: `Messages#formatUnreadableDataFile`
+names the data file and the preserved copy, and `UiManager` passes it to `MainWindow`, which shows it in
+the result box. A failed save names the data file path in the exception message, and `LogicManager`
+restores the checkpoint before reporting it, so the data, both filters and the history match the file.
+
 Confirmed `deleteappt` is deliberately irreversible. After removal, `VersionedAddressBook#resetHistory()`
 replaces the whole timeline with the current data as its only baseline. This clears both older undo
 and redo entries, including client changes, and prevents any old snapshot from resurrecting the
