@@ -322,6 +322,27 @@ Clears all clients and appointments from the address book.
 
 Format: `clear`
 
+### Backing up your data: `backup`
+
+Writes a copy of your current data to the backup folder, so a mistake or a hand-edited file can be
+recovered later.
+
+Format: `backup [f/FILE]`
+
+* With no `f/FILE`, the copy is named `clients-<yyyy-MM-dd-HHmm>.json`, for example
+  `data/backup/clients-2026-10-21-1430.json`.
+* With `f/FILE`, that name is used instead. It must end in `.json` and contain no folder part.
+* Copies are written into the `data/backup` folder in the project directory.
+* An existing file is never overwritten. Use another name, or let the timestamped name be used.
+* The default name has minute resolution, so a second `backup` within the same minute is refused as an
+  existing file. Pass your own name with `f/FILE` if you need more than one in a minute.
+* Nothing in the app changes. Your clients, appointments, current filters and the undo and redo history
+  all stay exactly as they were, so `undo` after a backup still reverses your last change.
+* If the file cannot be written, the result box names the file and says that nothing was changed.
+* The copy is a complete data file in the same format as your data file, so `restore` can read it later.
+
+Example: `backup f/before-clearing.json` writes `data/backup/before-clearing.json`.
+
 ### Restoring from a backup: `restore`
 
 Replaces all clients and appointments with the contents of a backup file, so data can be recovered after a
@@ -427,6 +448,7 @@ Action | Format, Examples
 **List** | `list`
 **Redo** | `redo`
 **Undo** | `undo`
+**Backup** | `backup [f/FILE]` <br> e.g., `backup f/before-clearing.json`
 **Restore** | `restore f/FILE` <br> e.g., `restore f/before-clearing.json`
 
 **Add appointment** | `appointment n/NAME c/CLIENT_INDEX loc/LOCATION s/YYYYMMDD-HHMM e/YYYYMMDD-HHMM`
