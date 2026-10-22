@@ -49,7 +49,7 @@ AddressBook *--> "1" UniquePersonList
 UniquePersonList --> "~* all" Person
 AddressBook *--> "~* all" Appointment
 
-Person *--> ClientId
+Person *--> "0..1" ClientId
 Person *--> Name
 Person *--> Phone
 Person *--> Email
@@ -73,6 +73,7 @@ AppointmentName -[hidden]right-> AppointmentLocation
 AppointmentLocation -[hidden]right-> AppointmentDateTime
 AppointmentDateTime -[hidden]right-> AppointmentRemarks
 
-ModelManager --> "~* filtered" Person
+ModelManager --> "~*" Person : filtered, sorted >
+ModelManager --> "0..1" Person : appointment client filter >
 ModelManager --> "~* filtered, sorted" Appointment
 @enduml
