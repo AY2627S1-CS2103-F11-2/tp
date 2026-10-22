@@ -60,6 +60,11 @@ public class MainWindow extends UiPart<Stage> {
     @FXML
     private StackPane statusbarPlaceholder;
 
+    /** Creates a {@code MainWindow} with no startup message. */
+    public MainWindow(Stage primaryStage, Logic logic, Path dataFilePath) {
+        this(primaryStage, logic, dataFilePath, "");
+    }
+
     /**
      * Creates a {@code MainWindow} with the given {@code Stage}, {@code Logic}, the data file path to
      * show in the status bar, and a message to show in the result box at startup.

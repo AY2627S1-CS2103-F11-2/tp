@@ -28,6 +28,11 @@ public class UiManager implements Ui {
     private String startupMessage;
     private MainWindow mainWindow;
 
+    /** Creates a {@code UiManager} with no startup message. */
+    public UiManager(Logic logic, Path dataFilePath) {
+        this(logic, dataFilePath, "");
+    }
+
     /**
      * Creates a {@code UiManager} with the given {@code Logic}, the data file path to show in the
      * status bar, and a message to show at startup when the data file could not be read.
