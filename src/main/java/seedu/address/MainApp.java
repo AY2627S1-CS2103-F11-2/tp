@@ -14,6 +14,7 @@ import seedu.address.commons.util.FileUtil;
 import seedu.address.commons.util.StringUtil;
 import seedu.address.logic.Logic;
 import seedu.address.logic.LogicManager;
+import seedu.address.logic.Messages;
 import seedu.address.model.AddressBook;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
@@ -43,6 +44,7 @@ public class MainApp extends Application {
     protected Logic logic;
     protected Storage storage;
     protected Model model;
+    private String startupMessage = "";
 
     @Override
     public void init() throws Exception {
@@ -58,7 +60,7 @@ public class MainApp extends Application {
 
         logic = new LogicManager(model, storage);
 
-        ui = new UiManager(logic, storage.getAddressBookFilePath());
+        ui = new UiManager(logic, storage.getAddressBookFilePath(), startupMessage);
     }
 
     /**
@@ -81,7 +83,8 @@ public class MainApp extends Application {
         } catch (DataLoadingException e) {
             logger.warning("Data file at " + storage.getAddressBookFilePath() + " could not be loaded."
                     + " Will be starting with an empty AddressBook.");
-            preserveUnreadableDataFile();
+            startupMessage = Messages.formatUnreadableDataFile(storage.getAddressBookFilePath(),
+                    preserveUnreadableDataFile());
             initialData = new AddressBook();
         }
 
@@ -92,13 +95,15 @@ public class MainApp extends Application {
      * Moves a data file that could not be read aside, so that starting the app and then saving cannot
      * overwrite data that is still recoverable by hand.
      */
-    private void preserveUnreadableDataFile() {
+    private Optional<Path> preserveUnreadableDataFile() {
         Path dataFilePath = storage.getAddressBookFilePath();
         try {
             Path quarantinedFilePath = FileUtil.quarantineCorruptFile(dataFilePath);
             logger.warning("Renamed the unreadable data file to " + quarantinedFilePath);
+            return Optional.of(quarantinedFilePath);
         } catch (IOException e) {
             logger.warning("Could not rename the unreadable data file at " + dataFilePath + ": " + e.getMessage());
+            return Optional.empty();
         }
     }
 
