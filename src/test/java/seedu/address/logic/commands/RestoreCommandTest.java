@@ -117,6 +117,23 @@ public class RestoreCommandTest {
     }
 
     @Test
+    public void execute_unusableFileName_isTreatedAsMissing() throws Exception {
+        Path dir = writeBackup(new AddressBook(), "placeholder.json");
+        RestoreCommand command = new RestoreCommand("bad?.json", dir);
+        CommandException e = assertThrows(CommandException.class, () -> command.execute(newModel()));
+        assertEquals(String.format(RestoreCommand.MESSAGE_MISSING, "bad?.json"), e.getMessage());
+    }
+
+    @Test
+    public void execute_nullClientList_reportsNotAClientList() throws Exception {
+        Path dir = writeBackup(new AddressBook(), "placeholder.json");
+        Files.writeString(dir.resolve("nulls.json"), "{\"persons\": null}");
+        RestoreCommand command = new RestoreCommand("nulls.json", dir);
+        CommandException e = assertThrows(CommandException.class, () -> command.execute(newModel()));
+        assertEquals(RestoreCommand.MESSAGE_NOT_A_LIST, e.getMessage());
+    }
+
+    @Test
     public void equals() {
         RestoreCommand first = new RestoreCommand("a.json", tempDir);
         assertEquals(first, new RestoreCommand("a.json", tempDir));

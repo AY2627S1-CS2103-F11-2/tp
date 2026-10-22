@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PERSONS;
 
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
@@ -28,6 +29,8 @@ public class RestoreCommand extends Command {
     public static final String MESSAGE_NOT_A_LIST = "That file is not a valid client list, so nothing was restored.";
     /** Backups are written and read in the same folder. */
     public static final Path BACKUP_DIR = Paths.get("data", "backup");
+    /** Characters Windows forbids in a file name, rejected on every platform so the result is the same. */
+    private static final String ILLEGAL_NAME_CHARACTERS = "<>:\"|?*";
 
     private final String fileName;
     private final Path backupDir;
@@ -46,10 +49,15 @@ public class RestoreCommand extends Command {
     @Override
     public CommandResult execute(Model model) throws CommandException {
         requireNonNull(model);
-        if (fileName.contains("/") || fileName.contains("\\") || fileName.contains("..")) {
+        if (hasUnusableName(fileName)) {
             throw new CommandException(String.format(MESSAGE_MISSING, fileName));
         }
-        Path source = backupDir.resolve(fileName);
+        Path source;
+        try {
+            source = backupDir.resolve(fileName);
+        } catch (InvalidPathException e) {
+            throw new CommandException(String.format(MESSAGE_MISSING, fileName), e);
+        }
         if (!Files.exists(source)) {
             throw new CommandException(String.format(MESSAGE_MISSING, fileName));
         }
@@ -66,6 +74,13 @@ public class RestoreCommand extends Command {
         model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
         int count = model.getAddressBook().getPersonList().size();
         return new CommandResult(String.format(MESSAGE_SUCCESS, count, fileName));
+    }
+
+    /** Returns true for a name that cannot be a backup file name, or that points outside the folder. */
+    private static boolean hasUnusableName(String name) {
+        return name.contains("/") || name.contains("\\") || name.contains("..")
+                || name.chars().anyMatch(character -> character < 0x20
+                        || ILLEGAL_NAME_CHARACTERS.indexOf(character) >= 0);
     }
 
     @Override

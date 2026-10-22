@@ -7,6 +7,7 @@ import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,7 @@ import seedu.address.testutil.PersonBuilder;
 /** Drives restore through the real parser and the real save path. */
 public class RestoreIntegrationTest {
 
-    private static final String NAME = "it-restore.json";
+    private static final String NAME = "it-restore-" + UUID.randomUUID() + ".json";
 
     @TempDir
     public Path directory;

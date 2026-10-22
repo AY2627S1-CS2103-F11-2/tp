@@ -69,6 +69,9 @@ class JsonSerializableAddressBook {
     public AddressBook toModelType() throws IllegalValueException {
         AddressBook addressBook = new AddressBook();
         List<Person> modelPersons = new ArrayList<>();
+        if (persons == null) {
+            throw new IllegalValueException("Client list cannot be null.");
+        }
         for (JsonAdaptedPerson jsonAdaptedPerson : persons) {
             if (jsonAdaptedPerson == null) {
                 throw new IllegalValueException("Client entry cannot be null.");
