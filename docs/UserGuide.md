@@ -332,8 +332,10 @@ Format: `backup [f/FILE]`
 * With no `f/FILE`, the copy is named `clients-<yyyy-MM-dd-HHmm>.json`, for example
   `data/backup/clients-2026-10-21-1430.json`.
 * With `f/FILE`, that name is used instead. It must end in `.json` and contain no folder part.
-* Copies are written into the `backup` folder beside your data file, which is `data/backup` by default.
+* Copies are written into the `data/backup` folder in the project directory.
 * An existing file is never overwritten. Use another name, or let the timestamped name be used.
+* The default name has minute resolution, so a second `backup` within the same minute is refused as an
+  existing file. Pass your own name with `f/FILE` if you need more than one in a minute.
 * Nothing in the app changes. Your clients, appointments, current filters and the undo and redo history
   all stay exactly as they were, so `undo` after a backup still reverses your last change.
 * If the file cannot be written, the result box names the file and says that nothing was changed.

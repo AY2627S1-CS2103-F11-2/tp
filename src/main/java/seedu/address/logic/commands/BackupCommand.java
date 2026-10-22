@@ -25,7 +25,8 @@ public class BackupCommand extends Command {
     public static final String COMMAND_WORD = "backup";
     public static final String MESSAGE_USAGE = "backup [f/FILE]";
     public static final String MESSAGE_SUCCESS = "Backed up %1$d clients to %2$s.";
-    public static final String MESSAGE_FAILURE = "Could not write the backup to %1$s. Nothing was changed.";
+    public static final String MESSAGE_FAILURE =
+            "Could not write the backup to %1$s. Nothing was changed. Reason: %2$s";
     public static final String MESSAGE_EXISTS =
             "A backup named %1$s already exists. Choose another name with f/FILE.";
     public static final Path DEFAULT_BACKUP_DIR = Paths.get("data", "backup");
@@ -58,10 +59,10 @@ public class BackupCommand extends Command {
             Files.createDirectories(backupDir);
             new JsonAddressBookStorage(target).saveAddressBook(model.getAddressBook());
         } catch (IOException e) {
-            throw new CommandException(String.format(MESSAGE_FAILURE, target));
+            throw new CommandException(String.format(MESSAGE_FAILURE, target, e.getMessage()), e);
         }
         int count = model.getAddressBook().getPersonList().size();
-        return new CommandResult(String.format(MESSAGE_SUCCESS, count, target));
+        return CommandResult.withoutSave(String.format(MESSAGE_SUCCESS, count, target));
     }
 
     /** Resolves the file to write, using a timestamped name when none was supplied. */
