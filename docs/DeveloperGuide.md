@@ -123,13 +123,16 @@ How the parsing works:
 ### Model component
 **API** : [`Model.java`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/model/Model.java)
 
-<img src="images/ModelClassDiagram.png" width="450" />
+<img src="images/ModelClassDiagram.png" width="800" />
 
 
 The `Model` component,
 
-* stores the address book data i.e., all `Person` objects (which are contained in a `UniquePersonList` object).
-* stores the `Person` objects selected by the current filter, such as search results, in a separate _filtered_ list. It exposes this list as an unmodifiable `ObservableList<Person>` that the UI can observe and bind to, so the UI updates when the list changes.
+* stores the address book data, i.e. all `Person` objects (contained in a `UniquePersonList` object) and all `Appointment` objects.
+  Each `Appointment` refers to the `Person` it is for, so editing a client updates its appointments and deleting a client removes them.
+* holds that data in a `VersionedAddressBook`, an `AddressBook` that also keeps the snapshots used by `undo` and `redo` (see [Undo/redo feature](#undoredo-feature)).
+* stores the `Person` objects selected by the current filter, such as search results, in a separate _filtered_ list, sorted by name and then client ID. It exposes this list as an unmodifiable `ObservableList<Person>` that the UI can observe and bind to, so the UI updates when the list changes.
+* similarly exposes the `Appointment` objects selected by the current client and date filter as an unmodifiable list in chronological order. The client filter holds the selected `Person` itself, not their position in the displayed list.
 * stores a `UserPrefs` object that represents the user’s preferences (currently, just the GUI settings). This is exposed to the outside as a `ReadOnlyUserPrefs` object.
 * does not depend on any of the other three components (as the `Model` represents data entities of the domain, they should make sense on their own without depending on other components)
 
@@ -148,6 +151,7 @@ The `Model` component,
 
 The `Storage` component,
 * can save both address book data and user preference data in JSON format, and read them back into corresponding objects.
+* saves clients and appointments in the same data file. A `JsonAdaptedAppointment` refers to its client by position in the saved client list, so the link survives a restart.
 * is implemented by `StorageManager`, which delegates the actual JSON file access to `JsonAddressBookStorage` and `JsonUserPrefsStorage` (one class per data file).
 * depends on some classes in the `Model` component (because the `Storage` component's job is to save/retrieve objects that belong to the `Model`)
 
