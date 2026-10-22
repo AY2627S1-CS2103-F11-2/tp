@@ -32,9 +32,16 @@ class JsonAdaptedAppointment {
     }
 
     public JsonAdaptedAppointment(Appointment appointment, List<Person> clients) {
-        this(appointment.getName(), clients.indexOf(appointment.getClient()) + 1,
+        this(appointment.getName(), toClientPosition(appointment, clients),
                 appointment.getLocation(), appointment.getStart().toString(), appointment.getEnd().toString(),
                 appointment.getRemarks());
+    }
+
+    /** Returns the one-based position of the appointment's client in the complete client list being saved. */
+    private static int toClientPosition(Appointment appointment, List<Person> clients) {
+        int position = clients.indexOf(appointment.getClient()) + 1;
+        assert position > 0 : "An appointment's client must be saved with it, or the link would be lost.";
+        return position;
     }
 
     /** Rejects fractional, overflowing and non-numeric references rather than coercing them to a client. */

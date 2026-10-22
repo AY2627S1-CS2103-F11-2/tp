@@ -10,6 +10,7 @@ import static seedu.address.testutil.TypicalPersons.ALICE;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -104,5 +105,10 @@ public class AppointmentStorageTest {
         appointments.removeAll().addNull();
         Files.writeString(file, root.toString());
         assertThrows(DataLoadingException.class, storage::readAddressBook);
+    }
+
+    @Test
+    public void adaptAppointment_clientMissingFromSavedList_failsAssertion() {
+        assertThrows(AssertionError.class, () -> new JsonAdaptedAppointment(VIEWING, List.of()));
     }
 }
