@@ -322,6 +322,25 @@ Clears all clients and appointments from the address book.
 
 Format: `clear`
 
+### Restoring from a backup: `restore`
+
+Replaces all clients and appointments with the contents of a backup file, so data can be recovered after a
+mistake or a hand-edited file.
+
+Format: `restore f/FILE`
+
+* `FILE` is the name of a `.json` file in the `backup` folder beside your data file, for example
+  `restore f/before-clearing.json`. It must not contain a folder part.
+* The whole backup is checked before anything changes. A name that is not in the folder is rejected with
+  `No backup file named <name> in the data folder.`, and a file that is not a client list is rejected with
+  `That file is not a valid client list, so nothing was restored.`
+* A successful restore shows `Restored N clients from <name>`, clears both filters so the restored clients
+  are visible, and is saved automatically.
+* The restore is one undoable step, so `undo` brings back the data you had before it, and earlier history
+  is kept.
+
+Example: `restore f/before-clearing.json`
+
 ### Undoing the last change: `undo`
 
 Restores clients and appointments to how they were before the last undoable change.
@@ -408,6 +427,7 @@ Action | Format, Examples
 **List** | `list`
 **Redo** | `redo`
 **Undo** | `undo`
+**Restore** | `restore f/FILE` <br> e.g., `restore f/before-clearing.json`
 
 **Add appointment** | `appointment n/NAME c/CLIENT_INDEX loc/LOCATION s/YYYYMMDD-HHMM e/YYYYMMDD-HHMM`
 **View appointments** | `appointments [c/CLIENT_INDEX] [d/DDMMYYYY]`
