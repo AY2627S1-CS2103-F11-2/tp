@@ -205,7 +205,7 @@ public class MainWindow extends UiPart<Stage> {
         try {
             CommandResult commandResult = logic.execute(commandText);
             commandResult.getSelectedClient().ifPresent(personListPanel::selectPerson);
-            logger.info("Result: " + commandResult.getFeedbackToUser());
+            logger.fine("Command completed successfully.");
             resultDisplay.setFeedbackToUser(commandResult.getFeedbackToUser());
 
             if (commandResult.isShowHelp()) {
