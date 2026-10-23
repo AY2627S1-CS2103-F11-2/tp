@@ -63,8 +63,7 @@ public class SearchCommand extends Command {
                 .allMatch(model.getAddressBook().getPersonList()::contains)
                 : "Search results must only contain stored clients.";
 
-        logger.info("User searched with " + predicate);
-        logger.info("Search returned " + count + " result(s).");
+        logger.info("Search executed successfully; returned " + count + " result(s).");
 
         return new CommandResult(
                 String.format(Messages.MESSAGE_PERSONS_LISTED_OVERVIEW, count));
