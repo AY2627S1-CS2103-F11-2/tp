@@ -65,7 +65,7 @@ public class AppointmentStorageTest {
         AddressBook book = new AddressBook();
         book.addPerson(ALICE);
         book.addAppointment(new Appointment("Viewing", ALICE,
-                "\u2003 NUS  COM3 #02-01 \u2003", VIEWING.getStart(), VIEWING.getEnd(), ""));
+                "\u2003 NUS  COM3 #02-01 \u2003", VIEWING.getStart(), VIEWING.getEnd()));
         JsonAddressBookStorage storage = new JsonAddressBookStorage(directory.resolve("unit-number.json"));
         storage.saveAddressBook(book);
         AddressBook loaded = new AddressBook(storage.readAddressBook().orElseThrow());

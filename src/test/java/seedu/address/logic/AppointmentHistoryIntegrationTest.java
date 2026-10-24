@@ -145,7 +145,7 @@ public class AppointmentHistoryIntegrationTest {
     public void appointmentReplacement_savedDataAndUndoRedoRoundTripAllFields() throws Exception {
         Fixture fixture = fixture(getAppointmentAddressBook());
         Appointment replacement = new Appointment("Inspection", BOB, "NUS COM3 #02-01",
-                VIEWING.getStart().plusDays(4), VIEWING.getEnd().plusDays(4), "Updated remarks");
+                VIEWING.getStart().plusDays(4), VIEWING.getEnd().plusDays(4));
         // Exercise the model API for future editappt without introducing that CLI command here.
         fixture.model.setAppointment(VIEWING, replacement);
         fixture.logic.execute("list");

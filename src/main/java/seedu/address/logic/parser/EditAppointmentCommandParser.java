@@ -23,8 +23,7 @@ public class EditAppointmentCommandParser implements Parser<EditAppointmentComma
     private static final Prefix CLIENT = new Prefix("c/");
     private static final Prefix DATE_TIME = new Prefix("d/");
     private static final Prefix LOCATION = new Prefix("loc/");
-    private static final Prefix DESCRIPTION = new Prefix("desc/");
-    private static final Prefix[] EDITABLE_PREFIXES = {NAME, CLIENT, DATE_TIME, LOCATION, DESCRIPTION};
+    private static final Prefix[] EDITABLE_PREFIXES = {NAME, CLIENT, DATE_TIME, LOCATION};
     private static final Pattern FIELD_PREFIX = Pattern.compile("(?<!\\S)([A-Za-z][A-Za-z0-9_-]*/)");
 
     @Override
@@ -52,7 +51,7 @@ public class EditAppointmentCommandParser implements Parser<EditAppointmentComma
             AppointmentEditFields edits = new AppointmentEditFields(fields.getValue(NAME).orElse(null), client,
                     fields.getValue(DATE_TIME).isPresent()
                             ? ParserUtil.parseAppointmentEditDateTime(fields.getValue(DATE_TIME).orElseThrow()) : null,
-                    fields.getValue(LOCATION).orElse(null), fields.getValue(DESCRIPTION).orElse(null));
+                    fields.getValue(LOCATION).orElse(null));
             return new EditAppointmentCommand(index, edits);
         } catch (IllegalArgumentException e) {
             logger.fine("Appointment edit rejected: invalid field value.");

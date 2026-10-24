@@ -8,11 +8,11 @@ import seedu.address.commons.core.index.Index;
 import seedu.address.model.appointment.AppointmentName;
 
 /**
- * Validated optional appointment changes. Null means omitted; an empty description clears the notes.
+ * Validated optional appointment changes. Null means omitted;.
  * A client reference is a position in the displayed client list, resolved only during execution.
  */
 public record AppointmentEditFields(String name, Index clientIndex, LocalDateTime start,
-        String location, String description) {
+        String location) {
     public static final String MESSAGE_INVALID_NAME =
             "Appointment name should only contain alphanumeric characters and spaces, and it should not be blank.";
     public static final String MESSAGE_INVALID_LOCATION = "Location cannot be blank if the loc/ prefix is supplied.";
@@ -20,12 +20,11 @@ public record AppointmentEditFields(String name, Index clientIndex, LocalDateTim
     public static final String MESSAGE_INVALID_DATE_TIME = "Invalid date-time format! Date and time must follow "
             + "'yyyy-MM-dd HH:mm' and must be a valid calendar time.";
     public static final String MESSAGE_NO_FIELDS = "At least one field to edit must be provided: "
-            + "[n/APPOINTMENT_NAME] [c/CLIENT_INDEX] [d/DATETIME] [loc/LOCATION] [desc/DESCRIPTION]";
+            + "[n/APPOINTMENT_NAME] [c/CLIENT_INDEX] [d/DATETIME] [loc/LOCATION]";
 
     /** Validates every supplied change before the model can be mutated. */
     public AppointmentEditFields {
-        checkArgument(name != null || clientIndex != null || start != null || location != null || description != null,
-                MESSAGE_NO_FIELDS);
+        checkArgument(name != null || clientIndex != null || start != null || location != null, MESSAGE_NO_FIELDS);
         if (name != null) {
             name = name.strip();
             checkArgument(AppointmentName.isValidForEditing(name), MESSAGE_INVALID_NAME);

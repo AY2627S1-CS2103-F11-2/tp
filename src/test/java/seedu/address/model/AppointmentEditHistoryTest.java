@@ -28,7 +28,7 @@ public class AppointmentEditHistoryTest {
     @Test
     public void setAppointment_allFieldsChanged_singleUndoStepAndFilteredChronologicalDisplay() {
         Appointment edited = new Appointment("Inspection", BOB, "NUS COM3 #02-01",
-                HANDOVER.getEnd(), HANDOVER.getEnd().plusHours(2), "New keys");
+                HANDOVER.getEnd(), HANDOVER.getEnd().plusHours(2));
         model.updateFilteredPersonList(BOB::equals);
         model.updateFilteredAppointmentList(ALICE, VIEWING.getStart().toLocalDate());
         var liveSchedule = model.getFilteredAppointmentList();
@@ -50,7 +50,7 @@ public class AppointmentEditHistoryTest {
     @Test
     public void setAppointment_ownTimeUnchanged_excludesTargetFromClashCheck() {
         Appointment edited = new Appointment("Inspection", BOB, VIEWING.getLocation(),
-                VIEWING.getStart(), VIEWING.getEnd(), "");
+                VIEWING.getStart(), VIEWING.getEnd());
         model.setAppointment(VIEWING, edited);
         assertEquals(List.of(edited, SIGNING, HANDOVER), model.getFilteredAppointmentList());
         model.undoAddressBook();
@@ -62,7 +62,7 @@ public class AppointmentEditHistoryTest {
         model.updateFilteredPersonList(BOB::equals);
         model.updateFilteredAppointmentList(BOB, SIGNING.getStart().toLocalDate());
         Appointment edited = new Appointment(SIGNING.getName(), BOB, "NUS COM3 #02-01",
-                SIGNING.getStart(), SIGNING.getEnd(), SIGNING.getRemarks());
+                SIGNING.getStart(), SIGNING.getEnd());
         model.setAppointment(SIGNING, edited);
         assertEquals(List.of(edited), model.getFilteredAppointmentList());
         assertEquals(List.of(BOB), model.getFilteredPersonList());
@@ -75,11 +75,11 @@ public class AppointmentEditHistoryTest {
     @Test
     public void setAppointment_adjacentToOtherAppointments_allowed() {
         Appointment edited = new Appointment("Inspection", ALICE, "NUS",
-                SIGNING.getStart().minusHours(1), SIGNING.getStart(), "");
+                SIGNING.getStart().minusHours(1), SIGNING.getStart());
         model.setAppointment(VIEWING, edited);
         assertTrue(model.getAddressBook().getAppointmentList().contains(edited));
         Appointment after = new Appointment("Inspection", ALICE, "NUS",
-                SIGNING.getEnd(), SIGNING.getEnd().plusHours(1), "");
+                SIGNING.getEnd(), SIGNING.getEnd().plusHours(1));
         model.setAppointment(edited, after);
         assertTrue(model.getAddressBook().getAppointmentList().contains(after));
     }
@@ -88,13 +88,13 @@ public class AppointmentEditHistoryTest {
     public void setAppointment_clashesAcrossClientsOrContainsOtherAppointment_rejectedAtomically() {
         List<Appointment> invalid = List.of(SIGNING,
                 new Appointment("Inspection", ALICE, "NUS", SIGNING.getStart().minusMinutes(1),
-                        SIGNING.getEnd().plusMinutes(1), ""),
+                        SIGNING.getEnd().plusMinutes(1)),
                 new Appointment("Inspection", ALICE, "NUS", SIGNING.getStart().plusMinutes(1),
-                        SIGNING.getEnd().minusMinutes(1), ""),
+                        SIGNING.getEnd().minusMinutes(1)),
                 new Appointment("Inspection", ALICE, "NUS", SIGNING.getStart().minusMinutes(1),
-                        SIGNING.getStart().plusMinutes(1), ""),
+                        SIGNING.getStart().plusMinutes(1)),
                 new Appointment("Inspection", ALICE, "NUS", SIGNING.getEnd().minusMinutes(1),
-                        SIGNING.getEnd().plusMinutes(1), ""));
+                        SIGNING.getEnd().plusMinutes(1)));
         prepareRedoAndFilters();
         for (Appointment replacement : invalid) {
             assertThrows(IllegalArgumentException.class, () -> model.setAppointment(VIEWING, replacement));
@@ -109,7 +109,7 @@ public class AppointmentEditHistoryTest {
         prepareRedoAndFilters();
         assertThrows(IllegalArgumentException.class, () -> model.setAppointment(VIEWING, VIEWING.withClient(CARL)));
         Appointment missing = new Appointment("Missing", ALICE, "NUS", HANDOVER.getEnd(),
-                HANDOVER.getEnd().plusHours(1), "");
+                HANDOVER.getEnd().plusHours(1));
         assertThrows(IllegalArgumentException.class, () -> model.setAppointment(missing, missing));
         assertUnchangedWithRedoAndFilters();
     }
@@ -126,7 +126,7 @@ public class AppointmentEditHistoryTest {
     public void setAppointment_identicalReplacement_preservesRedoAndFilters() {
         prepareRedoAndFilters();
         Appointment copy = new Appointment(VIEWING.getName(), ALICE, VIEWING.getLocation(),
-                VIEWING.getStart(), VIEWING.getEnd(), VIEWING.getRemarks());
+                VIEWING.getStart(), VIEWING.getEnd());
         model.setAppointment(VIEWING, copy);
         assertUnchangedWithRedoAndFilters();
     }
@@ -134,7 +134,7 @@ public class AppointmentEditHistoryTest {
     @Test
     public void setAppointment_changeAfterUndo_discardsRedo() {
         prepareRedoAndFilters();
-        Appointment edited = new Appointment("Inspection", BOB, "NUS", VIEWING.getStart(), VIEWING.getEnd(), "");
+        Appointment edited = new Appointment("Inspection", BOB, "NUS", VIEWING.getStart(), VIEWING.getEnd());
         model.setAppointment(VIEWING, edited);
         assertFalse(model.canRedoAddressBook());
         model.undoAddressBook();
@@ -169,7 +169,7 @@ public class AppointmentEditHistoryTest {
     public void addAppointment_clash_rejectedWithoutDiscardingRedo() {
         prepareRedoAndFilters();
         Appointment clash = new Appointment("Inspection", BOB, "Other location", VIEWING.getStart(),
-                VIEWING.getEnd(), "");
+                VIEWING.getEnd());
         assertThrows(IllegalArgumentException.class, () -> model.addAppointment(clash));
         assertUnchangedWithRedoAndFilters();
     }
@@ -178,7 +178,7 @@ public class AppointmentEditHistoryTest {
     public void deleteAppointment_missingTarget_doesNotClearHistory() {
         prepareRedoAndFilters();
         LocalDateTime later = HANDOVER.getEnd().plusDays(1);
-        Appointment missing = new Appointment("Missing", ALICE, "NUS", later, later.plusHours(1), "");
+        Appointment missing = new Appointment("Missing", ALICE, "NUS", later, later.plusHours(1));
         assertThrows(IllegalArgumentException.class, () -> model.deleteAppointment(missing));
         assertUnchangedWithRedoAndFilters();
     }

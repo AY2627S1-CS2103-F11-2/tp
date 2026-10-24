@@ -43,7 +43,7 @@ public class AddAppointmentCommand extends Command {
             throw new CommandException(AppointmentsCommand.MESSAGE_INVALID_CLIENT);
         }
         Appointment appointment = new Appointment(name, model.getFilteredPersonList().get(clientIndex.getZeroBased()),
-                location, start, end, "");
+                location, start, end);
         assert model.hasPerson(appointment.getClient()) : "Displayed client must exist in the address book.";
         for (Appointment existing : model.getAddressBook().getAppointmentList()) {
             if (appointment.overlaps(existing)) {

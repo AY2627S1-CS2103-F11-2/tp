@@ -11,11 +11,11 @@ import seedu.address.model.appointment.Appointment;
 /** Appointments deliberately stored out of chronological order to exercise displayed references. */
 public class TypicalAppointments {
     public static final Appointment VIEWING = new Appointment("Viewing", ALICE, "Clementi 123456",
-            LocalDateTime.of(2026, 10, 15, 10, 0), LocalDateTime.of(2026, 10, 15, 11, 0), "Bring keys");
+            LocalDateTime.of(2026, 10, 15, 10, 0), LocalDateTime.of(2026, 10, 15, 11, 0));
     public static final Appointment SIGNING = new Appointment("Signing", BOB, "NUS",
-            LocalDateTime.of(2026, 10, 15, 14, 0), LocalDateTime.of(2026, 10, 15, 15, 0), "");
+            LocalDateTime.of(2026, 10, 15, 14, 0), LocalDateTime.of(2026, 10, 15, 15, 0));
     public static final Appointment HANDOVER = new Appointment("Handover", ALICE, "Sentosa Cove",
-            LocalDateTime.of(2026, 10, 16, 9, 0), LocalDateTime.of(2026, 10, 16, 10, 0), "Check inventory");
+            LocalDateTime.of(2026, 10, 16, 9, 0), LocalDateTime.of(2026, 10, 16, 10, 0));
 
     public static AddressBook getAppointmentAddressBook() {
         AddressBook book = new AddressBook();

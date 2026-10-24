@@ -119,7 +119,7 @@ public class AppointmentHistorySequenceTest {
     private Appointment appointment(Person client, int step) {
         LocalDateTime start = LocalDateTime.of(2027, 1, 1, 10, 0).plusDays(step);
         return new Appointment("Viewing " + letters(step), client, "Block " + step + " #02-01",
-                start, start.plusHours(1), "Remarks " + step);
+                start, start.plusHours(1));
     }
 
     private String letters(int value) {

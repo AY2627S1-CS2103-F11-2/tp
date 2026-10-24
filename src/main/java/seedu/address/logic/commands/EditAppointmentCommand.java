@@ -21,7 +21,7 @@ import seedu.address.model.person.Person;
 public class EditAppointmentCommand extends Command {
     public static final String COMMAND_WORD = "editappt";
     public static final String MESSAGE_USAGE = "editappt APPOINTMENT_INDEX [n/APPOINTMENT_NAME] "
-            + "[c/CLIENT_INDEX] [d/DATETIME] [loc/LOCATION] [desc/DESCRIPTION]";
+            + "[c/CLIENT_INDEX] [d/DATETIME] [loc/LOCATION]";
     public static final String MESSAGE_INVALID_INDEX = "The appointment index provided is invalid. "
             + "(Must be a positive integer between 1 and %d)";
     public static final String MESSAGE_INVALID_CLIENT = "The client index provided is invalid. "
@@ -39,7 +39,7 @@ public class EditAppointmentCommand extends Command {
 
     /** Creates a location-only edit using the same validation as other appointment changes. */
     public EditAppointmentCommand(Index targetIndex, String location) {
-        this(targetIndex, new AppointmentEditFields(null, null, null, requireNonNull(location), null));
+        this(targetIndex, new AppointmentEditFields(null, null, null, requireNonNull(location)));
     }
 
     /** Creates an edit after every supplied field has been validated. */
@@ -78,7 +78,7 @@ public class EditAppointmentCommand extends Command {
         return new CommandResult("Edited Appointment: [Index " + targetIndex.getOneBased() + "] Title: "
                 + edited.getName() + "; Client: " + edited.getClient().getName().fullName
                 + "; Date & Time: " + edited.getStart().format(DISPLAY_DATE_TIME)
-                + "; Location: " + edited.getLocation() + "; Description: " + edited.getRemarks());
+                + "; Location: " + edited.getLocation());
     }
 
     private Appointment createEditedAppointment(Model model, Appointment target) throws CommandException {
@@ -106,8 +106,7 @@ public class EditAppointmentCommand extends Command {
         }
         assert model.hasPerson(client) : "Appointment client must exist in the address book.";
         return new Appointment(fields.name() == null ? target.getName() : fields.name(), client,
-                fields.location() == null ? target.getLocation() : fields.location(), start, end,
-                fields.description() == null ? target.getRemarks() : fields.description());
+                fields.location() == null ? target.getLocation() : fields.location(), start, end);
     }
 
     @Override
