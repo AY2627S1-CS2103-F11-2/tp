@@ -22,19 +22,17 @@ public final class Appointment {
     private final AppointmentLocation location;
     private final AppointmentDateTime start;
     private final AppointmentDateTime end;
-    private final AppointmentRemarks remarks;
 
     /** Creates an appointment after validating its fields and period. */
     public Appointment(String name, Person client, String location, LocalDateTime start,
-            LocalDateTime end, String remarks) {
-        requireAllNonNull(name, client, location, start, end, remarks);
+            LocalDateTime end) {
+        requireAllNonNull(name, client, location, start, end);
         this.name = new AppointmentName(name);
         this.client = client;
         this.location = new AppointmentLocation(location);
         this.start = new AppointmentDateTime(start);
         this.end = new AppointmentDateTime(end);
         checkArgument(this.end.compareTo(this.start) > 0, MESSAGE_INVALID_PERIOD);
-        this.remarks = new AppointmentRemarks(remarks);
     }
 
     public String getName() {
@@ -57,10 +55,6 @@ public final class Appointment {
         return end.getValue();
     }
 
-    public String getRemarks() {
-        return remarks.getValue();
-    }
-
     public static boolean isValidName(String apptName) {
         return AppointmentName.isValidForCreation(apptName);
     }
@@ -72,7 +66,7 @@ public final class Appointment {
     /** Returns a copy linked to the updated client. */
     public Appointment withClient(Person updatedClient) {
         return new Appointment(name.getValue(), updatedClient, location.getValue(), start.getValue(),
-                end.getValue(), remarks.getValue());
+                end.getValue());
     }
 
     /** Adjacent appointments do not overlap. */
@@ -91,11 +85,11 @@ public final class Appointment {
         }
         return name.equals(appointment.name) && client.equals(appointment.client)
                 && location.equals(appointment.location) && start.equals(appointment.start)
-                && end.equals(appointment.end) && remarks.equals(appointment.remarks);
+                && end.equals(appointment.end);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, client, location, start, end, remarks);
+        return Objects.hash(name, client, location, start, end);
     }
 }

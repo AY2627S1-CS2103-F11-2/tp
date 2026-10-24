@@ -14,25 +14,24 @@ import seedu.address.logic.parser.exceptions.ParseException;
 /** Checks specification boundaries before any appointment edit reaches the model. */
 public class AppointmentEditFieldsTest {
     @Test
-    public void suppliedFields_validateAndNormalizeWithoutLosingAnEmptyDescription() {
+    public void suppliedFields_validateAndNormalize() {
         AppointmentEditFields fields = new AppointmentEditFields("  Viewing 123  ", INDEX_FIRST_PERSON,
-                LocalDateTime.of(2026, 10, 18, 15, 30), "  NUS  COM3 #02-01  ", "");
+                LocalDateTime.of(2026, 10, 18, 15, 30), "  NUS  COM3 #02-01  ");
         assertEquals("Viewing 123", fields.name());
         assertEquals("NUS  COM3 #02-01", fields.location());
-        assertEquals("", fields.description());
-        assertEquals(100, new AppointmentEditFields(null, null, null, "A".repeat(100), null).location().length());
+        assertEquals(100, new AppointmentEditFields(null, null, null, "A".repeat(100)).location().length());
     }
 
     @Test
     public void invalidFields_rejectEmptyNamesOverlongValuesAndMissingChanges() {
-        assertThrows(IllegalArgumentException.class, () -> new AppointmentEditFields(null, null, null, null, null));
+        assertThrows(IllegalArgumentException.class, () -> new AppointmentEditFields(null, null, null, null));
         for (String name : new String[]{"", " ", "Name!", "A".repeat(51)}) {
             assertThrows(IllegalArgumentException.class, ()
-                    -> new AppointmentEditFields(name, null, null, null, null));
+                    -> new AppointmentEditFields(name, null, null, null));
         }
         for (String location : new String[]{"", "\u2003", "A".repeat(101)}) {
             assertThrows(IllegalArgumentException.class, ()
-                    -> new AppointmentEditFields(null, null, null, location, null));
+                    -> new AppointmentEditFields(null, null, null, location));
         }
     }
 

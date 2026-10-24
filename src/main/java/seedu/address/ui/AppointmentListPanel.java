@@ -57,9 +57,6 @@ public class AppointmentListPanel extends UiPart<Region> {
                     label("Start: " + appointment.getStart().format(DATE_TIME) + " (Singapore)"),
                     label("End: " + appointment.getEnd().format(DATE_TIME) + " (Singapore)"),
                     label("Location: " + appointment.getLocation()));
-            if (!appointment.getRemarks().isEmpty()) {
-                card.getChildren().add(label("Remarks: " + appointment.getRemarks()));
-            }
             card.setStyle("-fx-padding: 10;");
             setGraphic(card);
         }

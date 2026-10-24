@@ -25,21 +25,18 @@ public class EditAppointmentCommandParserTest {
     }
 
     @Test
-    public void parse_allFields_acceptsAnyOrderAndAnEmptyDescription() throws Exception {
+    public void parse_allFields_acceptsAnyOrder() throws Exception {
         AppointmentEditFields fields = new AppointmentEditFields("Viewing 2", Index.fromOneBased(2),
-                LocalDateTime.of(2026, 11, 1, 10, 0), "NUS  COM3", "");
+                LocalDateTime.of(2026, 11, 1, 10, 0), "NUS  COM3");
         EditAppointmentCommand expected = new EditAppointmentCommand(INDEX_FIRST_PERSON, fields);
-        assertEquals(expected, parser.parse("1 n/Viewing 2 c/2 d/2026-11-01 10:00 loc/NUS  COM3 desc/"));
-        assertEquals(expected, parser.parse("1 desc/ loc/NUS  COM3 d/2026-11-01 10:00 c/2 n/Viewing 2"));
-        assertEquals(new EditAppointmentCommand(INDEX_FIRST_PERSON,
-                new AppointmentEditFields(null, null, null, null, "See https://example.com/checklist")),
-                parser.parse("1 desc/See https://example.com/checklist"));
+        assertEquals(expected, parser.parse("1 n/Viewing 2 c/2 d/2026-11-01 10:00 loc/NUS  COM3"));
+        assertEquals(expected, parser.parse("1 loc/NUS  COM3 d/2026-11-01 10:00 c/2 n/Viewing 2"));
     }
 
     @Test
     public void parse_repeatedPrefixes_rejectsEvenIdenticalOrEmptyValues() {
         for (String fields : new String[]{"n/Viewing n/Viewing", "c/1 c/1", "d/2026-10-18 15:30 d/2026-10-18 15:30",
-            "loc/NUS loc/NUS", "desc/ desc/"}) {
+            "loc/NUS loc/NUS"}) {
             ParseException error = assertThrows(ParseException.class, () -> parser.parse("1 " + fields));
             assertEquals(true, error.getMessage().startsWith("Multiple values specified"));
         }

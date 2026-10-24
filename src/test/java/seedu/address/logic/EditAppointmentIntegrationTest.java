@@ -60,8 +60,8 @@ public class EditAppointmentIntegrationTest {
         logic.execute("appointments c/C1 d/15102026");
         Appointment expected = withLocation(SIGNING, "NUS  COM3 #02-01");
         assertEquals("Edited Appointment: [Index 1] Title: Signing; Client: " + BOB.getName().fullName
-                + "; Date & Time: 2026-10-15 14:00; Location: NUS  COM3 #02-01; Description: ",
-                logic.execute("editappt 1 loc/  NUS  COM3 #02-01  ").getFeedbackToUser());
+                + "; Date & Time: 2026-10-15 14:00; Location: NUS  COM3 #02-01",
+                logic.execute("editappt 1 loc/  NUS  COM3 #02-01").getFeedbackToUser());
         assertEquals(List.of(expected), model.getFilteredAppointmentList());
         assertEquals(List.of(BOB), model.getFilteredPersonList());
         AddressBook expectedBook = getAppointmentAddressBook();
@@ -171,12 +171,12 @@ public class EditAppointmentIntegrationTest {
         };
         LogicManager failingLogic = new LogicManager(model, new StorageManager(failingDisk,
                 new JsonUserPrefsStorage(directory.resolve("preferences.json"))));
-        CommandResult unchanged = failingLogic.execute("editappt 1 n/Signing c/1 d/2026-10-15 14:00 loc/NUS desc/");
+        CommandResult unchanged = failingLogic.execute("editappt 1 n/Signing c/1 d/2026-10-15 14:00 loc/NUS");
         assertFalse(unchanged.isSaveRequired());
         assertEquals(before, Files.readString(file));
         assertTrue(model.canRedoAddressBook());
         assertThrows(CommandException.class, () -> failingLogic.execute("editappt 1 n/Failed 2 c/1 "
-                + "d/2026-11-01 10:00 loc/Failed venue desc/Failed notes"));
+                + "d/2026-11-01 10:00 loc/Failed venue"));
         assertEquals(getAppointmentAddressBook(), model.getAddressBook());
         assertEquals(List.of(BOB), model.getFilteredPersonList());
         assertEquals(List.of(SIGNING), model.getFilteredAppointmentList());
@@ -196,7 +196,7 @@ public class EditAppointmentIntegrationTest {
     @Test
     public void execute_allFields_preservesDurationAndRoundTripsHistoryAndDisk() throws Exception {
         Appointment longer = new Appointment(VIEWING.getName(), ALICE, VIEWING.getLocation(),
-                VIEWING.getStart(), VIEWING.getEnd().plusMinutes(75), VIEWING.getRemarks());
+                VIEWING.getStart(), VIEWING.getEnd().plusMinutes(75));
         AddressBook baseline = getAppointmentAddressBook();
         baseline.setAppointment(VIEWING, longer);
         model = new ModelManager(baseline, new UserPrefs());
@@ -206,10 +206,10 @@ public class EditAppointmentIntegrationTest {
         model.updateFilteredPersonList(BOB::equals);
         model.updateFilteredAppointmentList(ALICE, VIEWING.getStart().toLocalDate());
 
-        logic.execute("editappt 1 n/Viewing 2 c/1 d/2026-11-01 10:00 loc/NUS COM3 #02-01 desc/Bring documents");
+        logic.execute("editappt 1 n/Viewing 2 c/1 d/2026-11-01 10:00 loc/NUS COM3 #02-01");
 
         Appointment expected = new Appointment("Viewing 2", BOB, "NUS COM3 #02-01",
-                LocalDateTime.of(2026, 11, 1, 10, 0), LocalDateTime.of(2026, 11, 1, 12, 15), "Bring documents");
+                LocalDateTime.of(2026, 11, 1, 10, 0), LocalDateTime.of(2026, 11, 1, 12, 15));
         assertTrue(model.getAddressBook().getAppointmentList().contains(expected));
         assertEquals(Duration.between(longer.getStart(), longer.getEnd()),
                 Duration.between(expected.getStart(), expected.getEnd()));
@@ -226,19 +226,15 @@ public class EditAppointmentIntegrationTest {
     }
 
     @Test
-    public void execute_individualFields_preservesOmittedFieldsAndClearsDescription() throws Exception {
+    public void execute_individualFields_preservesOmittedFields() throws Exception {
         logic.execute("editappt 1 n/Inspection 123");
         Appointment renamed = model.getFilteredAppointmentList().getFirst();
         assertEquals("Inspection 123", renamed.getName());
         assertEquals(VIEWING.getLocation(), renamed.getLocation());
         assertEquals(VIEWING.getStart(), renamed.getStart());
         assertEquals(VIEWING.getEnd(), renamed.getEnd());
-        assertEquals(VIEWING.getRemarks(), renamed.getRemarks());
         logic.execute("editappt 1 c/2");
         assertEquals(BOB, model.getFilteredAppointmentList().getFirst().getClient());
-        logic.execute("editappt 1 desc/");
-        assertEquals("", model.getFilteredAppointmentList().getFirst().getRemarks());
-        assertEquals(renamed.getName(), model.getFilteredAppointmentList().getFirst().getName());
         assertEquals(model.getAddressBook(), disk.readAddressBook().orElseThrow());
     }
 
@@ -249,7 +245,7 @@ public class EditAppointmentIntegrationTest {
         model.updateFilteredAppointmentList(ALICE, VIEWING.getStart().toLocalDate());
         String before = Files.readString(file);
         CommandException error = assertThrows(CommandException.class, ()
-                -> logic.execute("editappt 1 n/Changed 2 d/2026-10-15 14:30 loc/New venue desc/New notes"));
+                -> logic.execute("editappt 1 n/Changed 2 d/2026-10-15 14:30 loc/New venue"));
         assertEquals("Schedule clash with appointment: Signing", error.getMessage());
         assertEquals(getAppointmentAddressBook(), model.getAddressBook());
         assertEquals(List.of(VIEWING), model.getFilteredAppointmentList());
@@ -285,15 +281,15 @@ public class EditAppointmentIntegrationTest {
     @Test
     public void execute_legacyLongName_survivesUnrelatedEditsAndReload() throws Exception {
         Appointment legacy = new Appointment("A".repeat(80), ALICE, VIEWING.getLocation(),
-                VIEWING.getStart(), VIEWING.getEnd(), VIEWING.getRemarks());
+                VIEWING.getStart(), VIEWING.getEnd());
         model.setAppointment(VIEWING, legacy);
-        logic.execute("editappt 1 desc/Updated notes");
+        logic.execute("editappt 1 loc/Updated venue");
         assertEquals(legacy.getName(), model.getFilteredAppointmentList().getFirst().getName());
         assertEquals(model.getAddressBook(), disk.readAddressBook().orElseThrow());
     }
 
     private Appointment withLocation(Appointment target, String location) {
         return new Appointment(target.getName(), target.getClient(), location,
-                target.getStart(), target.getEnd(), target.getRemarks());
+                target.getStart(), target.getEnd());
     }
 }

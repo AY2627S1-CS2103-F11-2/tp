@@ -199,17 +199,17 @@ This section describes some noteworthy details on how certain features are imple
 
 ### Appointment editing
 
-`editappt APPOINTMENT_INDEX [n/APPOINTMENT_NAME] [c/CLIENT_INDEX] [d/DATETIME] [loc/LOCATION] [desc/DESCRIPTION]`
+`editappt APPOINTMENT_INDEX [n/APPOINTMENT_NAME] [c/CLIENT_INDEX] [d/DATETIME] [loc/LOCATION]`
 supports all five fields in the feature specification, including UC03's location change. Appointment and
 client references are numeric positions in their respective displayed lists; neither is a permanent ID.
 `EditAppointmentCommandParser` rejects missing changes, repeated/unknown prefixes and invalid values before
 execution. `ParserUtil#parseAppointmentEditDateTime` validates the exact `yyyy-MM-dd HH:mm` format and real
 calendar values independently of the creation command's date format.
 
-The immutable `AppointmentEditFields` distinguishes an omitted description (`null`) from an explicit clear
-(empty string). It validates edit-specific name and location limits. `AppointmentName` can represent legacy
-creation names of up to 80 letters/spaces and replacement names of up to 50 letters/digits/spaces, so an edit
-cannot make its saved name unreadable. Creation still uses its original letter-only validation.
+The immutable `AppointmentEditFields` validates edit-specific name and location limits. 
+`AppointmentName` can represent legacy creation names of up to 80 letters/spaces and replacement names of up 
+to 50 letters/digits/spaces, so an edit cannot make its saved name unreadable. Creation still uses its original 
+letter-only validation.
 
 `EditAppointmentCommand` resolves both references against the current filtered lists and constructs the
 complete immutable replacement before mutation. A new start time shifts the end by the original duration;
@@ -232,7 +232,7 @@ separate creation/edit undo steps, JSON round trips and I/O/permission failure r
 ### Appointment viewing and deletion
 
 `Appointment` is immutable and stores a linked `Person`, name, location, Singapore local start/end
-date-times, and remarks. Its constructor validates the name, location and positive duration.
+date-times. Its constructor validates the name, location and positive duration.
 Creation uses `ParserUtil.parseAppointmentLocation` for the shared nonblank location rule and
 Unicode whitespace trimming. The model enforces the same rule when loading stored appointments.
 `AddressBook` owns the appointment list alongside clients and exposes an unmodifiable observable view.

@@ -19,22 +19,19 @@ class JsonAdaptedAppointment {
     private final String location;
     private final String start;
     private final String end;
-    private final String remarks;
 
     public JsonAdaptedAppointment(String name, Integer clientIndex, String location,
-            String start, String end, String remarks) {
+            String start, String end) {
         this.name = name;
         this.clientIndex = clientIndex;
         this.location = location;
         this.start = start;
         this.end = end;
-        this.remarks = remarks;
     }
 
     public JsonAdaptedAppointment(Appointment appointment, List<Person> clients) {
         this(appointment.getName(), toClientPosition(appointment, clients),
-                appointment.getLocation(), appointment.getStart().toString(), appointment.getEnd().toString(),
-                appointment.getRemarks());
+                appointment.getLocation(), appointment.getStart().toString(), appointment.getEnd().toString());
     }
 
     /** Returns the one-based position of the appointment's client in the complete client list being saved. */
@@ -48,11 +45,10 @@ class JsonAdaptedAppointment {
     @JsonCreator
     public static JsonAdaptedAppointment fromJson(@JsonProperty("name") String name,
             @JsonProperty("clientIndex") JsonNode clientIndex, @JsonProperty("location") String location,
-            @JsonProperty("start") String start, @JsonProperty("end") String end,
-            @JsonProperty("remarks") String remarks) {
+            @JsonProperty("start") String start, @JsonProperty("end") String end) {
         Integer index = clientIndex != null && clientIndex.isIntegralNumber() && clientIndex.canConvertToInt()
                 ? clientIndex.intValue() : null;
-        return new JsonAdaptedAppointment(name, index, location, start, end, remarks);
+        return new JsonAdaptedAppointment(name, index, location, start, end);
     }
 
     /** Validates all fields and resolves the client only against the complete saved client list. */
@@ -63,7 +59,7 @@ class JsonAdaptedAppointment {
         }
         try {
             return new Appointment(name, clients.get(clientIndex - 1), location,
-                    LocalDateTime.parse(start), LocalDateTime.parse(end), remarks == null ? "" : remarks);
+                    LocalDateTime.parse(start), LocalDateTime.parse(end));
         } catch (DateTimeParseException | IllegalArgumentException e) {
             throw new IllegalValueException("Invalid appointment: " + e.getMessage());
         }
