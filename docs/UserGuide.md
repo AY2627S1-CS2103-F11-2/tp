@@ -234,7 +234,7 @@ Format: `appointments [c/CLIENT_INDEX] [d/DDMMYYYY]`
   Past, present and future dates are accepted. For an appointment that crosses midnight, use its start date.
 * When both fields are supplied, an appointment must match both. Field order does not matter.
 * Results are sorted by start date and time, earliest first, and numbered `A1`, `A2`, etc.
-  Each card shows the appointment name, client name, start, end, location and any remarks.
+  Each card shows the appointment name, client name, start, end, location.
 * The result is `Showing N appointments.`, or `No appointments found.` with an empty panel.
   An empty result is successful. Viewing appointments does not write to the data file.
 * Each field may appear only once. Empty values, unknown fields and extra arguments are rejected.
@@ -251,7 +251,7 @@ Examples:
 
 ### Editing an appointment: `editappt`
 
-Format: `editappt APPOINTMENT_INDEX [n/APPOINTMENT_NAME] [c/CLIENT_INDEX] [d/DATETIME] [loc/LOCATION] [desc/DESCRIPTION]`
+Format: `editappt APPOINTMENT_INDEX [n/APPOINTMENT_NAME] [c/CLIENT_INDEX] [d/DATETIME] [loc/LOCATION]`
 
 * `APPOINTMENT_INDEX` is a positive numeric position in the **currently displayed appointment list**,
   including any client/date filter. Use `1` for the card numbered `A1`, rather than typing `A1`.
@@ -264,7 +264,6 @@ Format: `editappt APPOINTMENT_INDEX [n/APPOINTMENT_NAME] [c/CLIENT_INDEX] [d/DAT
 | `c/CLIENT_INDEX` | Positive numeric position in the currently displayed **client** list, e.g. `c/2`. This is not a permanent Client ID and does not include `C`. |
 | `d/DATETIME` | New start time in strict `yyyy-MM-dd HH:mm` format, e.g. `d/2026-10-18 15:30`. It must be a real calendar time in 24-hour Singapore local time, with year 0001-9999. |
 | `loc/LOCATION` | Non-blank location, at most 100 characters. Unit numbers and punctuation are accepted. |
-| `desc/DESCRIPTION` | Replacement remarks. Supply a bare `desc/` to clear the existing notes. |
 
 * Leading/trailing whitespace is removed from supplied names and locations; internal spacing is retained.
 * Changing `d/` moves the whole appointment while **preserving its original duration**, including appointments
@@ -275,20 +274,19 @@ Format: `editappt APPOINTMENT_INDEX [n/APPOINTMENT_NAME] [c/CLIENT_INDEX] [d/DAT
 * An edit that changes data is saved automatically and records one undo step for all supplied fields together.
   Both active filters remain in place. Changing the client or date can make the edited appointment leave the
   current results; use `appointments` to view the full updated schedule. References are recalculated in time order.
-* Success shows `Edited Appointment: [Index 1] Title: ...; Client: ...; Date & Time: ...; Location: ...; Description: ...`.
+* Success shows `Edited Appointment: [Index 1] Title: ...; Client: ...; Date & Time: ...; Location: ...;`.
   The index in this feedback is the position selected before editing.
 * If every supplied value is unchanged, the command succeeds with
   `No changes made to appointment 1: supplied values are unchanged.` The command box clears, but no data is
   written, no history entry is created, and the current lists, filters and redo history stay unchanged.
 * Field-like tokens such as `n/` or `loc/` preceded by whitespace are reserved command syntax and cannot be
-  included literally as separate tokens in a name, location or description. Ordinary URLs are accepted in notes.
+  included literally as separate tokens in a name or location. Ordinary URLs are accepted in notes.
 
 Examples:
 
 * `editappt 1 d/2026-10-18 15:30` moves the first displayed appointment, keeping its duration.
-* `editappt 2 loc/Marina Bay Sands Lobby desc/Rescheduled viewing, bring tenancy agreement`
+* `editappt 2 loc/Marina Bay Sands Lobby`
 * `editappt 3 n/Follow up 2 c/2 d/2026-11-01 10:00 loc/Starbucks Clementi Mall`
-* `editappt 1 desc/` clears only the first displayed appointment's notes.
 
 ### Deleting an appointment: `deleteappt`
 
@@ -453,6 +451,6 @@ Action | Format, Examples
 
 **Add appointment** | `appointment n/NAME c/CLIENT_INDEX loc/LOCATION s/YYYYMMDD-HHMM e/YYYYMMDD-HHMM`
 **View appointments** | `appointments [c/CLIENT_INDEX] [d/DDMMYYYY]`
-**Edit appointment** | `editappt APPOINTMENT_INDEX [n/APPOINTMENT_NAME] [c/CLIENT_INDEX] [d/DATETIME] [loc/LOCATION] [desc/DESCRIPTION]`
+**Edit appointment** | `editappt APPOINTMENT_INDEX [n/APPOINTMENT_NAME] [c/CLIENT_INDEX] [d/DATETIME] [loc/LOCATION]`
 **Delete appointment** | `deleteappt A<INDEX> yes` or `deleteappt A<INDEX> confirm`
 **Help** | `help`

@@ -27,7 +27,6 @@ Class Appointment
 Class AppointmentName
 Class AppointmentLocation
 Class AppointmentDateTime
-Class AppointmentRemarks
 
 }
 
@@ -61,7 +60,6 @@ Appointment "*" -right-> "1" Person : client >
 Appointment *--> AppointmentName
 Appointment *--> AppointmentLocation
 Appointment *--> "2 start/end" AppointmentDateTime
-Appointment *--> AppointmentRemarks
 
 ClientId -[hidden]right-> Name
 Name -[hidden]right-> Phone
@@ -71,7 +69,6 @@ Email -[hidden]right-> Type
 
 AppointmentName -[hidden]right-> AppointmentLocation
 AppointmentLocation -[hidden]right-> AppointmentDateTime
-AppointmentDateTime -[hidden]right-> AppointmentRemarks
 
 ModelManager --> "~*" Person : filtered, sorted >
 ModelManager --> "0..1" Person : appointment client filter >
