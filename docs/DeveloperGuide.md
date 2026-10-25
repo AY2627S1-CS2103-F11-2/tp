@@ -685,7 +685,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 ### Non-Functional Requirements
 
 Environment NFRs
-1. PropTrack must be able to perform consistently on any _mainstream OS_ as long as it has Java `25` or above installed. 
+1. PropTrack must be able to perform consistently on any _mainstream OS_ as long as it has Java `25` or above installed.
 2. PropTrack must be able to operate completely offline and will not require any internet connection or connection with external servers to operate normally.
 3. It must support, at minimum, the english language.
 4. PropTrack must be packaged in a Jar executable file that can be run by either double-clicking it or through the terminal.

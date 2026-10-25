@@ -47,4 +47,5 @@ endif
 :Prepare success CommandResult\n("N clients listed");
 :Return CommandResult;
 stop
+
 @enduml
