@@ -426,7 +426,9 @@ resets the client filter to show all clients. The command prepares a success `Co
 `LogicManager` returns it only after `Storage.saveAddressBook` succeeds. If saving throws an
 `IOException` (including `AccessDeniedException`), the model checkpoint is restored and a
 `CommandException` is thrown instead. This restores the previous data, history and filters so a
-failed save does not leave an added client in memory.### Client search flow
+failed save does not leave an added client in memory.
+
+### Client search flow
 
 The activity diagram below shows the search command’s argument validation, predicate construction
 and filtered-client-list update.
