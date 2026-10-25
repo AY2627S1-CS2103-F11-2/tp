@@ -1,0 +1,50 @@
+@startuml
+skin rose
+
+skinparam ActivityFontSize 15
+skinparam ArrowFontSize 12
+skinparam ArrowFontStyle plain
+
+start
+:Receive search command;
+:Tokenize arguments and validate fields\n(SearchCommandParser);
+
+if () then ([Invalid arguments])
+    :Throw ParseException;
+    stop
+else ([valid command format])
+    if () then ([name prefix present])
+          :Parse name;
+          :Create name predicate;
+    else ([name prefix absent])
+    endif
+
+    if () then ([phone prefix present])
+        :Parse phone number;
+        if () then ([name predicate exists])
+            :Combine name and phone predicates;
+        else ([no predicate yet])
+            :Use phone predicate;
+        endif
+    else ([phone prefix absent])
+    endif
+
+    if () then ([type prefix present])
+        :Parse client type;
+        if () then ([predicate exists])
+            :Combine current and type predicates;
+        else ([no predicate yet])
+            :Use type predicate;
+        endif
+    else ([type prefix absent])
+    endif
+
+endif
+
+:Create SearchCommand;
+:Update filtered client list\n(ModelManager.updateFilteredPersonList);
+:Count matching clients;
+:Prepare success CommandResult\n("N clients listed");
+:Return CommandResult;
+stop
+@enduml
