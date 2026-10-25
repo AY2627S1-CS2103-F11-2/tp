@@ -426,7 +426,26 @@ resets the client filter to show all clients. The command prepares a success `Co
 `LogicManager` returns it only after `Storage.saveAddressBook` succeeds. If saving throws an
 `IOException` (including `AccessDeniedException`), the model checkpoint is restored and a
 `CommandException` is thrown instead. This restores the previous data, history and filters so a
-failed save does not leave an added client in memory.
+failed save does not leave an added client in memory.### Client search flow
+
+The activity diagram below shows the search command’s argument validation, predicate construction
+and filtered-client-list update.
+
+<img src="images/SearchClientActivityDiagram.png" alt="Activity diagram for searching clients, including argument validation, predicate construction and filtered-list update" width="650"/>
+
+`SearchCommandParser` tokenizes the arguments, validates the supported prefixes, rejects duplicate
+prefixes and ensures that at least one search parameter is provided. It also validates supplied
+name, phone-number and client-type values. Invalid input stops the flow with a `ParseException`.
+
+For valid input, the parser creates predicates for the supplied fields. When multiple fields are
+provided, their predicates are combined so that matching clients satisfy all specified criteria.
+A `SearchCommand` is then created and executed.
+
+`SearchCommand` updates the filtered client list through `ModelManager.updateFilteredPersonList`, counts
+the matching clients and prepares a success `CommandResult` stating the number of results found. The
+command does not modify the stored address book or persist any changes.
+
+
 
 ### \[Proposed\] Data archiving
 
