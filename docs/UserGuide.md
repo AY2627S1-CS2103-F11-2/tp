@@ -398,6 +398,9 @@ Format: `exit`
 ### Saving the data
 
 PropTrack automatically saves clients and appointments after changes. You do not need to save manually.
+`list`, `search`, `help` and `exit` do not rewrite the data file. These commands remain available even
+when the data file cannot be written. Commands that change clients or appointments still require
+the data file to be writable.
 Existing client-only data files remain readable and start with an empty appointment list.
 Clients in older files that have no client IDs receive IDs automatically when loaded. These IDs and the
 next ID to allocate are saved with the data; you do not need to assign or renumber IDs yourself.

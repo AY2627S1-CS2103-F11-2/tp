@@ -71,7 +71,7 @@ public class SearchCommand extends Command {
             logger.info("Search returned no results.");
         }
 
-        return new CommandResult(
+        return CommandResult.withoutSave(
                 String.format(Messages.MESSAGE_PERSONS_LISTED_OVERVIEW, count));
     }
 
