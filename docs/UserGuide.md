@@ -340,6 +340,7 @@ Format: `backup [f/FILE]`
 * Nothing in the app changes. Your clients, appointments, current filters and the undo and redo history
   all stay exactly as they were, so `undo` after a backup still reverses your last change.
 * If the file cannot be written, the result box names the file and says that nothing was changed.
+  No half-written file is left behind, so you can retry the same name once the problem is fixed.
 * The copy is a complete data file in the same format as your data file, so `restore` can read it later.
 
 Example: `backup f/before-clearing.json` writes `data/backup/before-clearing.json`.
