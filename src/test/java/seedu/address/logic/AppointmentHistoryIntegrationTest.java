@@ -9,6 +9,7 @@ import static seedu.address.testutil.TypicalAppointments.getAppointmentAddressBo
 import static seedu.address.testutil.TypicalPersons.ALICE;
 import static seedu.address.testutil.TypicalPersons.BOB;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -146,9 +147,9 @@ public class AppointmentHistoryIntegrationTest {
         Fixture fixture = fixture(getAppointmentAddressBook());
         Appointment replacement = new Appointment("Inspection", BOB, "NUS COM3 #02-01",
                 VIEWING.getStart().plusDays(4), VIEWING.getEnd().plusDays(4), "Updated remarks");
-        // Exercise the model API for future editappt without introducing that CLI command here.
+        // Persist this direct model-API change explicitly; read-only list must not save it.
         fixture.model.setAppointment(VIEWING, replacement);
-        fixture.logic.execute("list");
+        fixture.disk.saveAddressBook(fixture.model.getAddressBook());
         AddressBook edited = new AddressBook(fixture.model.getAddressBook());
         assertState(fixture, edited);
         fixture.logic.execute("undo");
@@ -200,9 +201,10 @@ public class AppointmentHistoryIntegrationTest {
         return book;
     }
 
-    private Fixture fixture(AddressBook initial) {
+    private Fixture fixture(AddressBook initial) throws IOException {
         ModelManager model = new ModelManager(initial, new UserPrefs());
         JsonAddressBookStorage disk = new JsonAddressBookStorage(directory.resolve("schedule.json"));
+        disk.saveAddressBook(model.getAddressBook());
         LogicManager logic = new LogicManager(model, new StorageManager(disk,
                 new JsonUserPrefsStorage(directory.resolve("preferences.json"))));
         return new Fixture(model, logic, disk);

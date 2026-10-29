@@ -7,7 +7,9 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_TYPE;
 
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 
+import seedu.address.commons.core.LogsCenter;
 import seedu.address.logic.commands.SearchCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.Name;
@@ -22,7 +24,7 @@ import seedu.address.model.person.TypeMatchesKeywordPredicate;
  * Parses input arguments and creates a new SearchCommand object
  */
 public class SearchCommandParser implements Parser<SearchCommand> {
-
+    private static final Logger logger = LogsCenter.getLogger(SearchCommandParser.class);
     /**
      * Parses the given {@code String} of arguments in the context of the SearchCommand
      * and returns a SearchCommand object for execution.
@@ -36,6 +38,7 @@ public class SearchCommandParser implements Parser<SearchCommand> {
                 PREFIX_NAME, PREFIX_PHONE, PREFIX_TYPE);
 
         if (!hasMinimumOneParam(argMultimap) || !argMultimap.getPreamble().isEmpty()) {
+            logger.fine("Search command rejected during parsing.");
             throw new ParseException(
                     String.format(MESSAGE_INVALID_COMMAND_FORMAT, SearchCommand.MESSAGE_USAGE));
         }
@@ -70,6 +73,7 @@ public class SearchCommandParser implements Parser<SearchCommand> {
             }
         }
 
+        logger.info("Search command parsed successfully.");
         return new SearchCommand(predicate);
     }
 
