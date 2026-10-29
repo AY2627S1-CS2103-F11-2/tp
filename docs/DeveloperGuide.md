@@ -207,9 +207,11 @@ execution. `ParserUtil#parseAppointmentEditDateTime` validates the exact `yyyy-M
 calendar values independently of the creation command's date format.
 
 The immutable `AppointmentEditFields` distinguishes an omitted description (`null`) from an explicit clear
-(empty string). It validates edit-specific name and location limits. `AppointmentName` can represent legacy
-creation names of up to 80 letters/spaces and replacement names of up to 50 letters/digits/spaces, so an edit
-cannot make its saved name unreadable. Creation still uses its original letter-only validation.
+(empty string). It validates the replacement name with `AppointmentName#isValid`, the same rule `appointment`
+uses on creation: 1-80 ASCII letters, digits and spaces with at least one letter or digit. Because creation
+and editing share this one rule, a name accepted by either command can be saved, reloaded and edited again.
+The rule includes the older letter-only creation names and 50-character edit names, so existing data files
+still load. `AppointmentEditFields` also checks the edit-specific location limit.
 
 `EditAppointmentCommand` resolves both references against the current filtered lists and constructs the
 complete immutable replacement before mutation. A new start time shifts the end by the original duration;
