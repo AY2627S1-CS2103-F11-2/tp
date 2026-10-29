@@ -2,6 +2,7 @@ package seedu.address.logic.commands;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.commands.CommandTestUtil.DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.DESC_BOB;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import seedu.address.commons.core.index.Index;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
+import seedu.address.logic.parser.AddressBookParser;
 import seedu.address.model.AddressBook;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
@@ -34,6 +36,15 @@ import seedu.address.testutil.PersonBuilder;
 public class EditCommandTest {
 
     private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
+
+    @Test
+    public void messageUsage_exampleParagraph_isAcceptedByTheParser() throws Exception {
+        String usage = EditCommand.MESSAGE_USAGE;
+        int start = usage.indexOf("Example: ");
+        assertTrue(start >= 0, "the usage message should carry an example");
+        String example = usage.substring(start + "Example: ".length()).trim();
+        assertNotNull(new AddressBookParser().parseCommand(example));
+    }
 
     @Test
     public void execute_allFieldsSpecifiedUnfilteredList_success() {
