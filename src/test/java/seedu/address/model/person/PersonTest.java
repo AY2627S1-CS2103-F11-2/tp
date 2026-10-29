@@ -42,9 +42,9 @@ public class PersonTest {
         editedAlice = new PersonBuilder(ALICE).withName(VALID_NAME_BOB).build();
         assertFalse(ALICE.isSamePerson(editedAlice));
 
-        // name differs in case, all other attributes same -> returns false
+        // name differs in case, all other attributes same -> returns true
         Person editedBob = new PersonBuilder(BOB).withName(VALID_NAME_BOB.toLowerCase()).build();
-        assertFalse(BOB.isSamePerson(editedBob));
+        assertTrue(BOB.isSamePerson(editedBob));
 
         // name has trailing spaces, all other attributes same -> returns true
         String nameWithTrailingSpaces = VALID_NAME_BOB + " ";
@@ -58,6 +58,16 @@ public class PersonTest {
         assertTrue(BOB.isSamePerson(spacedBob));
         assertEquals(BOB, spacedBob);
         assertEquals(BOB.hashCode(), spacedBob.hashCode());
+    }
+
+    @Test
+    public void isSamePerson_caseAndUnicodeSpaces_ignoresCaseButPreservesDetails() {
+        Person original = new PersonBuilder().withName("José Tan").build();
+        Person duplicate = new PersonBuilder(original).withName("  JOSÉ\u2003  TAN  ").build();
+        assertTrue(original.isSamePerson(duplicate));
+        assertTrue(duplicate.isSamePerson(original));
+        assertFalse(original.equals(duplicate));
+        assertEquals("JOSÉ TAN", duplicate.getName().fullName);
     }
 
     @Test

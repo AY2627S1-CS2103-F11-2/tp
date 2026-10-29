@@ -169,10 +169,12 @@ Classes used by multiple components are in the `seedu.address.commons` package.
 after creating a client. The position comes from the updated, sorted displayed list. Full contact details
 remain available in `PersonDetailsPanel`, including `Not provided` for an omitted email address.
 
-1. `Model.hasPerson` checks the complete address book for an existing normalized name, including clients
+1. `Model.hasPerson` checks the complete address book for an existing normalized name, ignoring letter case
+   through `Person.isSamePerson`, including clients
    hidden by the current filter. Only when the model reports a duplicate does the command look up the
    existing record for its name and ID in the error message;
-   no client is added and no identifier is allocated.
+   no client is added and no identifier is allocated. The same identity check rejects conflicting client edits.
+   `Name.equals` and full `Person.equals` remain case-sensitive so capitalization changes are saved and undoable.
 2. `AddressBook` assigns an immutable `ClientId` and advances its allocation counter. Editing a
    client preserves the identifier. Deleting, clearing or undoing an addition does not make an
    allocated identifier available to another client.
