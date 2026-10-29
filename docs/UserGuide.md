@@ -208,7 +208,8 @@ Format: `appointment n/NAME c/CLIENT_INDEX loc/LOCATION s/YYYYMMDD-HHMM e/YYYYMM
 * Every field is required and may appear only once. Fields may be supplied in any order.
 * `CLIENT_INDEX` is a positional reference such as `C1` for the first client in the currently displayed list.
   Use `C` followed by the current row number, not the permanent Client ID shown in the details panel.
-* The name contains letters and spaces, with 1-80 characters. The location cannot be blank;
+* The name contains ASCII letters, digits and spaces, with 1-80 characters and at least one letter or digit,
+  for example `Follow up 2`. `editappt` accepts the same names. The location cannot be blank;
   punctuation such as `#` and `-` is accepted, for example `NUS COM3 #02-01`.
   Leading and trailing whitespace is removed, while internal spacing is preserved.
 * Start and end must be real calendar date-times in 24-hour Singapore local time.
@@ -216,7 +217,10 @@ Format: `appointment n/NAME c/CLIENT_INDEX loc/LOCATION s/YYYYMMDD-HHMM e/YYYYMM
 * An appointment that overlaps any stored appointment is rejected, including appointments hidden by a filter.
   Adjacent appointments, such as 10:00-11:00 and 11:00-12:00, are allowed.
 * On success, all appointments appear in chronological order and the new appointment's displayed reference
-  is included in the result. The client list stays as it was.
+  is included in the result, for example
+  `Added appointment A1: Viewing with Alex Yeoh, 15/10/2026 10:00 to 15/10/2026 11:00, at Sentosa Cove 123456.`
+  The client list stays as it was.
+* A client reference without the `C`, such as `c/1`, is rejected with a message showing the `c/C1` form.
 
 Example: `appointment n/Viewing c/C1 loc/Sentosa Cove 123456 s/20261015-1000 e/20261015-1100`
 
@@ -260,7 +264,7 @@ Format: `editappt APPOINTMENT_INDEX [n/APPOINTMENT_NAME] [c/CLIENT_INDEX] [d/DAT
 
 | Field | Meaning and accepted values |
 | --- | --- |
-| `n/APPOINTMENT_NAME` | Replacement name: 1-50 ASCII letters, digits or spaces, with at least one non-space character. |
+| `n/APPOINTMENT_NAME` | Replacement name, following the same rule as `appointment`: 1-80 ASCII letters, digits or spaces, with at least one letter or digit. |
 | `c/CLIENT_INDEX` | Positive numeric position in the currently displayed **client** list, e.g. `c/2`. This is not a permanent Client ID and does not include `C`. |
 | `d/DATETIME` | New start time in strict `yyyy-MM-dd HH:mm` format, e.g. `d/2026-10-18 15:30`. It must be a real calendar time in 24-hour Singapore local time, with year 0001-9999. |
 | `loc/LOCATION` | Non-blank location, at most 100 characters. Unit numbers and punctuation are accepted. |
