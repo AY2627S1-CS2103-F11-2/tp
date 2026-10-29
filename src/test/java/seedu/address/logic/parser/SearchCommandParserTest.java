@@ -36,8 +36,14 @@ public class SearchCommandParserTest {
     }
 
     @Test
-    public void parse_unsupportedPrefix_throwsParseException() {
-        assertParseFailure(parser, " n/Alex x/foo",
+    public void parse_slashInsideLaterNameWord_returnsSearchCommand() {
+        assertParseSuccess(parser, " n/Alex Tan/Wei",
+                new SearchCommand(new NameContainsKeywordsPredicate(List.of("Alex", "Tan/Wei"))));
+    }
+
+    @Test
+    public void parse_noSupportedPrefix_throwsParseException() {
+        assertParseFailure(parser, " x/foo",
                 String.format(MESSAGE_INVALID_COMMAND_FORMAT, SearchCommand.MESSAGE_USAGE));
     }
 
