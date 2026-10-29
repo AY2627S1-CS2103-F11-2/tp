@@ -120,6 +120,29 @@ public class BackupCommandTest {
     }
 
     @Test
+    public void execute_success_publishesOnlyTheBackupFile() throws Exception {
+        Path dir = tempDir.resolve("backup");
+        Files.createDirectories(dir);
+        new BackupCommand(Optional.of("clean.json"), dir).execute(newModel());
+        try (Stream<Path> entries = Files.list(dir)) {
+            assertEquals(List.of("clean.json"), entries.map(entry -> entry.getFileName().toString()).toList());
+        }
+    }
+
+    @Test
+    public void execute_failedAttemptDoesNotBlockTheSameName() throws Exception {
+        Path dir = tempDir.resolve("backup");
+        Files.createDirectories(dir);
+        Files.createDirectory(dir.resolve("retry.json"));
+        BackupCommand blocked = new BackupCommand(Optional.of("retry.json"), dir);
+        assertThrows(CommandException.class, () -> blocked.execute(newModel()));
+        Files.delete(dir.resolve("retry.json"));
+        CommandResult result = new BackupCommand(Optional.of("retry.json"), dir).execute(newModel());
+        assertTrue(Files.isRegularFile(dir.resolve("retry.json")));
+        assertTrue(result.getFeedbackToUser().contains("retry.json"));
+    }
+
+    @Test
     public void equals() {
         Path dir = tempDir.resolve("backup");
         BackupCommand first = new BackupCommand(Optional.of("a.json"), dir);
