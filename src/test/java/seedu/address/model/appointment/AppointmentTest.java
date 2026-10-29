@@ -26,7 +26,7 @@ public class AppointmentTest {
 
     @Test
     public void constructor_invalidFields_rejects() {
-        for (String name : new String[]{"", " ", "View!", "a".repeat(81), "View\nflat", "1".repeat(51)}) {
+        for (String name : new String[]{"", " ", "View!", "a".repeat(81), "View\nflat", "1".repeat(81), "Name!2"}) {
             assertThrows(IllegalArgumentException.class, () -> new Appointment(name, ALICE, "NUS",
                     VIEWING.getStart(), VIEWING.getEnd(), ""));
         }

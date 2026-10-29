@@ -13,8 +13,7 @@ import seedu.address.model.appointment.AppointmentName;
  */
 public record AppointmentEditFields(String name, Index clientIndex, LocalDateTime start,
         String location, String description) {
-    public static final String MESSAGE_INVALID_NAME =
-            "Appointment name should only contain alphanumeric characters and spaces, and it should not be blank.";
+    public static final String MESSAGE_INVALID_NAME = AppointmentName.MESSAGE_CONSTRAINTS;
     public static final String MESSAGE_INVALID_LOCATION = "Location cannot be blank if the loc/ prefix is supplied.";
     public static final String MESSAGE_LOCATION_TOO_LONG = "Location must contain at most 100 characters.";
     public static final String MESSAGE_INVALID_DATE_TIME = "Invalid date-time format! Date and time must follow "
@@ -28,7 +27,7 @@ public record AppointmentEditFields(String name, Index clientIndex, LocalDateTim
                 MESSAGE_NO_FIELDS);
         if (name != null) {
             name = name.strip();
-            checkArgument(AppointmentName.isValidForEditing(name), MESSAGE_INVALID_NAME);
+            checkArgument(AppointmentName.isValid(name), MESSAGE_INVALID_NAME);
         }
         if (start != null) {
             checkArgument(start.getYear() >= 1 && start.getYear() <= 9999
