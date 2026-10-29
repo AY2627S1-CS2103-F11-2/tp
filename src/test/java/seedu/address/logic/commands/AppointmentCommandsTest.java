@@ -95,6 +95,21 @@ public class AppointmentCommandsTest {
     }
 
     @Test
+    public void addAppointment_feedback_usesCardDateTimeLayout() throws Exception {
+        model.updateFilteredPersonList(p -> p.equals(BOB));
+        String feedback = new AddAppointmentCommandParser()
+                .parse(" n/ Call 2  c/C1 loc/ NUS COM3  s/20261015-2330 e/20261016-0030").execute(model)
+                .getFeedbackToUser();
+        assertEquals("Added appointment A3: Call 2 with Bob Choo, 15/10/2026 23:30 to 16/10/2026 00:30, "
+                + "at NUS COM3.", feedback);
+
+        CommandException clash = assertThrows(CommandException.class, () -> new AddAppointmentCommandParser()
+                .parse(" n/Call c/C1 loc/NUS s/20261015-1030 e/20261015-1130").execute(model));
+        assertEquals("Schedule clash with appointment: Viewing (15/10/2026 10:00 to 15/10/2026 11:00). "
+                + "Nothing was added.", clash.getMessage());
+    }
+
+    @Test
     public void addAppointment_clashWithHiddenAppointmentOrMissingClient_noMutation() throws Exception {
         model.updateFilteredAppointmentList(BOB, null);
         AddressBook before = new AddressBook(model.getAddressBook());
