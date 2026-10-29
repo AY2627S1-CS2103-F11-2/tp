@@ -199,6 +199,14 @@ Format: `delete CLIENT_ID`
 * Missing arguments, invalid references (`C0`, `C-2`, `C3.5`, `Cabc`), and extra arguments are rejected.
   A reference beyond the displayed list size also reports an error without deleting a client.
 * Successful deletion displays `Deleted Client: ` followed by the client's current details.
+* Deleting a client also deletes **all appointments linked to that client**, including appointments
+  hidden by a filter. Other clients and their appointments are retained. The deletion is saved automatically.
+* The current client search remains active. If the appointment list was filtered to the deleted client,
+  that client filter is removed while any date filter is retained. Appointments for other clients may
+  therefore appear; with a date filter, only appointments starting on that date are shown.
+* Use [`undo`](#undoing-the-last-change-undo) immediately after deletion to restore the client and their
+  linked appointments together. Undo shows both full lists. History is available only in the current
+  session, and a confirmed `deleteappt` clears earlier history; see the undo section for details.
 * Other commands such as `edit` use the numeric position without `C` (e.g. `edit 1 n/Alice`).
 
 Examples:
