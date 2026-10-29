@@ -26,8 +26,12 @@ public class SearchCommand extends Command {
 
     public static final String COMMAND_WORD = "search";
 
-    public static final String MESSAGE_USAGE = COMMAND_WORD + ": Finds all persons whose names contain any of "
-            + "the specified keywords (case-insensitive) and displays them as a list with index numbers.\n"
+    public static final String MESSAGE_USAGE = COMMAND_WORD + ": Finds all clients matching one or more "
+            + "specified keywords and displays them as a list with index numbers. "
+            + "At least one field is required.\n"
+            + "Name keywords are matched case-insensitively, phone numbers must match exactly, "
+            + "and client types must be lowercase. When multiple fields are provided, "
+            + "a client must match every field.\n"
             + "Parameters: n/Name, p/Phone Number and y/Type\n"
             + "Example: " + COMMAND_WORD + " n/Alice p/98765432 y/seller";
 
@@ -66,7 +70,7 @@ public class SearchCommand extends Command {
         logger.info("Search executed successfully; returned " + count + " result(s).");
 
         return CommandResult.withoutSave(
-                String.format(Messages.MESSAGE_PERSONS_LISTED_OVERVIEW, count));
+                String.format(Messages.MESSAGE_CLIENTS_LISTED_OVERVIEW, count));
     }
 
     @Override
