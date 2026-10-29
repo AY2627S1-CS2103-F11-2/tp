@@ -26,7 +26,7 @@ public class AppointmentEditFieldsTest {
     @Test
     public void invalidFields_rejectEmptyNamesOverlongValuesAndMissingChanges() {
         assertThrows(IllegalArgumentException.class, () -> new AppointmentEditFields(null, null, null, null, null));
-        for (String name : new String[]{"", " ", "Name!", "A".repeat(51)}) {
+        for (String name : new String[]{"", " ", "Name!", "!!", "A".repeat(81)}) {
             assertThrows(IllegalArgumentException.class, ()
                     -> new AppointmentEditFields(name, null, null, null, null));
         }

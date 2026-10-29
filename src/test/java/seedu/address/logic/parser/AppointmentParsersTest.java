@@ -3,6 +3,7 @@ package seedu.address.logic.parser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
 
@@ -10,11 +11,13 @@ import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.logic.commands.AddAppointmentCommand;
+import seedu.address.logic.commands.AppointmentEditFields;
 import seedu.address.logic.commands.AppointmentsCommand;
 import seedu.address.logic.commands.DeleteAppointmentCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
+import seedu.address.model.appointment.AppointmentName;
 import seedu.address.testutil.TypicalAppointments;
 
 public class AppointmentParsersTest {
@@ -97,7 +100,8 @@ public class AppointmentParsersTest {
     public void addAppointment_invalidFieldsAndTimes_rejects() {
         String valid = " n/Viewing c/C1 loc/NUS s/20261015-1000 e/20261015-1100";
         for (String args : new String[]{"", valid + " n/Viewing", valid + " x/extra",
-            valid.replace("n/Viewing", "n/"), valid.replace("n/Viewing", "n/Viewing1"),
+            valid.replace("n/Viewing", "n/"), valid.replace("n/Viewing", "n/Viewing!"),
+            valid.replace("n/Viewing", "n/" + "A".repeat(81)),
             valid.replace("loc/NUS", "loc/"),
             valid.replace("c/C1", "c/C0"), valid.replace("s/20261015-1000", "s/20260230-1000"),
             valid.replace("s/20261015-1000", "s/20261015-2400"),
@@ -105,6 +109,26 @@ public class AppointmentParsersTest {
             valid.replace("e/20261015-1100", "e/20261014-1100")}) {
             assertThrows(ParseException.class, () -> addParser.parse(args), args);
         }
+    }
+
+    @Test
+    public void addAppointment_nameAcceptedByEditappt_isAcceptedOnCreation() throws Exception {
+        for (String name : new String[]{"Follow up 2", "2026", "A".repeat(80)}) {
+            ModelManager model = new ModelManager(TypicalAppointments.getAppointmentAddressBook(), new UserPrefs());
+            addParser.parse(" n/" + name + " c/C1 loc/NUS s/20261017-1000 e/20261017-1100").execute(model);
+            assertEquals(name, model.getFilteredAppointmentList().getLast().getName());
+            assertEquals(name, new AppointmentEditFields(name, null, null, null, null).name());
+        }
+        assertError(addParser, " n/Follow-up c/C1 loc/NUS s/20261017-1000 e/20261017-1100",
+                AppointmentName.MESSAGE_CONSTRAINTS);
+    }
+
+    @Test
+    public void clientReferenceWithoutPrefix_explainsTheCPrefix() {
+        assertError(addParser, " n/Viewing c/1 loc/NUS s/20261017-1000 e/20261017-1100",
+                AppointmentsCommandParser.MESSAGE_CLIENT_INDEX);
+        assertError(viewParser, " c/1", AppointmentsCommandParser.MESSAGE_CLIENT_INDEX);
+        assertTrue(AppointmentsCommandParser.MESSAGE_CLIENT_INDEX.contains("c/C1"));
     }
 
     @Test
