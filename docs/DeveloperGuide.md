@@ -778,16 +778,17 @@ testers are expected to do more *exploratory* testing.
 
 1. Initial launch
 
-   1. Download the JAR file and copy it into an empty folder.
+   1. Download the JAR file and copy it into an empty folder that you can write to.
 
-   1. Double-click the JAR file.<br>
-      Expected: The GUI opens with a set of sample contacts. The window size may not be optimal.
+   1. Open a terminal in that folder and run `java -jar proptrack.jar`. Double-clicking the JAR file is
+      not reliable on every system, so use it only as a last resort.<br>
+      Expected: The GUI opens with six sample clients and no appointments. The window size may not be optimal.
 
 1. Saving window preferences
 
    1. Resize the window to an optimal size. Move the window to a different location. Close the window.
 
-   1. Relaunch the app by double-clicking the JAR file.<br>
+   1. Relaunch the app with `java -jar proptrack.jar`.<br>
        Expected: The most recent window size and location are retained.
 
 1. _{ more test cases …​ }_
@@ -809,6 +810,61 @@ testers are expected to do more *exploratory* testing.
       Expected: Similar to previous.
 
 1. _{ more test cases …​ }_
+
+### Adding and viewing appointments
+
+1. Adding an appointment
+
+   1. Prerequisites: Start with the sample data and run `list`, so `C1` is Alex Yeoh and `C2` is Bernice Yu.
+
+   1. Test case: `appointment n/Viewing c/C1 loc/Sentosa Cove s/20261105-1000 e/20261105-1100`<br>
+      Expected: `A1 Viewing` for Alex Yeoh appears in the appointment panel. The result names the appointment,
+      client, start, end and location. The client list does not change.
+
+   1. Test case: `appointment n/Signing c/C2 loc/Office s/20261105-1030 e/20261105-1130`<br>
+      Expected: Nothing is added. The result reports a schedule clash with `Viewing`.
+
+   1. Test case: `appointment n/Signing c/C2 loc/Office s/20261105-1100 e/20261105-1200`<br>
+      Expected: The appointment is added as `A2`. An appointment may start when another ends.
+
+   1. Other incorrect commands to try: a client reference without the `C` (`c/2`) or beyond the list (`c/C99`),
+      an impossible date (`s/20260230-1100`), an end before the start, and a repeated field such as `n/A n/B`.<br>
+      Expected: Nothing is added, and the result explains which field is wrong.
+
+1. Viewing appointments
+
+   1. Prerequisites: The two appointments added above.
+
+   1. Test case: `appointments d/05112026`<br>
+      Expected: Both appointments are shown as `A1` and `A2`, and the result is `Showing 2 appointments.`
+
+   1. Test case: `search n/Bernice`, then `appointments c/C1`<br>
+      Expected: Only Bernice Yu's `Signing` is shown. `C1` refers to the first client in the search results,
+      and the client list keeps showing those results.
+
+   1. Test case: `appointments d/30022026`<br>
+      Expected: The result is `Enter a valid date in DDMMYYYY format.` Both lists stay unchanged.
+
+### Deleting appointments
+
+1. Deleting a displayed appointment
+
+   1. Prerequisites: Run `appointments` with at least two appointments shown.
+
+   1. Test case: `deleteappt A1`<br>
+      Expected: Nothing is deleted. The result is `Deletion requires yes/confirm. Nothing was deleted.`
+
+   1. Test case: `deleteappt A99 yes`<br>
+      Expected: Nothing is deleted. The result says that no appointment exists at that position.
+
+   1. Test case: `deleteappt A1 yes`, then `undo`<br>
+      Expected: The first displayed appointment is deleted and the rest are renumbered from `A1`. `undo` then
+      reports `Nothing to undo.`, because a confirmed deletion clears the undo history.
+
+1. Keeping appointments after a restart
+
+   1. Close the app with `exit` and relaunch it.<br>
+      Expected: The remaining appointments are shown again with the same clients and times.
 
 ### Editing appointments
 
