@@ -99,6 +99,8 @@ Format: `add n/NAME p/PHONE_NUMBER a/ADDRESS y/TYPE [e/EMAIL] [t/TAG]…​`
   `Added client C8: Alex Tan. Current position: C1 (for delete/appointment commands).`
   The full client list is shown, sorted alphabetically by name without regard to letter case, then by numeric
   client ID when names compare equally. The new client is selected automatically and their details appear in the details panel.
+* Names are checked for duplicates without regard to letter case after space normalization.
+  For example, `Alex Yeoh`, `alex yeoh` and `Alex  Yeoh` refer to the same name, regardless of other fields.
 * If the name already belongs to a client, no client is added. The result identifies the existing record,
   for example `Name already belongs to client C1 (Alex Tan). No client was added.`
 * A client's ID is saved with the record and remains unchanged when the list is sorted or filtered,
@@ -143,7 +145,9 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [y/TYPE] [t/TAG]…
   Editing retains the client's stable ID; changing the name may move the card in the alphabetically sorted list.
 * At least one of the optional fields must be provided.
 * Existing values will be updated to the input values.
-* Edited names follow the same validation and space normalization rules as [adding a client](#adding-a-client-add).
+* Edited names follow the same validation, space normalization and case-insensitive duplicate rules as
+  [adding a client](#adding-a-client-add). Another client with the resulting name, even if hidden by a filter,
+  prevents the edit. You can change the capitalization of the selected client's own name.
 * If `y/TYPE` is supplied, it must be `buyer`, `seller`, `landlord` or `tenant`, in lowercase.
 * Omit `e/EMAIL` to retain the client's current email. To clear an existing email, supply a bare `e/`;
   the client card and command feedback then show `Not provided`.
@@ -430,6 +434,9 @@ If the file contains invalid client or appointment data, PropTrack rejects the w
 It attempts to preserve the unreadable file under a name ending in `.corrupt-TIMESTAMP`, and the result box
 names both the data file and the preserved copy, or says that the rename failed. Back up the data file
 before editing it.<br>
+Names that differ only in letter case or normalized spaces count as duplicate records in saved files too.
+If an older version allowed such records, back up the file and give the clients distinct names in that version
+before upgrading; they are not merged automatically.<br>
 Client `clientId` fields store stable numeric IDs; do not duplicate IDs or decrease the `nextClientId` counter.<br>
 Appointment `clientIndex` fields refer to positions in the saved client array, rather than stable client IDs.
 Reordering that array by hand without updating those references can associate appointments with the wrong clients.
