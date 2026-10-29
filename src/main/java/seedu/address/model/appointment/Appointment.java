@@ -62,7 +62,7 @@ public final class Appointment {
     }
 
     public static boolean isValidName(String apptName) {
-        return AppointmentName.isValidForCreation(apptName);
+        return AppointmentName.isValid(apptName);
     }
 
     public static boolean isValidLocation(String loc) {

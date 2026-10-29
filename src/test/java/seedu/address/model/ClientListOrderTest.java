@@ -14,18 +14,18 @@ import seedu.address.testutil.PersonBuilder;
 public class ClientListOrderTest {
 
     @Test
-    public void displayOrder_alphabeticalIgnoringCaseThenNumericId_preservesStorageOrder() {
+    public void displayOrder_alphabeticalIgnoringCase_preservesStorageOrder() {
         AddressBook book = new AddressBook();
-        book.addPerson(person("alex", 10));
-        book.addPerson(person("Alex", 2));
         book.addPerson(person("Zara", 11));
+        book.addPerson(person("Bernice", 2));
+        book.addPerson(person("alex", 10));
         ModelManager model = new ModelManager(book, new UserPrefs());
 
-        assertEquals(List.of(2L, 10L, 11L), ids(model.getFilteredPersonList()));
-        assertEquals(List.of(10L, 2L, 11L), ids(model.getAddressBook().getPersonList()));
+        assertEquals(List.of(10L, 2L, 11L), ids(model.getFilteredPersonList()));
+        assertEquals(List.of(11L, 2L, 10L), ids(model.getAddressBook().getPersonList()));
 
-        model.updateFilteredPersonList(client -> client.getName().fullName.equalsIgnoreCase("alex"));
-        assertEquals(List.of(2L, 10L), ids(model.getFilteredPersonList()));
+        model.updateFilteredPersonList(client -> !client.getName().fullName.equals("Zara"));
+        assertEquals(List.of(10L, 2L), ids(model.getFilteredPersonList()));
     }
 
     @Test

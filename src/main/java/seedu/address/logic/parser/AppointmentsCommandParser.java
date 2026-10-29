@@ -12,7 +12,8 @@ import seedu.address.logic.parser.exceptions.ParseException;
 public class AppointmentsCommandParser implements Parser<AppointmentsCommand> {
     public static final String MESSAGE_FORMAT = "Invalid command format. Use: " + AppointmentsCommand.MESSAGE_USAGE;
     public static final String MESSAGE_DUPLICATE = "Each parameter may be specified only once.";
-    public static final String MESSAGE_CLIENT_INDEX = "Client index must be a positive integer.";
+    public static final String MESSAGE_CLIENT_INDEX = "Client reference must be an uppercase C followed by the "
+            + "client's position in the displayed client list, for example c/C1 for the first client.";
     public static final String MESSAGE_EMPTY_CLIENT = "CLIENT_INDEX cannot be empty.";
 
     private static final Prefix CLIENT = new Prefix("c/");
