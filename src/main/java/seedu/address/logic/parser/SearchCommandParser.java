@@ -37,8 +37,7 @@ public class SearchCommandParser implements Parser<SearchCommand> {
         argMultimap.verifyNoDuplicatePrefixesFor(
                 PREFIX_NAME, PREFIX_PHONE, PREFIX_TYPE);
 
-        if (!hasMinimumOneParam(argMultimap) || !argMultimap.getPreamble().isEmpty()
-                || hasUnsupportedPrefix(args)) {
+        if (!hasMinimumOneParam(argMultimap) || !argMultimap.getPreamble().isEmpty()) {
             logger.fine("Search command rejected during parsing.");
             throw new ParseException(
                     String.format(MESSAGE_INVALID_COMMAND_FORMAT, SearchCommand.MESSAGE_USAGE));
@@ -91,33 +90,4 @@ public class SearchCommandParser implements Parser<SearchCommand> {
         return hasNameParam || hasPhoneParam || hasTypeParam;
     }
 
-
-    /**
-     * Returns true if the given arguments contain an unsupported prefix.
-     * A prefix is considered unsupported if it appears before a slash and does not
-     * match any of the valid prefixes: {@code PREFIX_NAME}, {@code PREFIX_PHONE},
-     * or {@code PREFIX_TYPE}.
-     *
-     * @param args the input arguments to check
-     * @return true if an unsupported prefix is found, false otherwise
-     */
-    private boolean hasUnsupportedPrefix(String args) {
-        String[] tokens = args.trim().split("\\s+");
-
-        for (String token : tokens) {
-            int slashIndex = token.indexOf('/');
-
-            if (slashIndex > 0) {
-                String prefix = token.substring(0, slashIndex + 1);
-
-                if (!prefix.equals(PREFIX_NAME.toString())
-                        && !prefix.equals(PREFIX_PHONE.toString())
-                        && !prefix.equals(PREFIX_TYPE.toString())) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
 }
