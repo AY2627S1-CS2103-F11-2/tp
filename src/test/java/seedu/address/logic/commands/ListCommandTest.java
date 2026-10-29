@@ -39,7 +39,8 @@ public class ListCommandTest {
         assertCommandSuccess(new ListCommand(), model, expectedMessageFor(expectedModel), expectedModel);
     }
 
-    private String expectedMessageFor(Model model) {
-        return String.format(ListCommand.MESSAGE_SUCCESS, model.getFilteredPersonList().size());
+    private CommandResult expectedMessageFor(Model model) {
+        return CommandResult.withoutSave(String.format(ListCommand.MESSAGE_SUCCESS,
+                model.getFilteredPersonList().size()));
     }
 }

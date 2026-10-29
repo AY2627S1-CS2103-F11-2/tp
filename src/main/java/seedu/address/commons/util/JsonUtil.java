@@ -55,14 +55,14 @@ public class JsonUtil {
         if (!Files.exists(filePath)) {
             return Optional.empty();
         }
-        logger.info("JSON file " + filePath + " found.");
+        logger.info("Application data file found.");
 
         T jsonFile;
 
         try {
             jsonFile = deserializeObjectFromJsonFile(filePath, classOfObjectToDeserialize);
         } catch (IOException e) {
-            logger.warning("Error reading from jsonFile file " + filePath + ": " + e);
+            logger.warning("An error occurred while reading the application data file.");
             throw new DataLoadingException(e);
         }
 
