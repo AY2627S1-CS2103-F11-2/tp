@@ -40,4 +40,16 @@ public class DeleteCommandParserTest {
             assertParseFailure(parser, args, expectedMessage);
         }
     }
+
+    @Test
+    public void parse_clientReferenceWithLeadingZeroes_throwsParseException() {
+        String expectedMessage =
+                String.format(MESSAGE_INVALID_COMMAND_FORMAT, DeleteCommand.MESSAGE_USAGE);
+
+        String[] invalidReferences = {"C01", "C001", "C0002"};
+
+        for (String reference : invalidReferences) {
+            assertParseFailure(parser, reference, expectedMessage);
+        }
+    }
 }
