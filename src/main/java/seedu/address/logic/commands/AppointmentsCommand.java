@@ -49,7 +49,8 @@ public class AppointmentsCommand extends Command {
         logger.fine("Showing " + count + " appointments for client filter "
                 + (clientIndex == null ? "none" : "C" + clientIndex.getOneBased())
                 + " and date filter " + (date == null ? "none" : date) + ".");
-        return new CommandResult(count == 0 ? MESSAGE_EMPTY : "Showing " + count + " appointments.");
+        return new CommandResult(count == 0 ? MESSAGE_EMPTY
+                : "Showing " + count + (count == 1 ? " appointment." : " appointments."));
     }
 
     @Override

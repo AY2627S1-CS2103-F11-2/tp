@@ -26,6 +26,14 @@ public class AppointmentCommandsTest {
     private final ModelManager model = new ModelManager(getAppointmentAddressBook(), new UserPrefs());
 
     @Test
+    public void appointments_singleMatch_usesTheSingularWord() throws Exception {
+        model.deleteAppointment(HANDOVER);
+        model.deleteAppointment(VIEWING);
+        assertEquals("Showing 1 appointment.",
+                new AppointmentsCommand(null, null).execute(model).getFeedbackToUser());
+    }
+
+    @Test
     public void appointments_usesDisplayedClientAndReplacesPreviousFilter() throws Exception {
         model.updateFilteredPersonList(p -> p.equals(BOB));
         new AppointmentsCommand(Index.fromOneBased(1), LocalDate.of(2026, 10, 15)).execute(model);
