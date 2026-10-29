@@ -27,7 +27,7 @@ public class DeleteCommandParser implements Parser<DeleteCommand> {
         requireNonNull(args);
         try {
             String clientId = args.trim();
-            if (!clientId.matches("C[0-9]+")) {
+            if (!clientId.matches("C[1-9][0-9]*")) {
                 throw new ParseException(ParserUtil.MESSAGE_INVALID_INDEX);
             }
             Index index = ParserUtil.parseIndex(clientId.substring(1));
