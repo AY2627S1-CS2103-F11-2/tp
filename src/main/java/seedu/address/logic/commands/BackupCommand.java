@@ -3,9 +3,11 @@ package seedu.address.logic.commands;
 import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -14,6 +16,7 @@ import java.util.Optional;
 
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
+import seedu.address.model.ReadOnlyAddressBook;
 import seedu.address.storage.JsonAddressBookStorage;
 
 /**
@@ -57,12 +60,30 @@ public class BackupCommand extends Command {
         }
         try {
             Files.createDirectories(backupDir);
-            new JsonAddressBookStorage(target).saveAddressBook(model.getAddressBook());
+            writeAtomically(model.getAddressBook(), target);
         } catch (IOException e) {
             throw new CommandException(String.format(MESSAGE_FAILURE, target, e.getMessage()), e);
         }
         int count = model.getAddressBook().getPersonList().size();
         return CommandResult.withoutSave(String.format(MESSAGE_SUCCESS, count, target));
+    }
+
+    /**
+     * Writes the data to a temporary file beside {@code target} and moves it into place only once the write
+     * has finished, so a failed write cannot publish a partial backup or block a retry under the same name.
+     */
+    private static void writeAtomically(ReadOnlyAddressBook data, Path target) throws IOException {
+        Path temp = Files.createTempFile(target.toAbsolutePath().getParent(), "backup-", ".json.tmp");
+        try {
+            new JsonAddressBookStorage(temp).saveAddressBook(data);
+            try {
+                Files.move(temp, target, StandardCopyOption.ATOMIC_MOVE);
+            } catch (AtomicMoveNotSupportedException e) {
+                Files.move(temp, target);
+            }
+        } finally {
+            Files.deleteIfExists(temp);
+        }
     }
 
     /** Resolves the file to write, using a timestamped name when none was supplied. */
