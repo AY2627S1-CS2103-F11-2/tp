@@ -306,6 +306,12 @@ names the data file and the preserved copy, and `UiManager` passes it to `MainWi
 the result box. A failed save names the data file path in the exception message, and `LogicManager`
 restores the checkpoint before reporting it, so the data, both filters and the history match the file.
 
+`list`, `search`, `help` and `exit` return `CommandResult.withoutSave(...)` because they do not change
+persisted client or appointment data. `LogicManager` returns these results without calling storage,
+so a storage failure cannot prevent viewing clients, requesting help or exiting. The overload with
+help and exit flags preserves the UI action while skipping the data write. Search/list still update
+the client filter; the appointment filter, stored data and undo/redo history are preserved.
+
 Confirmed `deleteappt` is deliberately irreversible. After removal, `VersionedAddressBook#resetHistory()`
 replaces the whole timeline with the current data as its only baseline. This clears both older undo
 and redo entries, including client changes, and prevents any old snapshot from resurrecting the
@@ -427,6 +433,27 @@ resets the client filter to show all clients. The command prepares a success `Co
 `IOException` (including `AccessDeniedException`), the model checkpoint is restored and a
 `CommandException` is thrown instead. This restores the previous data, history and filters so a
 failed save does not leave an added client in memory.
+
+### Client search flow
+
+The activity diagram below shows the search command’s argument validation, predicate construction
+and filtered-client-list update.
+
+<img src="images/SearchClientActivityDiagram.png" alt="Activity diagram for searching clients, including argument validation, predicate construction and filtered-list update" width="650"/>
+
+`SearchCommandParser` tokenizes the arguments, validates the supported prefixes, rejects duplicate
+prefixes and ensures that at least one search parameter is provided. It also validates supplied
+name, phone-number and client-type values. Invalid input stops the flow with a `ParseException`.
+
+For valid input, the parser creates predicates for the supplied fields. When multiple fields are
+provided, their predicates are combined so that matching clients satisfy all specified criteria.
+A `SearchCommand` is then created and executed.
+
+`SearchCommand` updates the filtered client list through `ModelManager.updateFilteredPersonList`, counts
+the matching clients and prepares a success `CommandResult` stating the number of results found. The
+command does not modify the stored address book or persist any changes.
+
+
 
 ### \[Proposed\] Data archiving
 
@@ -664,7 +691,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 ### Non-Functional Requirements
 
 Environment NFRs
-1. PropTrack must be able to perform consistently on any _mainstream OS_ as long as it has Java `25` or above installed. 
+1. PropTrack must be able to perform consistently on any _mainstream OS_ as long as it has Java `25` or above installed.
 2. PropTrack must be able to operate completely offline and will not require any internet connection or connection with external servers to operate normally.
 3. It must support, at minimum, the english language.
 4. PropTrack must be packaged in a Jar executable file that can be run by either double-clicking it or through the terminal.

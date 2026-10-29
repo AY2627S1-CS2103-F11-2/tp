@@ -60,9 +60,14 @@ public class CommandResult {
         this(feedbackToUser, false, false, requireNonNull(selectedClient));
     }
 
-    /** Returns a successful no-op result that must not write data or consume undo/redo history. */
+    /** Returns a successful result for a command that does not change persisted data. */
     public static CommandResult withoutSave(String feedbackToUser) {
-        return new CommandResult(feedbackToUser, false, false, null, false);
+        return withoutSave(feedbackToUser, false, false);
+    }
+
+    /** Returns a result that skips data saving while retaining help and exit actions for the UI. */
+    public static CommandResult withoutSave(String feedbackToUser, boolean showHelp, boolean exit) {
+        return new CommandResult(feedbackToUser, showHelp, exit, null, false);
     }
 
     public boolean isSaveRequired() {

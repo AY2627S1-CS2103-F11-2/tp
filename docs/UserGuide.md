@@ -167,8 +167,8 @@ Format: `search [n/NAME] [p/PHONE_NUMBER] [y/TYPE]`
 Examples:
 * `search n/John` returns `John` and `John Doe`
 * `search p/98765432` returns clients with the phone number `98765432`
-* `search y/seller` returns a list of clients whose client type is `seller` 
-* `search n/Alice` searches for clients whose name contains `Alice`. 
+* `search y/seller` returns a list of clients whose client type is `seller`
+* `search n/Alice` searches for clients whose name contains `Alice`.
 * `search n/John p/98765432 y/seller` searches using the specified name, phone number, and client type criteria.
 
  Result of `search y/seller`
@@ -398,6 +398,9 @@ Format: `exit`
 ### Saving the data
 
 PropTrack automatically saves clients and appointments after changes. You do not need to save manually.
+`list`, `search`, `help` and `exit` do not rewrite the data file. These commands remain available even
+when the data file cannot be written. Commands that change clients or appointments still require
+the data file to be writable.
 Existing client-only data files remain readable and start with an empty appointment list.
 Clients in older files that have no client IDs receive IDs automatically when loaded. These IDs and the
 next ID to allocate are saved with the data; you do not need to assign or renumber IDs yourself.
