@@ -167,8 +167,8 @@ Format: `search [n/NAME] [p/PHONE_NUMBER] [y/TYPE]`
 Examples:
 * `search n/John` returns `John` and `John Doe`
 * `search p/98765432` returns clients with the phone number `98765432`
-* `search y/seller` returns a list of clients whose client type is `seller` 
-* `search n/Alice` searches for clients whose name contains `Alice`. 
+* `search y/seller` returns a list of clients whose client type is `seller`
+* `search n/Alice` searches for clients whose name contains `Alice`.
 * `search n/John p/98765432 y/seller` searches using the specified name, phone number, and client type criteria.
 
  Result of `search y/seller`
