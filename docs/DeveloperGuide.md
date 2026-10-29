@@ -649,6 +649,19 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case resumes at step 3.
 
+* 3c. The supplied location exceeds 100 characters after trimming leading and trailing whitespace.
+
+    * 3c1. PropTrack explains the length limit. No appointment is changed.
+
+      Use case resumes at step 3.
+
+* 3d. The supplied location is unchanged after trimming leading and trailing whitespace.
+
+    * 3d1. PropTrack informs the agent that no changes were made. The data, active filters and undo/redo
+      history remain unchanged, and no data file is written.
+
+      Use case ends.
+
 **Use case: UC04 - Remove a cancelled appointment**
 
 **MSS**
@@ -797,23 +810,45 @@ testers are expected to do more *exploratory* testing.
 
 1. _{ more test cases …​ }_
 
-### Deleting a person
+### Deleting a client
 
-1. Deleting a person while all persons are being shown
+Use a disposable, writable folder for this sequence. The setup uses `clear`, which removes all existing
+clients and appointments. Run the steps in order and keep the same folder when restarting.
 
-   1. Prerequisites: List all persons using the `list` command, with multiple persons in the list.
+1. Set up two clients and their appointments:
 
-   1. Test case: `delete C1`<br>
-      Expected: The first contact is deleted from the list. The status message shows the deleted contact's details.
+   ```text
+   clear
+   add n/Alice p/91234567 a/Clementi y/buyer
+   add n/Bob p/92345678 a/Tampines y/seller
+   appointment n/Alice Viewing c/C1 loc/NUS s/20261101-1000 e/20261101-1100
+   appointment n/Bob Signing c/C2 loc/Office s/20261101-1100 e/20261101-1200
+   appointment n/Bob Followup c/C2 loc/Office s/20261102-1100 e/20261102-1200
+   ```
 
-   1. Test case: `delete C0`<br>
-      Expected: No person is deleted. The status message shows error details.
+   Expected: Alice and Bob occupy client positions `C1` and `C2`; three appointments are displayed.
+   Record Bob's permanent Client ID to check that restoration retains it.
 
-   1. Other incorrect delete commands to try: `delete`, `delete C1 extra`, and `delete C999`
-      (when fewer than 999 clients are displayed)<br>
-      Expected: Similar to previous.
+2. Run `search n/Bob`, then `appointments c/C1 d/01112026`.<br>
+   Expected: Only Bob is in the client list, now at position `C1`. Only Bob Signing is in the appointment
+   list. Bob Followup is hidden by the date filter.
 
-1. _{ more test cases …​ }_
+3. Try `delete C0`, `delete`, `delete C1 extra`, and `delete C999`.<br>
+   Expected: Each command reports an error. Bob, his appointments and both filters remain unchanged.
+
+4. Run `delete C1`.<br>
+   Expected: Bob is deleted, even though he was `C2` in the full client list. The result begins
+   `Deleted Client: Bob`. The client search remains active, so its results are empty. Both Bob Signing
+   and the hidden Bob Followup are removed. The appointment client filter is cleared, but the date filter
+   remains, so Alice Viewing appears. Run `list` and `appointments`: only Alice and Alice Viewing remain.
+
+5. Run `undo`.<br>
+   Expected: Bob and both of his appointments are restored together, including his original permanent
+   Client ID. Both full lists are displayed. The intervening viewing commands did not add undo steps.
+
+6. Run `redo`, then `exit`, and relaunch the JAR in the same folder.<br>
+   Expected: Only Alice and Alice Viewing remain; Bob and both of his appointments stay deleted.
+   `undo` reports `Nothing to undo.` because history is not retained across restarts.
 
 ### Adding and viewing appointments
 
