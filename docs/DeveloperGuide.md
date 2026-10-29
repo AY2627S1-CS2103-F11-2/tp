@@ -306,6 +306,12 @@ names the data file and the preserved copy, and `UiManager` passes it to `MainWi
 the result box. A failed save names the data file path in the exception message, and `LogicManager`
 restores the checkpoint before reporting it, so the data, both filters and the history match the file.
 
+`list`, `search`, `help` and `exit` return `CommandResult.withoutSave(...)` because they do not change
+persisted client or appointment data. `LogicManager` returns these results without calling storage,
+so a storage failure cannot prevent viewing clients, requesting help or exiting. The overload with
+help and exit flags preserves the UI action while skipping the data write. Search/list still update
+the client filter; the appointment filter, stored data and undo/redo history are preserved.
+
 Confirmed `deleteappt` is deliberately irreversible. After removal, `VersionedAddressBook#resetHistory()`
 replaces the whole timeline with the current data as its only baseline. This clears both older undo
 and redo entries, including client changes, and prevents any old snapshot from resurrecting the
