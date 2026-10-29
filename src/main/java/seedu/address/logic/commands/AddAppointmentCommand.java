@@ -3,6 +3,7 @@ package seedu.address.logic.commands;
 import static java.util.Objects.requireNonNull;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.logging.Logger;
 
 import seedu.address.commons.core.LogsCenter;
@@ -16,7 +17,12 @@ public class AddAppointmentCommand extends Command {
     public static final String COMMAND_WORD = "appointment";
     public static final String MESSAGE_USAGE =
             "appointment n/NAME c/CLIENT_INDEX loc/LOCATION s/YYYYMMDD-HHMM e/YYYYMMDD-HHMM";
+    public static final String MESSAGE_SUCCESS = "Added appointment A%1$d: %2$s with %3$s, %4$s to %5$s, at %6$s.";
+    public static final String MESSAGE_CLASH = "Schedule clash with appointment: %1$s (%2$s to %3$s). "
+            + "Nothing was added.";
 
+    /** Matches the date-time layout of the appointment cards. */
+    private static final DateTimeFormatter DISPLAY_DATE_TIME = DateTimeFormatter.ofPattern("dd/MM/uuuu HH:mm");
     private static final Logger logger = LogsCenter.getLogger(AddAppointmentCommand.class);
 
     private final String name;
@@ -48,8 +54,8 @@ public class AddAppointmentCommand extends Command {
         for (Appointment existing : model.getAddressBook().getAppointmentList()) {
             if (appointment.overlaps(existing)) {
                 logger.fine("Appointment creation rejected: the new time overlaps a stored appointment.");
-                throw new CommandException("Schedule clash with appointment: " + existing.getName()
-                        + " (" + existing.getStart() + " to " + existing.getEnd() + "). Nothing was added.");
+                throw new CommandException(String.format(MESSAGE_CLASH, existing.getName(),
+                        existing.getStart().format(DISPLAY_DATE_TIME), existing.getEnd().format(DISPLAY_DATE_TIME)));
             }
         }
         model.addAppointment(appointment);
@@ -59,7 +65,8 @@ public class AddAppointmentCommand extends Command {
         assert displayedIndex > 0 : "Created appointment must be shown in the displayed appointment list.";
         logger.info("Created appointment A" + displayedIndex + " for displayed client C"
                 + clientIndex.getOneBased() + " in memory; awaiting save.");
-        return new CommandResult("Added appointment A" + displayedIndex + " : " + name + " with "
-                + appointment.getClient().getName().fullName + " from " + start + " to " + end + " at " + location);
+        return new CommandResult(String.format(MESSAGE_SUCCESS, displayedIndex, appointment.getName(),
+                appointment.getClient().getName().fullName, start.format(DISPLAY_DATE_TIME),
+                end.format(DISPLAY_DATE_TIME), appointment.getLocation()));
     }
 }

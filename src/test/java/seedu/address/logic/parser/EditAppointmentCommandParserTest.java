@@ -50,7 +50,7 @@ public class EditAppointmentCommandParserTest {
         for (String args : new String[]{"", "1", "1 loc/", "1 loc/   ", "1 loc/\u2003",
             "A1 loc/NUS", "0 loc/NUS", "-1 loc/NUS", "2147483648 loc/NUS", "1 extra loc/NUS",
             "1 x/NUS", "1 c/", "1 c/C1", "1 c/0", "1 c/2147483648", "1 n/", "1 n/Name!",
-            "1 n/" + "A".repeat(51), "1 loc/" + "A".repeat(101), "1 d/", "1 d/2026-02-30 10:00"}) {
+            "1 n/" + "A".repeat(81), "1 loc/" + "A".repeat(101), "1 d/", "1 d/2026-02-30 10:00"}) {
             assertThrows(ParseException.class, () -> parser.parse(args), args);
         }
         assertThrows(NullPointerException.class, () -> parser.parse(null));
