@@ -235,7 +235,8 @@ Format: `appointments [c/CLIENT_INDEX] [d/DDMMYYYY]`
 * When both fields are supplied, an appointment must match both. Field order does not matter.
 * Results are sorted by start date and time, earliest first, and numbered `A1`, `A2`, etc.
   Each card shows the appointment name, client name, start, end, location and any remarks.
-* The result is `Showing N appointments.`, or `No appointments found.` with an empty panel.
+* The result is `Showing N appointments.`, or `Showing 1 appointment.` for a single match, or
+  `No appointments found.` with an empty panel.
   An empty result is successful. Viewing appointments does not write to the data file.
 * Each field may appear only once. Empty values, unknown fields and extra arguments are rejected.
   `C0`, `c1`, `C01` and client references outside the displayed list are invalid.
