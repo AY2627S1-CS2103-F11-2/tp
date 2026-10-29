@@ -17,10 +17,13 @@ PropTrack is a **desktop client directory for insurance and property agents, opt
 
 1. Download the latest `.jar` file from [here](https://github.com/AY2627S1-CS2103-F11-2/tp/releases).
 
-1. Copy the file to the folder you want to use as the _home folder_ for PropTrack.
+1. Copy the file to the folder you want to use as the _home folder_ for PropTrack. Choose a folder you can
+   write to, such as one inside your Documents folder, because PropTrack saves its data and backups there.
 
-1. Open a terminal, `cd` to the folder containing the JAR file, and run `java -jar proptrack.jar`.<br>
-   A GUI similar to the one below should appear in a few seconds. Note how the app contains some sample data.<br>
+1. Open a terminal, `cd` to the folder containing the JAR file, and run `java -jar proptrack.jar`.
+   Launching it this way is more reliable than double-clicking the file (see [Known issues](#known-issues)).<br>
+   A GUI similar to the one below should appear in a few seconds. Note how the app contains some sample data.
+   The screenshot also shows three appointments added with the `appointment` command.<br>
    ![Ui](images/Ui.png)
 
 1. Type a command in the command box and press Enter to execute it. For example, type **`help`** and press Enter to open the help window.<br>
@@ -96,6 +99,8 @@ Format: `add n/NAME p/PHONE_NUMBER a/ADDRESS y/TYPE [e/EMAIL] [t/TAG]…​`
   `Added client C8: Alex Tan. Current position: C1 (for delete/appointment commands).`
   The full client list is shown, sorted alphabetically by name without regard to letter case, then by numeric
   client ID when names compare equally. The new client is selected automatically and their details appear in the details panel.
+* Names are checked for duplicates without regard to letter case after space normalization.
+  For example, `Alex Yeoh`, `alex yeoh` and `Alex  Yeoh` refer to the same name, regardless of other fields.
 * If the name already belongs to a client, no client is added. The result identifies the existing record,
   for example `Name already belongs to client C1 (Alex Tan). No client was added.`
 * A client's ID is saved with the record and remains unchanged when the list is sorted or filtered,
@@ -140,7 +145,9 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [y/TYPE] [t/TAG]…
   Editing retains the client's stable ID; changing the name may move the card in the alphabetically sorted list.
 * At least one of the optional fields must be provided.
 * Existing values will be updated to the input values.
-* Edited names follow the same validation and space normalization rules as [adding a client](#adding-a-client-add).
+* Edited names follow the same validation, space normalization and case-insensitive duplicate rules as
+  [adding a client](#adding-a-client-add). Another client with the resulting name, even if hidden by a filter,
+  prevents the edit. You can change the capitalization of the selected client's own name.
 * If `y/TYPE` is supplied, it must be `buyer`, `seller`, `landlord` or `tenant`, in lowercase.
 * Omit `e/EMAIL` to retain the client's current email. To clear an existing email, supply a bare `e/`;
   the client card and command feedback then show `Not provided`.
@@ -208,7 +215,8 @@ Format: `appointment n/NAME c/CLIENT_INDEX loc/LOCATION s/YYYYMMDD-HHMM e/YYYYMM
 * Every field is required and may appear only once. Fields may be supplied in any order.
 * `CLIENT_INDEX` is a positional reference such as `C1` for the first client in the currently displayed list.
   Use `C` followed by the current row number, not the permanent Client ID shown in the details panel.
-* The name contains letters and spaces, with 1-80 characters. The location cannot be blank;
+* The name contains ASCII letters, digits and spaces, with 1-80 characters and at least one letter or digit,
+  for example `Follow up 2`. `editappt` accepts the same names. The location cannot be blank;
   punctuation such as `#` and `-` is accepted, for example `NUS COM3 #02-01`.
   Leading and trailing whitespace is removed, while internal spacing is preserved.
 * Start and end must be real calendar date-times in 24-hour Singapore local time.
@@ -216,13 +224,16 @@ Format: `appointment n/NAME c/CLIENT_INDEX loc/LOCATION s/YYYYMMDD-HHMM e/YYYYMM
 * An appointment that overlaps any stored appointment is rejected, including appointments hidden by a filter.
   Adjacent appointments, such as 10:00-11:00 and 11:00-12:00, are allowed.
 * On success, all appointments appear in chronological order and the new appointment's displayed reference
-  is included in the result. The client list stays as it was.
+  is included in the result, for example
+  `Added appointment A1: Viewing with Alex Yeoh, 15/10/2026 10:00 to 15/10/2026 11:00, at Sentosa Cove 123456.`
+  The client list stays as it was.
+* A client reference without the `C`, such as `c/1`, is rejected with a message showing the `c/C1` form.
 
 Example: `appointment n/Viewing c/C1 loc/Sentosa Cove 123456 s/20261015-1000 e/20261015-1100`
 
 ### Viewing appointments: `appointments`
 
-![Client and appointment panels showing the schedule](images/appointments.png)
+Shows the stored appointments, optionally only those of one client or starting on one date.
 
 Format: `appointments [c/CLIENT_INDEX] [d/DDMMYYYY]`
 
@@ -249,6 +260,10 @@ Examples:
 * `appointments d/15102026`
 * `appointments c/C2 d/15102026`
 
+Result of `appointments d/05112026`, which keeps the two appointments starting on 5 November 2026:
+
+![Client and appointment panels after filtering appointments by date](images/appointments.png)
+
 ### Editing an appointment: `editappt`
 
 Format: `editappt APPOINTMENT_INDEX [n/APPOINTMENT_NAME] [c/CLIENT_INDEX] [d/DATETIME] [loc/LOCATION] [desc/DESCRIPTION]`
@@ -260,7 +275,7 @@ Format: `editappt APPOINTMENT_INDEX [n/APPOINTMENT_NAME] [c/CLIENT_INDEX] [d/DAT
 
 | Field | Meaning and accepted values |
 | --- | --- |
-| `n/APPOINTMENT_NAME` | Replacement name: 1-50 ASCII letters, digits or spaces, with at least one non-space character. |
+| `n/APPOINTMENT_NAME` | Replacement name, following the same rule as `appointment`: 1-80 ASCII letters, digits or spaces, with at least one letter or digit. |
 | `c/CLIENT_INDEX` | Positive numeric position in the currently displayed **client** list, e.g. `c/2`. This is not a permanent Client ID and does not include `C`. |
 | `d/DATETIME` | New start time in strict `yyyy-MM-dd HH:mm` format, e.g. `d/2026-10-18 15:30`. It must be a real calendar time in 24-hour Singapore local time, with year 0001-9999. |
 | `loc/LOCATION` | Non-blank location, at most 100 characters. Unit numbers and punctuation are accepted. |
@@ -419,6 +434,9 @@ If the file contains invalid client or appointment data, PropTrack rejects the w
 It attempts to preserve the unreadable file under a name ending in `.corrupt-TIMESTAMP`, and the result box
 names both the data file and the preserved copy, or says that the rename failed. Back up the data file
 before editing it.<br>
+Names that differ only in letter case or normalized spaces count as duplicate records in saved files too.
+If an older version allowed such records, back up the file and give the clients distinct names in that version
+before upgrading; they are not merged automatically.<br>
 Client `clientId` fields store stable numeric IDs; do not duplicate IDs or decrease the `nextClientId` counter.<br>
 Appointment `clientIndex` fields refer to positions in the saved client array, rather than stable client IDs.
 Reordering that array by hand without updating those references can associate appointments with the wrong clients.
@@ -437,6 +455,9 @@ Reordering that array by hand without updating those references can associate ap
 
 1. **When using multiple screens**, if you move the application to a secondary screen, and later switch to using only the primary screen, the GUI will open off-screen. The remedy is to delete the `preferences.json` file created by the application before running the application again.
 2. **If you minimize the Help Window** and then run the `help` command (or use the `Help` menu, or the keyboard shortcut `F1`) again, the original Help Window will remain minimized, and no new Help Window will appear. The remedy is to manually restore the minimized Help Window.
+3. **Double-clicking the JAR file might not work on some systems**, for example when `.jar` files are set to open with another program or with an older Java version. The remedy is to launch PropTrack from a terminal with `java -jar proptrack.jar`, as described in the [Quick start](#quick-start).
+4. **PropTrack does not work properly in a write-protected folder**, such as `C:\Program Files` or a read-only network drive. It cannot create or update its data file, `preferences.json` or backups there. `list`, `search`, `help` and `exit` still work, but every change is rejected with a message that it could not be written to the data file. The remedy is to move the JAR file into a folder you can write to and start it again.
+5. **Mac users who put a secondary window, such as the Help Window, into full-screen mode** might see unexpected behaviour, for example the window opening on a separate desktop or the main window becoming hard to return to. The remedy is to keep secondary windows in normal (windowed) mode and exit full screen before closing them.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -447,16 +468,16 @@ Action | Format, Examples
 **Add** | `add n/NAME p/PHONE_NUMBER a/ADDRESS y/TYPE [e/EMAIL] [t/TAG]…​` <br> e.g., `add n/James Ho p/22224444 a/123, Clementi Rd, 1234665 y/buyer t/friend t/colleague`
 **Clear** | `clear`
 **Delete** | `delete CLIENT_ID`<br> e.g., `delete C3`
-**Edit** | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]…​`<br> e.g., `edit 2 n/James Lee e/jameslee@example.com`
+**Edit** | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [y/TYPE] [t/TAG]…​`<br> e.g., `edit 2 n/James Lee e/jameslee@example.com`
 **Search** | `search [n/NAME] [p/PHONE_NUMBER] [y/TYPE]` <br> e.g., `search p/87654321 y/buyer`
 **List** | `list`
 **Redo** | `redo`
 **Undo** | `undo`
 **Backup** | `backup [f/FILE]` <br> e.g., `backup f/before-clearing.json`
 **Restore** | `restore f/FILE` <br> e.g., `restore f/before-clearing.json`
-
-**Add appointment** | `appointment n/NAME c/CLIENT_INDEX loc/LOCATION s/YYYYMMDD-HHMM e/YYYYMMDD-HHMM`
-**View appointments** | `appointments [c/CLIENT_INDEX] [d/DDMMYYYY]`
-**Edit appointment** | `editappt APPOINTMENT_INDEX [n/APPOINTMENT_NAME] [c/CLIENT_INDEX] [d/DATETIME] [loc/LOCATION] [desc/DESCRIPTION]`
-**Delete appointment** | `deleteappt A<INDEX> yes` or `deleteappt A<INDEX> confirm`
+**Add appointment** | `appointment n/NAME c/CLIENT_INDEX loc/LOCATION s/YYYYMMDD-HHMM e/YYYYMMDD-HHMM` <br> e.g., `appointment n/Viewing c/C1 loc/Sentosa Cove 123456 s/20261015-1000 e/20261015-1100`
+**View appointments** | `appointments [c/CLIENT_INDEX] [d/DDMMYYYY]` <br> e.g., `appointments c/C2 d/15102026`
+**Edit appointment** | `editappt APPOINTMENT_INDEX [n/APPOINTMENT_NAME] [c/CLIENT_INDEX] [d/DATETIME] [loc/LOCATION] [desc/DESCRIPTION]` <br> e.g., `editappt 1 d/2026-10-18 15:30`
+**Delete appointment** | `deleteappt A<INDEX> yes` or `deleteappt A<INDEX> confirm` <br> e.g., `deleteappt A1 yes`
 **Help** | `help`
+**Exit** | `exit`

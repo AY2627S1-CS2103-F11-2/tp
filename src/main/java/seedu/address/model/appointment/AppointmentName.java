@@ -7,10 +7,9 @@ import static seedu.address.commons.util.AppUtil.checkArgument;
  * Value object representing an appointment name.
  */
 public final class AppointmentName {
-    public static final String MESSAGE_CREATION_CONSTRAINTS =
-            "Appointment name must contain only letters and spaces, with 1-80 characters.";
-    public static final String MESSAGE_CONSTRAINTS = "Appointment name must contain letters and spaces "
-            + "(1-80 characters), or letters, digits and spaces (1-50 characters).";
+    public static final int MAX_LENGTH = 80;
+    public static final String MESSAGE_CONSTRAINTS = "Appointment name must contain only letters, digits and "
+            + "spaces, with 1-80 characters and at least one letter or digit.";
     private final String value;
 
     /**
@@ -25,20 +24,14 @@ public final class AppointmentName {
         this.value = normalized;
     }
 
-    /** Returns whether the supplied value satisfies the appointment-name constraints. */
+    /**
+     * Returns whether the supplied value is a valid appointment name. Creating and editing an appointment
+     * share this rule, so any name one command accepts the other accepts too. Names valid under the
+     * earlier, narrower creation and editing rules all remain valid.
+     */
     public static boolean isValid(String value) {
-        return isValidForCreation(value) || isValidForEditing(value);
-    }
-
-    /** Preserves the existing creation rules and compatibility with names stored before editing was extended. */
-    public static boolean isValidForCreation(String value) {
-        return value != null && value.length() <= 80
-                && value.matches("[A-Za-z ]*") && value.matches(".*[A-Za-z].*");
-    }
-
-    /** Returns whether a replacement name satisfies the feature specification's edit-specific rules. */
-    public static boolean isValidForEditing(String value) {
-        return value != null && !value.isBlank() && value.length() <= 50 && value.matches("[A-Za-z0-9 ]+");
+        return value != null && value.length() <= MAX_LENGTH
+                && value.matches("[A-Za-z0-9 ]+") && value.matches(".*[A-Za-z0-9].*");
     }
 
     public String getValue() {
