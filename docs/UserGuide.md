@@ -378,7 +378,7 @@ Format: `restore f/FILE`
 * `FILE` is the name of a `.json` file in the `backup` folder beside your data file, for example
   `restore f/before-clearing.json`. It must not contain a folder part.
 * The whole backup is checked before anything changes. A name that is not in the folder is rejected with
-  `No backup file named <name> in the data folder.`, and a file that is not a client list is rejected with
+  `No backup named <name> in data/backup. Backup names end in .json, for example f/before-july.json.`, and a file that is not a client list is rejected with
   `That file is not a valid client list, so nothing was restored.`
 * A successful restore shows `Restored N clients from <name>`, clears both filters so the restored clients
   are visible, and is saved automatically.
