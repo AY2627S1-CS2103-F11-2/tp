@@ -51,9 +51,10 @@ public class BackupCommandParser implements Parser<BackupCommand> {
         return new BackupCommand(Optional.of(name));
     }
 
-    /** A backup name is a bare file name ending in .json, with no folder part and no control characters. */
+    /** A backup name is a bare, visible file name ending in .json, with no folder part and no control characters. */
     private static boolean isValidFileName(String name) {
         return !name.isEmpty()
+                && !name.startsWith(".")
                 && name.endsWith(".json")
                 && !name.contains("/")
                 && !name.contains("\\")
