@@ -161,7 +161,7 @@ Examples:
 
 ### Searching for clients: `search`
 
-Finds clients whose names contain any of the given keywords.
+Finds clients whose names contain all the given keywords.
 
 Format: `search [n/NAME] [p/PHONE_NUMBER] [y/TYPE]`
 
