@@ -13,7 +13,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.logging.Logger;
 
+import seedu.address.commons.core.LogsCenter;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
 import seedu.address.model.ReadOnlyAddressBook;
@@ -33,6 +35,8 @@ public class BackupCommand extends Command {
     public static final String MESSAGE_EXISTS =
             "A backup named %1$s already exists. Choose another name with f/FILE.";
     public static final Path DEFAULT_BACKUP_DIR = Paths.get("data", "backup");
+
+    private static final Logger logger = LogsCenter.getLogger(BackupCommand.class);
 
     private static final DateTimeFormatter STAMP =
             DateTimeFormatter.ofPattern("yyyy-MM-dd-HHmm", Locale.ENGLISH);
@@ -55,6 +59,7 @@ public class BackupCommand extends Command {
     public CommandResult execute(Model model) throws CommandException {
         requireNonNull(model);
         Path target = resolveTarget();
+        logger.fine(() -> "Backing up to " + target);
         if (Files.exists(target)) {
             throw new CommandException(String.format(MESSAGE_EXISTS, target.getFileName()));
         }
@@ -65,6 +70,8 @@ public class BackupCommand extends Command {
             throw new CommandException(String.format(MESSAGE_FAILURE, target, e.getMessage()), e);
         }
         int count = model.getAddressBook().getPersonList().size();
+        assert Files.exists(target) : "a finished backup must exist";
+        logger.info(() -> "Backed up " + count + " clients to " + target);
         return CommandResult.withoutSave(String.format(MESSAGE_SUCCESS, count, target));
     }
 
