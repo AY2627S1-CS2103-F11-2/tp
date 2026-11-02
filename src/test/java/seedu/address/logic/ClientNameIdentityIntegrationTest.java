@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import seedu.address.commons.exceptions.DataLoadingException;
+import seedu.address.logic.commands.EditCommand;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.AddressBook;
 import seedu.address.model.Model;
@@ -106,7 +107,9 @@ public class ClientNameIdentityIntegrationTest {
             assertEquals("Name already belongs to client C1 (" + name + "). No client was added.",
                     exception.getMessage());
         } else {
-            assertEquals("This person already exists in the address book.", exception.getMessage());
+            assertTrue(exception.getMessage().matches(
+                    "Name already belongs to client C\d+ \(.+\)\. No client was edited\."),
+                    exception.getMessage());
         }
         assertEquals(before, model.getAddressBook());
         assertEquals(before.getNextClientId(), model.getAddressBook().getNextClientId());
