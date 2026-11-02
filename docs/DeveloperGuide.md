@@ -329,6 +329,11 @@ automatic save for it, as it does for `appointments`, because there is nothing t
 already exists is refused rather than overwritten, and any `IOException` is reported with the target path
 and the note that nothing was changed.
 
+The sequence diagram below shows a backup, including the temporary file that is published under the
+chosen name only once the write has finished.
+
+![Interactions for the `backup` command](images/BackupSequenceDiagram.png)
+
 `RestoreCommand` reads the named file with `JsonAddressBookStorage`, so the file is validated as a client list
 before the model is touched, and then replaces the whole book with `Model#setAddressBook`, which commits a
 single snapshot. A missing file or an unreadable one throws a `CommandException` before any mutation, so a

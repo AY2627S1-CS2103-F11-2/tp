@@ -1,0 +1,58 @@
+@startuml
+!include style.puml
+skinparam ArrowFontStyle plain
+
+box Logic LOGIC_COLOR_T1
+participant ":LogicManager" as LogicManager LOGIC_COLOR
+participant ":AddressBookParser" as AddressBookParser LOGIC_COLOR
+participant ":BackupCommandParser" as BackupCommandParser LOGIC_COLOR
+participant "b:BackupCommand" as BackupCommand LOGIC_COLOR
+end box
+
+box Storage STORAGE_COLOR_T1
+participant ":JsonAddressBookStorage" as Storage STORAGE_COLOR
+end box
+
+box Model MODEL_COLOR_T1
+participant "m:Model" as Model MODEL_COLOR
+end box
+
+[-> LogicManager : execute("backup f/before.json")
+activate LogicManager
+
+LogicManager -> AddressBookParser : parseCommand(...)
+activate AddressBookParser
+AddressBookParser -> BackupCommandParser : parse(" f/before.json")
+activate BackupCommandParser
+create BackupCommand
+BackupCommandParser -> BackupCommand
+activate BackupCommand
+BackupCommand --> BackupCommandParser
+deactivate BackupCommand
+BackupCommandParser --> AddressBookParser : b
+deactivate BackupCommandParser
+AddressBookParser --> LogicManager : b
+deactivate AddressBookParser
+
+LogicManager -> BackupCommand : execute(m)
+activate BackupCommand
+BackupCommand -> Model : getAddressBook()
+activate Model
+Model --> BackupCommand : data
+deactivate Model
+BackupCommand -> Storage : saveAddressBook(data) to a temporary file
+activate Storage
+Storage --> BackupCommand : written
+deactivate Storage
+note right of BackupCommand
+  The temporary file is moved onto the
+  chosen name only once the write has
+  finished, so a failed write leaves
+  nothing behind and the name stays free.
+end note
+BackupCommand --> LogicManager : result
+deactivate BackupCommand
+
+[<-- LogicManager : result
+deactivate LogicManager
+@enduml
