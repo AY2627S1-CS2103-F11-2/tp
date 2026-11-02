@@ -18,12 +18,21 @@ import org.junit.jupiter.api.Test;
 import seedu.address.commons.core.index.Index;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.AddAppointmentCommandParser;
+import seedu.address.logic.parser.EditAppointmentCommandParser;
 import seedu.address.model.AddressBook;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
 
 public class AppointmentCommandsTest {
     private final ModelManager model = new ModelManager(getAppointmentAddressBook(), new UserPrefs());
+
+    @Test
+    public void editAppointment_noAppointments_reportsThatThereIsNothingToEdit() throws Exception {
+        ModelManager empty = new ModelManager();
+        EditAppointmentCommand command = new EditAppointmentCommandParser().parse(" 1 n/Visit");
+        CommandException e = assertThrows(CommandException.class, () -> command.execute(empty));
+        assertEquals(EditAppointmentCommand.MESSAGE_NO_APPOINTMENTS, e.getMessage());
+    }
 
     @Test
     public void appointments_singleMatch_usesTheSingularWord() throws Exception {

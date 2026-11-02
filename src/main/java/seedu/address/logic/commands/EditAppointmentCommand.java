@@ -22,6 +22,7 @@ public class EditAppointmentCommand extends Command {
     public static final String COMMAND_WORD = "editappt";
     public static final String MESSAGE_USAGE = "editappt APPOINTMENT_INDEX [n/APPOINTMENT_NAME] "
             + "[c/CLIENT_INDEX] [d/DATETIME] [loc/LOCATION] [desc/DESCRIPTION]";
+    public static final String MESSAGE_NO_APPOINTMENTS = "There are no appointments to edit yet.";
     public static final String MESSAGE_INVALID_INDEX = "The appointment index provided is invalid. "
             + "(Must be a positive integer between 1 and %d)";
     public static final String MESSAGE_INVALID_CLIENT = "The client index provided is invalid. "
@@ -52,6 +53,10 @@ public class EditAppointmentCommand extends Command {
     public CommandResult execute(Model model) throws CommandException {
         requireNonNull(model);
         List<Appointment> lastShownList = model.getFilteredAppointmentList();
+        if (lastShownList.isEmpty()) {
+            logger.fine("Appointment edit rejected: there are no appointments.");
+            throw new CommandException(MESSAGE_NO_APPOINTMENTS);
+        }
         if (targetIndex.getZeroBased() >= lastShownList.size()) {
             logger.fine("Appointment edit rejected: reference is outside the displayed appointment list.");
             throw new CommandException(String.format(MESSAGE_INVALID_INDEX, lastShownList.size()));
