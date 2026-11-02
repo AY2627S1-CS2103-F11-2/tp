@@ -1,9 +1,9 @@
 package seedu.address.commons.util;
 
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -62,6 +62,7 @@ public class FileUtil {
      * Moves the given file aside so that the app cannot overwrite it, and returns where it went.
      * The file keeps its name and gains a {@code .corrupt-<timestamp>} suffix, for example
      * {@code addressbook.json} becomes {@code addressbook.json.corrupt-2026-10-08-1930}.
+     * Adds a numeric suffix when necessary so an earlier preserved file is never replaced.
      *
      * @param file the file to move aside, which must exist.
      * @return the path the file was moved to.
@@ -70,9 +71,16 @@ public class FileUtil {
     public static Path quarantineCorruptFile(Path file) throws IOException {
         String quarantinedFileName = file.getFileName() + ".corrupt-"
                 + LocalDateTime.now().format(QUARANTINE_TIMESTAMP_FORMAT);
-        Path quarantinedFile = file.resolveSibling(quarantinedFileName);
-        Files.move(file, quarantinedFile, StandardCopyOption.REPLACE_EXISTING);
-        return quarantinedFile;
+        int suffix = 0;
+        while (true) {
+            Path quarantinedFile = file.resolveSibling(quarantinedFileName + (suffix == 0 ? "" : "-" + suffix));
+            try {
+                Files.move(file, quarantinedFile);
+                return quarantinedFile;
+            } catch (FileAlreadyExistsException e) {
+                suffix++;
+            }
+        }
     }
 
 }

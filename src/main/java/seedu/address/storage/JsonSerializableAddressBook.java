@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.LongNode;
 
+import seedu.address.commons.exceptions.DuplicateClientNameException;
 import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.model.AddressBook;
 import seedu.address.model.ReadOnlyAddressBook;
@@ -24,7 +25,7 @@ import seedu.address.model.person.Person;
 @JsonRootName(value = "addressbook")
 class JsonSerializableAddressBook {
 
-    public static final String MESSAGE_DUPLICATE_PERSON = "Persons list contains duplicate person(s).";
+    public static final String MESSAGE_DUPLICATE_PERSON = DuplicateClientNameException.MESSAGE;
 
     private final JsonNode nextClientId;
     private final List<JsonAdaptedPerson> persons = new ArrayList<>();
@@ -78,7 +79,7 @@ class JsonSerializableAddressBook {
             }
             Person person = jsonAdaptedPerson.toModelType();
             if (modelPersons.stream().anyMatch(person::isSamePerson)) {
-                throw new IllegalValueException(MESSAGE_DUPLICATE_PERSON);
+                throw new DuplicateClientNameException();
             }
             modelPersons.add(person);
         }

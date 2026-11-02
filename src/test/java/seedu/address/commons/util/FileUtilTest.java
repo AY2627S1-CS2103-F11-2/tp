@@ -33,6 +33,21 @@ public class FileUtilTest {
     }
 
     @Test
+    public void quarantineCorruptFile_repeatedRecovery_preservesEveryCopy() throws IOException {
+        Path dataFile = testFolder.resolve("addressbook.json");
+        Files.writeString(dataFile, "first unreadable file");
+        Path firstCopy = FileUtil.quarantineCorruptFile(dataFile);
+        Files.writeString(dataFile, "second unreadable file");
+
+        Path secondCopy = FileUtil.quarantineCorruptFile(dataFile);
+
+        assertFalse(firstCopy.equals(secondCopy));
+        assertEquals("first unreadable file", Files.readString(firstCopy));
+        assertEquals("second unreadable file", Files.readString(secondCopy));
+        assertFalse(Files.exists(dataFile));
+    }
+
+    @Test
     public void quarantineCorruptFile_fileDoesNotExist_throwsException() {
         Path missingFile = testFolder.resolve("missing.json");
         assertThrows(IOException.class, () -> FileUtil.quarantineCorruptFile(missingFile));
