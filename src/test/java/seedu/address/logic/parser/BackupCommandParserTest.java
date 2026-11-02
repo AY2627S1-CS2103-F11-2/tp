@@ -31,7 +31,8 @@ public class BackupCommandParserTest {
     @Test
     public void parse_invalidInput_rejects() {
         String[] bad = {" f/", " f/   ", " f/x.txt", " f/dir/x.json", " f/../x.json", " f/a<b.json",
-            " extra", " f/a.json f/b.json", " x/a.json", " f/a.json extra", " f/a.json\tf/b.json"};
+            " extra", " f/a.json f/b.json", " x/a.json", " f/a.json extra", " f/a.json\tf/b.json",
+            " f/.json", " f/.hidden.json", " f/.hidden"};
         for (String args : bad) {
             assertThrows(ParseException.class, () -> parser.parse(args), args);
         }
