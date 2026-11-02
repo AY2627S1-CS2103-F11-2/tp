@@ -10,6 +10,7 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 import seedu.address.commons.core.LogsCenter;
 import seedu.address.commons.exceptions.DataLoadingException;
+import seedu.address.commons.exceptions.DuplicateClientNameException;
 import seedu.address.commons.util.FileUtil;
 import seedu.address.logic.Logic;
 import seedu.address.logic.LogicManager;
@@ -81,7 +82,7 @@ public class MainApp extends Application {
         } catch (DataLoadingException e) {
             logger.warning("The application data file could not be loaded. Starting with empty data.");
             startupMessage = Messages.formatUnreadableDataFile(storage.getAddressBookFilePath(),
-                    preserveUnreadableDataFile());
+                    preserveUnreadableDataFile(), e.getCause() instanceof DuplicateClientNameException);
             initialData = new AddressBook();
         }
 

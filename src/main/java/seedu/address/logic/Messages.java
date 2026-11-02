@@ -46,6 +46,14 @@ public class Messages {
                 .orElse(message + " The file could not be renamed, so check it before making changes.");
     }
 
+    /** Adds actionable guidance when saved data was rejected for duplicate client names. */
+    public static String formatUnreadableDataFile(Path dataFile, Optional<Path> quarantinedFile,
+            boolean duplicateNames) {
+        String message = formatUnreadableDataFile(dataFile, quarantinedFile);
+        return duplicateNames ? message + " Reason: duplicate client names, ignoring letter case and normalized spaces."
+                + " Make the names distinct in a backup copy before loading it again." : message;
+    }
+
     /**
      * Formats the {@code person} for display to the user.
      */
