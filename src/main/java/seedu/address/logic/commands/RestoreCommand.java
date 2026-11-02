@@ -9,7 +9,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.logging.Logger;
 
+import seedu.address.commons.core.LogsCenter;
 import seedu.address.commons.exceptions.DataLoadingException;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
@@ -29,6 +31,8 @@ public class RestoreCommand extends Command {
     public static final String MESSAGE_NOT_A_LIST = "That file is not a valid client list, so nothing was restored.";
     /** Backups are written and read in the same folder. */
     public static final Path BACKUP_DIR = Paths.get("data", "backup");
+    private static final Logger logger = LogsCenter.getLogger(RestoreCommand.class);
+
     /** Characters Windows forbids in a file name, rejected on every platform so the result is the same. */
     private static final String ILLEGAL_NAME_CHARACTERS = "<>:\"|?*";
 
@@ -61,6 +65,7 @@ public class RestoreCommand extends Command {
         if (!Files.exists(source)) {
             throw new CommandException(String.format(MESSAGE_MISSING, fileName));
         }
+        logger.fine(() -> "Reading backup " + source);
         Optional<ReadOnlyAddressBook> read;
         try {
             read = new JsonAddressBookStorage(source).readAddressBook();
@@ -70,9 +75,11 @@ public class RestoreCommand extends Command {
         if (read.isEmpty()) {
             throw new CommandException(MESSAGE_NOT_A_LIST);
         }
+        assert read.isPresent() : "an absent or empty read was rejected above";
         model.setAddressBook(read.get());
         model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
         int count = model.getAddressBook().getPersonList().size();
+        logger.info(() -> "Restored " + count + " clients from " + fileName);
         return new CommandResult(String.format(MESSAGE_SUCCESS, count, fileName));
     }
 
