@@ -25,7 +25,8 @@ public class RestoreCommand extends Command {
     public static final String COMMAND_WORD = "restore";
     public static final String MESSAGE_USAGE = "restore f/FILE";
     public static final String MESSAGE_SUCCESS = "Restored %1$d clients from %2$s";
-    public static final String MESSAGE_MISSING = "No backup file named %1$s in the data folder.";
+    public static final String MESSAGE_MISSING = "No backup named %1$s in data/backup. "
+            + "Backup names end in .json, for example f/before-july.json.";
     public static final String MESSAGE_NOT_A_LIST = "That file is not a valid client list, so nothing was restored.";
     /** Backups are written and read in the same folder. */
     public static final Path BACKUP_DIR = Paths.get("data", "backup");

@@ -73,7 +73,7 @@ public class RestoreCommandTest {
         CommandException thrown = assertThrows(CommandException.class, () ->
                 new RestoreCommand("absent.json", dir).execute(model));
 
-        assertEquals("No backup file named absent.json in the data folder.", thrown.getMessage());
+        assertEquals(String.format(RestoreCommand.MESSAGE_MISSING, "absent.json"), thrown.getMessage());
         assertEquals(canUndoBefore, model.canUndoAddressBook());
     }
 
@@ -113,7 +113,7 @@ public class RestoreCommandTest {
         Model model = newModel();
         CommandException thrown = assertThrows(CommandException.class, () ->
                 new RestoreCommand("../addressbook.json", tempDir).execute(model));
-        assertEquals("No backup file named ../addressbook.json in the data folder.", thrown.getMessage());
+        assertEquals(String.format(RestoreCommand.MESSAGE_MISSING, "../addressbook.json"), thrown.getMessage());
     }
 
     @Test
