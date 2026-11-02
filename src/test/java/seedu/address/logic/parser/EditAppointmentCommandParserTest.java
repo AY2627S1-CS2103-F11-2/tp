@@ -1,6 +1,7 @@
 package seedu.address.logic.parser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 
@@ -15,6 +16,14 @@ import seedu.address.logic.parser.exceptions.ParseException;
 
 public class EditAppointmentCommandParserTest {
     private final EditAppointmentCommandParser parser = new EditAppointmentCommandParser();
+
+    @Test
+    public void parse_displayedReferences_accepted() throws Exception {
+        assertNotNull(parser.parse(" A1 loc/NUS"));
+        assertNotNull(parser.parse(" 1 c/C2"));
+        assertNotNull(parser.parse(" 1 c/c2"));
+        assertNotNull(parser.parse(" 1 c/2"));
+    }
 
     @Test
     public void parse_validInput_preservesLocationAndRoutesCommand() throws Exception {
@@ -48,8 +57,8 @@ public class EditAppointmentCommandParserTest {
     @Test
     public void parse_invalidInput_rejects() {
         for (String args : new String[]{"", "1", "1 loc/", "1 loc/   ", "1 loc/\u2003",
-            "A1 loc/NUS", "0 loc/NUS", "-1 loc/NUS", "2147483648 loc/NUS", "1 extra loc/NUS",
-            "1 x/NUS", "1 c/", "1 c/C1", "1 c/0", "1 c/2147483648", "1 n/", "1 n/Name!",
+            "0 loc/NUS", "-1 loc/NUS", "2147483648 loc/NUS", "1 extra loc/NUS",
+            "1 x/NUS", "1 c/", "1 c/0", "1 c/2147483648", "1 n/", "1 n/Name!",
             "1 n/" + "A".repeat(81), "1 loc/" + "A".repeat(101), "1 d/", "1 d/2026-02-30 10:00"}) {
             assertThrows(ParseException.class, () -> parser.parse(args), args);
         }

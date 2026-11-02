@@ -63,13 +63,21 @@ public class EditAppointmentCommandParser implements Parser<EditAppointmentComma
         }
     }
 
+    /** Parses a displayed reference, accepting the prefix shown in the list, such as A1 or C2. */
     private Index parseDisplayedIndex(String value, String kind) throws ParseException {
-        String message = "The " + kind + " index provided is invalid. Use a positive integer from the displayed list.";
-        if (!value.matches("[0-9]+")) {
+        char prefix = "client".equals(kind) ? 'C' : 'A';
+        String example = prefix + "1";
+        String message = "The " + kind + " reference provided is invalid. Use the reference shown in "
+                + "the list, for example " + example + ", or its position.";
+        String digits = value.trim();
+        if (digits.length() > 1 && Character.toUpperCase(digits.charAt(0)) == prefix) {
+            digits = digits.substring(1);
+        }
+        if (!digits.matches("[0-9]+")) {
             throw new ParseException(message);
         }
         try {
-            return ParserUtil.parseIndex(value);
+            return ParserUtil.parseIndex(digits);
         } catch (ParseException e) {
             throw new ParseException(message, e);
         }
