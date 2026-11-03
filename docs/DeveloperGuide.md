@@ -841,8 +841,8 @@ Use a fresh, writable test folder. Run these steps in order; `clear` removes all
    Run `list`: both clients reappear.
 
 3. Run `search n/Bob`, then `edit 1 p/93456789 e/`.<br>
-   Expected: Bob's phone changes and his email becomes `Not provided`. Both clients reappear because editing
-   clears the client search. Bob keeps his permanent Client ID, and Alice is unchanged.
+   Expected: Bob's phone changes and his email becomes `Not provided`. The name search stays active, so only
+   Bob remains visible. Bob keeps his permanent Client ID, and Alice remains unchanged and hidden.
 
 4. Try `add n/bob lim p/94567890 a/Bedok y/tenant`, `edit 99 p/94567890`, and
    `add n/Carol p/+6591234567 a/Bedok y/tenant`.<br>

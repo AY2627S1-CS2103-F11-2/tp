@@ -145,8 +145,9 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [y/TYPE] [t/TAG]…
   **not** its permanent Client ID. For example, `Position C1` means index `1`. The index **must be a positive integer** 1, 2, 3, …​
   For example, `edit 1 n/Alice` edits the first visible row even if the Client ID in their details is `C8`.
   Editing retains the client's stable ID; changing the name may move the card in the alphabetically sorted list.
-* A successful edit clears the client search and shows all clients again. Check the current card positions
-  before using another command that refers to a client by position.
+* A successful edit keeps the current client search active. If the updated name, phone or type no longer
+  matches that search, the client disappears from the results but remains saved. Run `list` to show all clients.
+  Check the current card positions before using another command that refers to a client by position.
 * At least one of the optional fields must be provided.
 * Existing values will be updated to the input values.
 * Edited names follow the same validation, space normalization and case-insensitive duplicate rules as
