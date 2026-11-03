@@ -25,17 +25,17 @@ public class DeleteCommandParser implements Parser<DeleteCommand> {
      */
     public DeleteCommand parse(String args) throws ParseException {
         requireNonNull(args);
+        String clientId = args.trim();
+        if (!clientId.matches("C[1-9][0-9]*")) {
+            throw new ParseException(
+                    String.format(MESSAGE_INVALID_COMMAND_FORMAT, DeleteCommand.MESSAGE_USAGE));
+        }
         try {
-            String clientId = args.trim();
-            if (!clientId.matches("C[1-9][0-9]*")) {
-                throw new ParseException(ParserUtil.MESSAGE_INVALID_INDEX);
-            }
             Index index = ParserUtil.parseIndex(clientId.substring(1));
             return new DeleteCommand(index);
         } catch (ParseException pe) {
-            logger.fine("Client deletion rejected: invalid command arguments.");
-            throw new ParseException(
-                    String.format(MESSAGE_INVALID_COMMAND_FORMAT, DeleteCommand.MESSAGE_USAGE), pe);
+            logger.fine("Client deletion rejected: invalid client reference.");
+            throw new ParseException(DeleteCommand.MESSAGE_INVALID_CLIENT_DISPLAYED_INDEX, pe);
         }
     }
 

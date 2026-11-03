@@ -17,6 +17,13 @@ title: Developer Guide
   [Gradle](https://gradle.org/) with the [Shadow plugin](https://github.com/GradleUp/shadow) for the build and the
   fat JAR, and [Checkstyle](https://checkstyle.sourceforge.io/) for the coding standard checks.
 
+**Notable uses of AI:**
+
+* @JackyJiangCS used OpenAI Codex extensively to generate and refine most of the code for their contributions,
+  including client deletion, appointment editing, and related input validation and error handling.
+  Codex also assisted with writing and updating automated tests, debugging, and drafting and revising
+  related User Guide and Developer Guide content, including UML diagrams.
+
 --------------------------------------------------------------------------------------------------------------------
 
 ## **Setting up, getting started**

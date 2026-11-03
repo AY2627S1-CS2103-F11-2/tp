@@ -35,9 +35,16 @@ public class DeleteCommandParserTest {
     public void parse_invalidArgs_throwsParseException() {
         String expectedMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT, DeleteCommand.MESSAGE_USAGE);
         String[] invalidArgs = {"", " ", "1", "C", "C0", "C-2", "C3.5", "Cabc", "C+1", "c1",
-            "C 1", "C\t1", "C1 extra", "C1 C2", "C1 n/Alice", "C2147483648", "C99999999999999999999"};
+            "C 1", "C\t1", "C1 extra", "C1 C2", "C1 n/Alice"};
         for (String args : invalidArgs) {
             assertParseFailure(parser, args, expectedMessage);
+        }
+    }
+
+    @Test
+    public void parse_oversizedReference_reportsInvalidClientReference() {
+        for (String reference : new String[]{"C2147483648", "C999999999999999999999999"}) {
+            assertParseFailure(parser, reference, DeleteCommand.MESSAGE_INVALID_CLIENT_DISPLAYED_INDEX);
         }
     }
 

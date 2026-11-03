@@ -27,7 +27,7 @@ public class DeleteCommand extends Command {
 
     public static final String MESSAGE_DELETE_PERSON_SUCCESS = "Deleted Client: %1$s";
     public static final String MESSAGE_INVALID_CLIENT_DISPLAYED_INDEX =
-            "The client index provided is invalid. Choose a client from the currently displayed list.";
+            "The client reference is invalid. Use the position shown in the current client list, for example C1.";
 
     private static final Logger logger = LogsCenter.getLogger(DeleteCommand.class);
 
