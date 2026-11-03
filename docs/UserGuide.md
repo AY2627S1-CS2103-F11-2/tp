@@ -90,6 +90,8 @@ Format: `add n/NAME p/PHONE_NUMBER a/ADDRESS y/TYPE [e/EMAIL] [t/TAG]…​`
   each count as one character.
 * Blank, punctuation-only, non-printable and overlong names are rejected with
   `Name must contain 1-100 characters and at least one letter or digit.` No client is added.
+* `PHONE_NUMBER` must contain at least three digits, without spaces, `+` or `-`.
+  For example, enter `6591234567` instead of `+65 9123 4567`. The same rule applies to `edit` and `search`.
 * `TYPE` must be `buyer`, `seller`, `landlord` or `tenant`, in lowercase.
 * Email is optional. Omit the entire `e/EMAIL` field if the client's email is unknown.
   The client card and details panel show `Not provided`, and the email remains absent after saving and reopening the app.
@@ -143,6 +145,8 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [y/TYPE] [t/TAG]…
   **not** its permanent Client ID. For example, `Position C1` means index `1`. The index **must be a positive integer** 1, 2, 3, …​
   For example, `edit 1 n/Alice` edits the first visible row even if the Client ID in their details is `C8`.
   Editing retains the client's stable ID; changing the name may move the card in the alphabetically sorted list.
+* A successful edit clears the client search and shows all clients again. Check the current card positions
+  before using another command that refers to a client by position.
 * At least one of the optional fields must be provided.
 * Existing values will be updated to the input values.
 * Edited names follow the same validation, space normalization and case-insensitive duplicate rules as
@@ -165,7 +169,9 @@ Finds clients whose names contain all the given keywords.
 
 Format: `search [n/NAME] [p/PHONE_NUMBER] [y/TYPE]`
 
-* `n/` specifies the name to search for. The search is case-insensitive and matches full words in the client's name
+* `n/` specifies the name to search for. The search is case-insensitive and matches full words in the client's name.
+  All supplied name keywords must match. The entire search value follows the same 1–100-character rule
+  as a client name, after spaces are normalized.
 * `p/` specifies the phone number to search for. The phone number must match exactly
 * `y/` specifies the client type to search for. Valid types are `buyer`, `seller`, `tenant` and `landlord`, **in lowercase ONLY**
 * Search requires at least one parameter and supports any combination of name, phone number, and client type parameters, including all three

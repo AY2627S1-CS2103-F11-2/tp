@@ -813,7 +813,37 @@ testers are expected to do more *exploratory* testing.
    1. Relaunch the app with `java -jar proptrack.jar`.<br>
        Expected: The most recent window size and location are retained.
 
-1. _{ more test cases …​ }_
+### Adding, listing, editing and searching clients
+
+Use a fresh, writable test folder. Run these steps in order; `clear` removes all clients and appointments.
+
+1. Set up two clients:
+
+   ```text
+   clear
+   add n/Alice Tan p/91234567 a/Clementi y/buyer
+   add n/Bob Lim p/92345678 e/bob@example.com a/Tampines y/seller
+   list
+   ```
+
+   Expected: Two clients appear alphabetically at positions `C1` and `C2`. Alice's email is `Not provided`.
+   Record their permanent Client IDs; these remain unchanged by the following searches and edits.
+
+2. Run `search n/Alice y/buyer`, then `search p/92345678`, then `search n/Alice Lim`.<br>
+   Expected: Alice alone, Bob alone, then no clients. Name keywords must all match the same client.
+   Run `list`: both clients reappear.
+
+3. Run `search n/Bob`, then `edit 1 p/93456789 e/`.<br>
+   Expected: Bob's phone changes and his email becomes `Not provided`. Both clients reappear because editing
+   clears the client search. Bob keeps his permanent Client ID, and Alice is unchanged.
+
+4. Try `add n/bob lim p/94567890 a/Bedok y/tenant`, `edit 99 p/94567890`, and
+   `add n/Carol p/+6591234567 a/Bedok y/tenant`.<br>
+   Expected: Duplicate name, invalid position, and invalid phone errors respectively. Neither client changes.
+
+5. Run `undo`, then `redo`.<br>
+   Expected: Undo restores Bob's original phone and email together; redo reapplies the edit. The rejected
+   commands did not add history entries. The full client list is displayed after each command.
 
 ### Deleting a client
 
@@ -912,14 +942,52 @@ clients and appointments. Run the steps in order and keep the same folder when r
 
 ### Editing appointments
 
-Follow the [five-field appointment edit smoke test](Testing.md#appointment-edit-smoke-test). It exercises a
-combined edit, clearing notes, preserving duration, filter changes, undo/redo, unchanged input, schedule
-conflicts and save/restart behavior. Use numeric displayed positions for both `editappt` and its `c/` field.
+For a complete sequence covering combined edits, no-op edits and conflicts, follow the
+[five-field appointment edit smoke test](Testing.md#appointment-edit-smoke-test).
+Both numeric displayed positions and card references are accepted, for example `editappt A1 loc/NUS`
+and `editappt 1 c/C2`. References always resolve against the currently displayed lists.
+
+### Backing up, clearing and restoring data
+
+Use a separate, fresh, writable test folder so `manual-testing.json` does not already exist.
+
+1. Run the following setup and backup commands:
+
+   ```text
+   clear
+   add n/Alice Tan p/91234567 a/Clementi y/buyer
+   appointment n/Viewing c/C1 loc/NUS s/20261105-1000 e/20261105-1100
+   backup f/manual-testing.json
+   ```
+
+   Expected: `data/backup/manual-testing.json` exists and contains the client and appointment.
+   Both lists remain unchanged by the backup.
+
+2. Run `backup f/manual-testing.json` again, then `restore f/missing-manual-testing.json`.<br>
+   Expected: An existing-backup error, then a missing-backup error. Data and history remain unchanged,
+   and the existing backup is not overwritten.
+
+3. Run `clear`, then `list` and `appointments`.<br>
+   Expected: No clients or appointments remain. Run `restore f/manual-testing.json`: Alice and Viewing
+   return together, with the same client ID and appointment details.
+
+4. Run `undo`, then `redo`.<br>
+   Expected: Undo returns to the empty data from before the restore; redo restores both records.
+   Close and reopen the app: both records remain, while `undo` reports `Nothing to undo.`
 
 ### Saving data
 
-1. Dealing with missing/corrupted data files
+Use a separate, writable test folder and close the app before changing files.
 
-   1. _{Explain how to simulate missing or corrupted data files and state the expected behavior.}_
+1. Missing data file: In a fresh folder with no `data/addressbook.json`, launch the JAR.<br>
+   Expected: Six sample clients and no appointments appear. Run `edit 1 p/91234567`, close the app,
+   then reopen it. The changed phone is retained, confirming that the data was saved.
 
-1. _{ more test cases …​ }_
+2. Corrupted data file: Close the app, copy `data/addressbook.json` to `data/original.json`, then replace
+   the contents of `data/addressbook.json` with the literal text `not json`. Relaunch the app.<br>
+   Expected: Empty client and appointment lists appear, with a startup notice identifying the unreadable
+   file and its preserved `.corrupt-TIMESTAMP` copy. That copy still contains `not json`; it is not overwritten.
+
+3. Recovery: Close the app and copy the valid `data/original.json` over `data/addressbook.json`.
+   Relaunch the app.<br>
+   Expected: The six clients and the changed phone reappear. The preserved corrupted copy remains available.
