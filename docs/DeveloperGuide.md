@@ -845,12 +845,26 @@ Use a fresh, writable test folder. Run these steps in order; `clear` removes all
    clears the client search. Bob keeps his permanent Client ID, and Alice is unchanged.
 
 4. Try `add n/bob lim p/94567890 a/Bedok y/tenant`, `edit 99 p/94567890`, and
-   `add n/Carol p/+6591234567 a/Bedok y/tenant`.<br>
+   `add n/Carol p/91a234567 a/Bedok y/tenant`.<br>
    Expected: Duplicate name, invalid position, and invalid phone errors respectively. Neither client changes.
 
 5. Run `undo`, then `redo`.<br>
    Expected: Undo restores Bob's original phone and email together; redo reapplies the edit. The rejected
    commands did not add history entries. The full client list is displayed after each command.
+
+### Phone formatting and client feedback
+
+1. In a disposable, writable folder, run `clear`, then
+   `add n/Lim Ah Kow p/+65 9123 4567 a/Bedok y/buyer`.<br>
+   Expected: The stored/displayed phone is `6591234567`. Both `search p/6591234567` and
+   `search p/+65 9123 4567` find the client. `edit 1 p/9234 5678` stores `92345678` and reports `Edited client:`.
+
+2. Try adding a different client with `p/000` or a 16-digit phone.<br>
+   Expected: Validation fails; data and history stay unchanged. The 3-15-digit rule also applies to edit and search.
+
+3. Add `add n/Bob Lim p/93456789 a/NUS y/seller`, then run `list` and `edit 2 n/BOB LIM`.<br>
+   Expected: The duplicate error names Bob's permanent Client ID and original stored name, and no edit is applied.
+   `clear` reports `All clients and appointments have been cleared.`
 
 ### Deleting a client
 

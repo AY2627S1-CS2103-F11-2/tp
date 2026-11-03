@@ -21,7 +21,7 @@ import seedu.address.testutil.PersonBuilder;
 
 public class JsonAdaptedPersonTest {
     private static final String INVALID_NAME = "!!!";
-    private static final String INVALID_PHONE = "+651234";
+    private static final String INVALID_PHONE = "+65-1234";
     private static final String INVALID_ADDRESS = " ";
     private static final String INVALID_TYPE = "Investor";
     private static final String INVALID_EMAIL = "example.com";
@@ -81,6 +81,15 @@ public class JsonAdaptedPersonTest {
                 new JsonAdaptedPerson(VALID_NAME, INVALID_PHONE, VALID_EMAIL, VALID_ADDRESS, VALID_TYPE, VALID_TAGS);
         String expectedMessage = Phone.MESSAGE_CONSTRAINTS;
         assertThrows(IllegalValueException.class, expectedMessage, person::toModelType);
+    }
+
+    @Test
+    public void toModelType_overlongOrAllZeroPhone_throwsIllegalValueException() {
+        for (String phone : new String[] {"1234567890123456", "000"}) {
+            JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_NAME, phone, VALID_EMAIL,
+                    VALID_ADDRESS, VALID_TYPE, VALID_TAGS);
+            assertThrows(IllegalValueException.class, Phone.MESSAGE_CONSTRAINTS, person::toModelType);
+        }
     }
 
     @Test

@@ -106,7 +106,8 @@ public class ClientNameIdentityIntegrationTest {
             assertEquals("Name already belongs to client C1 (" + name + "). No client was added.",
                     exception.getMessage());
         } else {
-            assertEquals("This person already exists in the address book.", exception.getMessage());
+            assertEquals("Name already belongs to client C2 (Bernice Yu). No client was edited.",
+                    exception.getMessage());
         }
         assertEquals(before, model.getAddressBook());
         assertEquals(before.getNextClientId(), model.getAddressBook().getNextClientId());
