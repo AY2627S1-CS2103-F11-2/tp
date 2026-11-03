@@ -1,5 +1,6 @@
 package seedu.address.model.person;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.Assert.assertThrows;
@@ -30,12 +31,35 @@ public class PhoneTest {
         assertFalse(Phone.isValidPhone("91")); // less than 3 numbers
         assertFalse(Phone.isValidPhone("phone")); // non-numeric
         assertFalse(Phone.isValidPhone("9011p041")); // alphabets within digits
-        assertFalse(Phone.isValidPhone("9312 1534")); // spaces within digits
 
         // valid phone numbers
         assertTrue(Phone.isValidPhone("911")); // exactly 3 numbers
         assertTrue(Phone.isValidPhone("93121534"));
+        assertTrue(Phone.isValidPhone("9312 1534")); // spaces within digits
+        assertTrue(Phone.isValidPhone("+65 9312 1534"));
         assertTrue(Phone.isValidPhone("124293842033123")); // long phone numbers
+    }
+
+    @Test
+    public void isValidPhone_digitLengthAndFormattingBoundaries() {
+        for (String valid : new String[] {"101", "+1 01", "123456789012345", "+12 345 678 901 2345"}) {
+            assertTrue(Phone.isValidPhone(valid), valid);
+        }
+        for (String invalid : new String[] {"12", "+1 2", "1234567890123456", "000", "+00 000",
+            "65+91234567", "++6591234567", "9123-4567", "9123\t4567", "١٢٣", "+ 6591234567"}) {
+            assertFalse(Phone.isValidPhone(invalid), invalid);
+            assertThrows(IllegalArgumentException.class, () -> new Phone(invalid));
+        }
+    }
+
+    @Test
+    public void constructor_formattedPhone_normalizesStorageAndEquality() {
+        Phone formatted = new Phone("+65  9123 4567");
+        Phone digits = new Phone("6591234567");
+        assertEquals("6591234567", formatted.value);
+        assertEquals(digits.toString(), formatted.toString());
+        assertEquals(digits, formatted);
+        assertEquals(digits.hashCode(), formatted.hashCode());
     }
 
     @Test

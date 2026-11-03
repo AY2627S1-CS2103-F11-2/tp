@@ -90,8 +90,11 @@ Format: `add n/NAME p/PHONE_NUMBER a/ADDRESS y/TYPE [e/EMAIL] [t/TAG]…​`
   each count as one character.
 * Blank, punctuation-only, non-printable and overlong names are rejected with
   `Name must contain 1-100 characters and at least one letter or digit.` No client is added.
-* `PHONE_NUMBER` must contain at least three digits, without spaces, `+` or `-`.
-  For example, enter `6591234567` instead of `+65 9123 4567`. The same rule applies to `edit` and `search`.
+* `PHONE_NUMBER` must contain 3-15 ASCII digits and cannot consist entirely of zeros. A leading `+` and
+  spaces between digit groups are accepted, for example `+65 9123 4567` or `9123 4567`. These are stored
+  and shown as `6591234567` and `91234567`. Hyphens, letters and other formatting are rejected.
+  The same validation and normalization apply to `edit` and `search`; this checks format, not whether a
+  number is assigned or reachable.
 * `TYPE` must be `buyer`, `seller`, `landlord` or `tenant`, in lowercase.
 * Email is optional. Omit the entire `e/EMAIL` field if the client's email is unknown.
   The client card and details panel show `Not provided`, and the email remains absent after saving and reopening the app.
@@ -149,7 +152,9 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [y/TYPE] [t/TAG]…
   matches that search, the client disappears from the results but remains saved. Run `list` to show all clients.
   Check the current card positions before using another command that refers to a client by position.
 * At least one of the optional fields must be provided.
-* Existing values will be updated to the input values.
+* Existing values will be updated to the input values. Successful feedback starts with `Edited client:`.
+* A duplicate-name edit identifies the existing client, for example
+  `Name already belongs to client C2 (Bernice Yu). No client was edited.` No part of the edit is applied.
 * Edited names follow the same validation, space normalization and case-insensitive duplicate rules as
   [adding a client](#adding-a-client-add). Another client with the resulting name, even if hidden by a filter,
   prevents the edit. You can change the capitalization of the selected client's own name.
@@ -173,7 +178,8 @@ Format: `search [n/NAME] [p/PHONE_NUMBER] [y/TYPE]`
 * `n/` specifies the name to search for. The search is case-insensitive and matches full words in the client's name.
   All supplied name keywords must match. The entire search value follows the same 1–100-character rule
   as a client name, after spaces are normalized.
-* `p/` specifies the phone number to search for. The phone number must match exactly
+* `p/` specifies the phone number to search for. Digits must match exactly after removing the optional
+  leading `+` and spaces. For example, `search p/+65 9123 4567` matches a stored `6591234567`.
 * `y/` specifies the client type to search for. Valid types are `buyer`, `seller`, `tenant` and `landlord`, **in lowercase ONLY**
 * Search requires at least one parameter and supports any combination of name, phone number, and client type parameters, including all three
 * The search returns a list of clients who match the specified search criteria
@@ -349,7 +355,7 @@ Examples:
 
 ### Clearing all entries: `clear`
 
-Clears all clients and appointments from the address book.
+Clears all clients and appointments. The result is `All clients and appointments have been cleared.`
 
 Format: `clear`
 
@@ -458,6 +464,8 @@ For duplicate names, the startup notice explains that comparison ignores letter 
 To recover, close PropTrack and keep an untouched backup of the preserved file. In a separate copy, give the
 conflicting clients distinct names, keeping their IDs and array positions unchanged. Put the corrected copy
 at the original data-file path named in the notice, then restart PropTrack.<br>
+Phone numbers stored by an older version must also meet the 3-15-digit, non-all-zero rule. Back up and
+correct invalid numbers before upgrading; invalid records reject the whole file rather than being dropped.<br>
 Client `clientId` fields store stable numeric IDs; do not duplicate IDs or decrease the `nextClientId` counter.<br>
 Appointment `clientIndex` fields refer to positions in the saved client array, rather than stable client IDs.
 Reordering that array by hand without updating those references can associate appointments with the wrong clients.
